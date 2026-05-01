@@ -2176,42 +2176,46 @@ const approvedDms = safeAccounts.filter(
   };
 
   useEffect(()=>{storageSet(STORAGE_KEYS.playerId,playerId);},[playerId]);
-  useEffect(()=>{storageSet(STORAGE_KEYS.playerName,playerName);},[playerName]);
-  useEffect(()=>{
-    let unsub=null;
-    const start=()=>{unsub=authApi.listen(user=>{setAuthUser(user);setAuthReady(true);});};
-    if(window._firebaseReady)start();
-    else{
-      const onReady=()=>start();
-      window.addEventListener("firebase-ready",onReady,{once:true});
-      return()=>{
-        window.removeEventListener("firebase-ready",onReady);
-        if(typeof unsub==="function")unsub();
-      };
-    }
-    return()=>{if(typeof unsub==="function")unsub();};
-  },[]);
-  useEffect(()=>{
-    let unsub=null;
-    const start=()=>{
-      unsub=fb.listen("sessions",(data)=>{
-        const list=Object.values(data||{}).sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
-        setSessions(list);
-      });
-    };
-    if(window._firebaseReady)start();
-    else{
-      const onReady=()=>start();
-      window.addEventListener("firebase-ready",onReady,{once:true});
-      return()=>{
-        window.removeEventListener("firebase-ready",onReady);
-        if(typeof unsub==="function")unsub();
-      };
-    }
-    return()=>{if(typeof unsub==="function")unsub();};
-  },[]);
- useEffect(() => {
+useEffect(()=>{storageSet(STORAGE_KEYS.playerName,playerName);},[playerName]);
+
+useEffect(()=>{
+  let unsub=null;
+  const start=()=>{unsub=authApi.listen(user=>{setAuthUser(user);setAuthReady(true);});};
+
+  if(window._firebaseReady)start();
+  else{
+    const onReady=()=>start();
+    window.addEventListener("firebase-ready",onReady,{once:true});
+  }
+
+  return()=>{
+    if(typeof unsub==="function")unsub();
+  };
+},[]);
+
+useEffect(()=>{
+  let unsub=null;
+  const start=()=>{
+    unsub=fb.listen("sessions",(data)=>{
+      const list=Object.values(data||{}).sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
+      setSessions(list);
+    });
+  };
+
+  if(window._firebaseReady)start();
+  else{
+    const onReady=()=>start();
+    window.addEventListener("firebase-ready",onReady,{once:true});
+  }
+
+  return()=>{
+    if(typeof unsub==="function")unsub();
+  };
+},[]);
+
+useEffect(() => {
   if (!authReady) return;
+
   if (!authUser) {
     setAccounts({});
     return;
@@ -2236,66 +2240,77 @@ const approvedDms = safeAccounts.filter(
     if (typeof unsub === "function") unsub();
   };
 }, [authReady, authUser]);
-    if(window._firebaseReady)start();
-    else{
-      const onReady=()=>start();
-      window.addEventListener("firebase-ready",onReady,{once:true});
-      return()=>{
-        window.removeEventListener("firebase-ready",onReady);
-        if(typeof unsub==="function")unsub();
-      };
-    }
-    return()=>{if(typeof unsub==="function")unsub();};
-  },[authReady]);
-    const authUid = authUser ? authUser.uid : null;
-  useEffect(()=>{
-    if(!authReady||!authUser||!isOwner)return;
-    let unsub=null;
-    const start=()=>{unsub=fb.listen("accounts",data=>setAccounts(data||{}));};
-    if(window._firebaseReady)start();
-    else{
-      const onReady=()=>start();
-      window.addEventListener("firebase-ready",onReady,{once:true});
-      };
-    }
-    return()=>{if(typeof unsub==="function")unsub();};
-  },[authReady, authUser && authUser.uid, isOwner]);
-  useEffect(()=>{
-    let unsub=null;
-    const start=()=>{unsub=fb.listen("system",data=>setSystemInfo(data||{}));};
-    if(window._firebaseReady)start();
-    else{
-      const onReady=()=>start();
-      window.addEventListener("firebase-ready",onReady,{once:true});
-      return()=>{
-        window.removeEventListener("firebase-ready",onReady);
-        if(typeof unsub==="function")unsub();
-      };
-    }
-    return()=>{if(typeof unsub==="function")unsub();};
-  },[]);
-  useEffect(()=>{
-    if(!roomId||!roomData?.name)return;
-    const latest={id:roomId,name:roomData.name};
-    setLastRoom(latest);
-    storageSet(STORAGE_KEYS.lastRoomId,latest.id);
-    storageSet(STORAGE_KEYS.lastRoomName,latest.name);
-  },[roomId,roomData?.name]);
 
-  const handleAuthLogin=async({email,password})=>{
-    try{
-      await authApi.signIn(email,password);
-      notify("Sesión iniciada");
-    }catch(e){notify(friendlyAuthError(e));}
+const authUid = authUser ? authUser.uid : null;
+
+useEffect(()=>{
+  if(!authReady || !authUser || !isOwner) return;
+
+  let unsub=null;
+  const start=()=>{
+    unsub=fb.listen("accounts",data=>setAccounts(data||{}));
   };
 
-  const handleAuthRegister=async({displayName,email,password})=>{
-    try{
-      const cred=await authApi.register(email,password);
-      if(displayName.trim())await authApi.updateProfile(cred.user,{displayName:displayName.trim()});
-      notify(ownerExists?"Cuenta creada. Ahora pedí acceso DM.":"Cuenta creada. Si es tuya, reclamá el rol Owner.");
-    }catch(e){notify(friendlyAuthError(e));}
+  if(window._firebaseReady)start();
+  else{
+    const onReady=()=>start();
+    window.addEventListener("firebase-ready",onReady,{once:true});
+  }
+
+  return()=>{
+    if(typeof unsub==="function")unsub();
   };
+},[authReady, authUser, isOwner]);
+
+useEffect(()=>{
+  let unsub=null;
+  const start=()=>{
+    unsub=fb.listen("system",data=>setSystemInfo(data||{}));
+  };
+
+  if(window._firebaseReady)start();
+  else{
+    const onReady=()=>start();
+    window.addEventListener("firebase-ready",onReady,{once:true});
+  }
+
+  return()=>{
+    if(typeof unsub==="function")unsub();
+  };
+},[]);
+
+useEffect(()=>{
+  if(!roomId || !(roomData && roomData.name)) return;
+
+  const latest={id:roomId,name:roomData.name};
+  setLastRoom(latest);
+  storageSet(STORAGE_KEYS.lastRoomId,latest.id);
+  storageSet(STORAGE_KEYS.lastRoomName,latest.name);
+},[roomId, roomData && roomData.name]);
+
+const handleAuthLogin=async({email,password})=>{
+  try{
+    await authApi.signIn(email,password);
+    notify("Sesión iniciada");
+  }catch(e){
+    notify(friendlyAuthError(e));
+  }
+};
+
+const handleAuthRegister=async({displayName,email,password})=>{
+  try{
+    const cred=await authApi.register(email,password);
+    if(displayName.trim()){
+      await authApi.updateProfile(cred.user,{displayName:displayName.trim()});
+    }
+    notify(ownerExists
+      ? "Cuenta creada. Ahora pedí acceso DM."
+      : "Cuenta creada. Si es tuya, reclamá el rol Owner."
+    );
+  }catch(e){
+    notify(friendlyAuthError(e));
+  }
+};
 
   const handleAuthLogout=async()=>{
     try{
