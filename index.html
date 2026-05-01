@@ -2248,7 +2248,7 @@ useEffect(()=>{
 
   let unsub=null;
   const start=()=>{
-    unsub=fb.listen("accounts",data=>setAccounts(data||{}));
+    unsub=fb.listen("users",data=>setAccounts(data||{}));
   };
 
   if(window._firebaseReady)start();
