@@ -2559,9 +2559,19 @@ const handleAuthRegister=async({displayName,email,password})=>{
       />}
       {screen==="character"&&<CharacterCreation onComplete={completeCharacter} playerName={playerName}/>}
       {screen==="game"&&roomData&&<GameRoom roomData={roomData} character={character} playerId={playerId} authUid={authUser && authUser.uid||null} updateRoom={updateRoom} playerName={playerName} onSave={saveSession} aiLoading={aiLoading} callAI={callAI} notify={notify}/>}
-    </>
-  );
-}
+    {/* 🔥 SOLICITUDES DM */}
+{pendingDMs.length > 0 && (
+  <div style={{marginTop:20, padding:10, border:"1px solid gray"}}>
+    <h3>Solicitudes DM</h3>
+
+    {pendingDMs.map(dm => (
+      <div key={dm.uid} style={{marginBottom:8}}>
+        <div>{dm.email}</div>
+        <div>Estado: pendiente</div>
+      </div>
+    ))}
+  </div>
+)}
 
 window.addEventListener("firebase-ready", () => {
   console.log("🔥 Firebase listo, iniciando app");
