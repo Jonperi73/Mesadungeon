@@ -2532,46 +2532,72 @@ const handleAuthRegister=async({displayName,email,password})=>{
   };
 
   return(
-    <>
-      {notif&&<div className="notif">{notif}</div>}
-      {screen==="lobby"&&<Lobby
-        onCreateRoom={createRoom}
-        onJoinRoom={joinRoom}
-        sessions={sessions}
-        lastRoom={lastRoom}
-        initialName={playerName||authUser?.displayName||""}
-        authReady={controlReady}
-        authUser={authUser}
-        account={account}
-        ownerExists={ownerExists}
-        canCreateRoom={canCreateRoom}
-        onAuthLogin={handleAuthLogin}
-        onAuthRegister={handleAuthRegister}
-        onAuthLogout={handleAuthLogout}
-        onClaimOwner={handleClaimOwner}
-        onRequestDM={handleRequestDm}
-        showOwnerPanel={isOwner}
-        ownerAccount={account}
-        pendingDms={pendingDms}
-        approvedDms={approvedDms}
-        onApproveDm={handleApproveDm}
-        onRevokeDm={handleRevokeDm}
-      />}
-      {screen==="character"&&<CharacterCreation onComplete={completeCharacter} playerName={playerName}/>}
-      {screen==="game"&&roomData&&<GameRoom roomData={roomData} character={character} playerId={playerId} authUid={authUser && authUser.uid||null} updateRoom={updateRoom} playerName={playerName} onSave={saveSession} aiLoading={aiLoading} callAI={callAI} notify={notify}/>}
-    {/* 🔥 SOLICITUDES DM */}
-{pendingDMs.length > 0 && (
-  <div style={{marginTop:20, padding:10, border:"1px solid gray"}}>
-    <h3>Solicitudes DM</h3>
+  <>
+    {notif&&<div className="notif">{notif}</div>}
 
-    {pendingDMs.map(dm => (
-      <div key={dm.uid} style={{marginBottom:8}}>
-        <div>{dm.email}</div>
-        <div>Estado: pendiente</div>
-      </div>
-    ))}
-  </div>
-)}
+    {screen==="lobby"&&<Lobby
+      onCreateRoom={createRoom}
+      onJoinRoom={joinRoom}
+      sessions={sessions}
+      lastRoom={lastRoom}
+      initialName={playerName||authUser?.displayName||""}
+      authReady={controlReady}
+      authUser={authUser}
+      account={account}
+      ownerExists={ownerExists}
+      canCreateRoom={canCreateRoom}
+      onAuthLogin={handleAuthLogin}
+      onAuthRegister={handleAuthRegister}
+      onAuthLogout={handleAuthLogout}
+      onClaimOwner={handleClaimOwner}
+      onRequestDM={handleRequestDm}
+      showOwnerPanel={isOwner}
+      ownerAccount={account}
+      pendingDms={pendingDms}
+      approvedDms={approvedDms}
+      onApproveDm={handleApproveDm}
+      onRevokeDm={handleRevokeDm}
+    />}
+
+    {screen==="character"&&(
+      <CharacterCreation 
+        onComplete={completeCharacter} 
+        playerName={playerName}
+      />
+    )}
+
+    {screen==="game"&&roomData&&(
+      <>
+        <GameRoom 
+          roomData={roomData} 
+          character={character} 
+          playerId={playerId} 
+          authUid={(authUser && authUser.uid)||null} 
+          updateRoom={updateRoom} 
+          playerName={playerName} 
+          onSave={saveSession} 
+          aiLoading={aiLoading} 
+          callAI={callAI} 
+          notify={notify}
+        />
+
+        {/* 🔥 SOLICITUDES DM */}
+        {pendingDMs.length > 0 && (
+          <div style={{marginTop:20, padding:10, border:"1px solid gray"}}>
+            <h3>Solicitudes DM</h3>
+
+            {pendingDMs.map((dm,i) => (
+              <div key={i} style={{marginBottom:8}}>
+                <div>{dm.email}</div>
+                <div>Estado: pendiente</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </>
+    )}
+  </>
+);
 
 window.addEventListener("firebase-ready", () => {
   console.log("🔥 Firebase listo, iniciando app");
