@@ -2243,7 +2243,7 @@ const approvedDms = safeAccounts.filter(
       };
     }
     return()=>{if(typeof unsub==="function")unsub();};
-  },[authReady,authUser?.uid,isOwner]);
+  },[authReady, authUser && authUser.uid, isOwner]);
   useEffect(()=>{
     let unsub=null;
     const start=()=>{unsub=fb.listen("system",data=>setSystemInfo(data||{}));};
@@ -2446,12 +2446,12 @@ const approvedDms = safeAccounts.filter(
         const [oldId,oldPlayer]=recoveredEntry;
         const reclaimedPlayers={...players};
         delete reclaimedPlayers[oldId];
-        reclaimedPlayers[playerId]={...oldPlayer,id:playerId,name:safeName,authUid:oldPlayer.authUid||authUser?.uid||null,connected:true};
+        reclaimedPlayers[playerId]={...oldPlayer,id:playerId,name:safeName,authUid:oldPlayer.authUid||authUser && authUser.uid||null,connected:true};
         const reclaimed=normalizeRoom({
           ...data,
           hostId:data.hostId===oldId?playerId:data.hostId,
           dmPlayerId:data.dmPlayerId===oldId?playerId:data.dmPlayerId,
-          dmUid:data.dmUid||authUser?.uid||null,
+          dmUid:data.dmUid||authUser && authUser.uid||null,
           players:reclaimedPlayers,
           messages:[...(data.messages||[]),{id:Date.now(),t:"sys",text:`↩ ${safeName} volvió a la partida.`,ts:Date.now()}],
           lastActivityAt:Date.now(),
@@ -2466,7 +2466,7 @@ const approvedDms = safeAccounts.filter(
       }
       if(Object.keys(players).length>=10){notify("Sala llena (máx. 10)");return;}
       const updated=normalizeRoom({...data,
-        players:{...players,[playerId]:{id:playerId,authUid:authUser?.uid||null,name:safeName,isHost:false,isDM:false,character:null,connected:true}},
+        players:{...players,[playerId]:{id:playerId,authUid:authUser && authUser.uid||null,name:safeName,isHost:false,isDM:false,character:null,connected:true}},
         messages:[...(data.messages||[]),{id:Date.now(),t:"sys",text:`⚔ ${safeName} se unió a la aventura.`,ts:Date.now()}],
         lastActivityAt:Date.now(),
       });
@@ -2524,7 +2524,7 @@ const approvedDms = safeAccounts.filter(
         onRevokeDm={handleRevokeDm}
       />}
       {screen==="character"&&<CharacterCreation onComplete={completeCharacter} playerName={playerName}/>}
-      {screen==="game"&&roomData&&<GameRoom roomData={roomData} character={character} playerId={playerId} authUid={authUser?.uid||null} updateRoom={updateRoom} playerName={playerName} onSave={saveSession} aiLoading={aiLoading} callAI={callAI} notify={notify}/>}
+      {screen==="game"&&roomData&&<GameRoom roomData={roomData} character={character} playerId={playerId} authUid={authUser && authUser.uid||null} updateRoom={updateRoom} playerName={playerName} onSave={saveSession} aiLoading={aiLoading} callAI={callAI} notify={notify}/>}
     </>
   );
 }
