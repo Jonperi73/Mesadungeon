@@ -2228,7 +2228,8 @@ const approvedDms = safeAccounts.filter(
       };
     }
     return()=>{if(typeof unsub==="function")unsub();};
-  },[authReady, authUser && authUser.uid]);
+  },[authReady]);
+    const authUid = authUser ? authUser.uid : null;
   useEffect(()=>{
     if(!authReady||!authUser||!isOwner)return;
     let unsub=null;
