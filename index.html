@@ -2140,6 +2140,9 @@ function App() {
   const [authReady,setAuthReady]=useState(false);
   const [authUser,setAuthUser]=useState(null);
   const [accounts,setAccounts]=useState(null);
+  const pendingDMs = Object.values(accounts || {}).filter(
+  acc => acc.role === "dm" && acc.status === "pending"
+);
   const [systemInfo,setSystemInfo]=useState(null);
   console.log("DEBUG:", {
     authReady,
