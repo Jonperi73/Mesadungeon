@@ -2165,6 +2165,7 @@ function App() {
 const pendingDms = safeAccounts.filter(
   acc => acc.role === DM_ROLE && acc.status === STATUS_PENDING
 );
+  console.log("PENDING REAL:", pendingDMs);
 
 const approvedDms = safeAccounts.filter(
   acc => acc.role === DM_ROLE && acc.status === STATUS_APPROVED
