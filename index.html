@@ -2210,14 +2210,32 @@ const approvedDms = safeAccounts.filter(
     }
     return()=>{if(typeof unsub==="function")unsub();};
   },[]);
-  useEffect(()=>{
-    if(!authReady)return;
-    if(!authUser){setAccounts({});return;}
-    let unsub=null;
-    const start=()=>{
-      unsub = fb.listen(`users`, (data)=>{
-  setAccounts(data || {});
-});
+ useEffect(() => {
+  if (!authReady) return;
+  if (!authUser) {
+    setAccounts({});
+    return;
+  }
+
+  let unsub = null;
+
+  const start = () => {
+    unsub = fb.listen("users", (data) => {
+      setAccounts(data || {});
+    });
+  };
+
+  if (window._firebaseReady) {
+    start();
+  } else {
+    const onReady = () => start();
+    window.addEventListener("firebase-ready", onReady, { once: true });
+  }
+
+  return () => {
+    if (typeof unsub === "function") unsub();
+  };
+}, [authReady, authUser]);
     if(window._firebaseReady)start();
     else{
       const onReady=()=>start();
