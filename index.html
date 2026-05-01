@@ -2238,9 +2238,6 @@ const approvedDms = safeAccounts.filter(
     else{
       const onReady=()=>start();
       window.addEventListener("firebase-ready",onReady,{once:true});
-      return()=>{
-        window.removeEventListener("firebase-ready",onReady);
-        if(typeof unsub==="function")unsub();
       };
     }
     return()=>{if(typeof unsub==="function")unsub();};
