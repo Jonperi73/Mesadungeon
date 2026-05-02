@@ -1930,7 +1930,7 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
   );
 };
 
-const OwnerPanel = ({ ownerAccount, pendingDms, approvedDms, sessions, onApproveDm, onRevokeDm }) => {
+const OwnerPanel = ({ ownerAccount, pendingDms, approvedDMs, sessions, onApproveDm, onRevokeDm }) => {
   const activeRoomsFor=(uid)=>(sessions||[]).filter(s=>s.dmUid===uid&&(s.lifecycleStatus||"active")==="active").length;
   return(
     <div className="card" style={{padding:18,marginTop:18}}>
