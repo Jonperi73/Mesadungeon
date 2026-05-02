@@ -2198,12 +2198,7 @@ useEffect(()=>{
   let unsub=null;
 
   const start=()=>{
-    unsub = authApi.listen(async (user) => {
-      if (!user) {
-        await authApi.signInAnonymously();
-        return;
-      }
-
+    unsub = authApi.listen(user=>{
       setAuthUser(user);
       setAuthReady(true);
     });
@@ -2220,6 +2215,15 @@ useEffect(()=>{
   };
 },[]);
 
+  useEffect(() => {
+  if (!authReady) return;
+
+  if (!authUser) {
+    console.log("🔥 creando usuario anonimo...");
+    authApi.signInAnonymously();
+  }
+}, [authReady, authUser]);
+  
 useEffect(() => {
   if (!authReady) return;
 
