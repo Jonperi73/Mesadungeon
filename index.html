@@ -2080,7 +2080,7 @@ const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSe
     
 
 // ─── LOBBY ────────────────────────────────────────────────────
-const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm }) => {
+const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm, onPlayerLogin, onPlayerRegister }) => {
   const [pname,setPname]=useState(initialName||"");
   const [code,setCode]=useState("");
   const [roomName,setRoomName]=useState("");
