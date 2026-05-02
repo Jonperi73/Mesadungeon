@@ -110,51 +110,67 @@ const fb = {
     const snap = await window._fbGet(window._fbRef(window._fbDb, path));
     return snap.exists() ? snap.val() : null;
   },
-  update: (path, val) => window._fbUpdate(window._fbRef(window._fbDb, path), val),
-  listen: (path, cb) => window._fbOnValue(window._fbRef(window._fbDb, path), snap => cb(snap.exists() ? snap.val() : null)),
-  push: (path, val) => window._fbPush(window._fbRef(window._fbDb, path), val),
+  update: (path, val) =>
+    window._fbUpdate(window._fbRef(window._fbDb, path), val),
+  listen: (path, cb) =>
+    window._fbOnValue(
+      window._fbRef(window._fbDb, path),
+      (snap) => cb(snap.exists() ? snap.val() : null)
+    ),
+  push: (path, val) =>
+    window._fbPush(window._fbRef(window._fbDb, path), val),
 };
+
 const authApi = {
   current: () => window._fbAuth?.currentUser || null,
   listen: (cb) => window._fbOnAuthStateChanged(window._fbAuth, cb),
-  signIn: (email, password) => window._fbSignIn(window._fbAuth, email, password),
-  signInAnonymously: () => window._fbSignInAnonymously(window._fbAuth),
-  signOut: () => window._fbSignOut(window._fbAuth),
-  updateProfile: (user, data) => window._fbUpdateProfile(user, data),
-};
+
+  signIn: (email, password) =>
+    window._fbSignIn(window._fbAuth, email, password),
+
+  signInAnonymously: () =>
+    window._fbSignInAnonymously(window._fbAuth),
+
   register: async (email, password, displayName) => {
-    const cred = await window._fbCreateUser(window._fbAuth, email, password);
-    const user = cred.user;
+    try {
+      const cred = await window._fbCreateUser(window._fbAuth, email, password);
+      const user = cred.user;
 
-    const snap = await window._fbGet(
-      window._fbRef(window._fbDb, "accounts")
-    );
-    const accounts = snap.exists() ? snap.val() : null;
+      const snap = await window._fbGet(
+        window._fbRef(window._fbDb, "accounts")
+      );
+      const accounts = snap.exists() ? snap.val() : null;
 
-    const isFirstUser = !accounts || Object.keys(accounts).length === 0;
+      const isFirstUser =
+        !accounts || Object.keys(accounts).length === 0;
 
-    const role = isFirstUser ? "owner" : "dm";
-    const status = isFirstUser ? "approved" : "pending";
+      const role = isFirstUser ? "owner" : "dm";
+      const status = isFirstUser ? "approved" : "pending";
 
-    await window._fbSet(
-      window._fbRef(window._fbDb, `users/${user.uid}`),
-      {
-        uid: user.uid,
-        email: user.email,
-        displayName: displayName || "",
-        role,
-        status,
-        requestedAt: Date.now(),
-        approvedAt: isFirstUser ? Date.now() : null,
-      }
-    );
+      await window._fbSet(
+        window._fbRef(window._fbDb, `users/${user.uid}`),
+        {
+          uid: user.uid,
+          email: user.email,
+          displayName: displayName || "",
+          role,
+          status,
+          requestedAt: Date.now(),
+          approvedAt: isFirstUser ? Date.now() : null,
+        }
+      );
 
-    return user;
-    },
- 
+      return user;
+    } catch (err) {
+      console.error("Error en registro:", err);
+      throw err;
+    }
+  },
 
   signOut: () => window._fbSignOut(window._fbAuth),
-  updateProfile: (user, data) => window._fbUpdateProfile(user, data),
+
+  updateProfile: (user, data) =>
+    window._fbUpdateProfile(user, data),
 };
 
 // ─── GLOBAL STYLES ───────────────────────────────────────────
