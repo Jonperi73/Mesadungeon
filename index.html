@@ -89,7 +89,7 @@ window._registerUser = async (email, password, displayName) => {
     console.error("Error en registro:", err);
     throw err;
   }
-};
+},
   </script>
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -150,6 +150,7 @@ const authApi = {
     );
 
     return user;
+    },
  
 
   signOut: () => window._fbSignOut(window._fbAuth),
