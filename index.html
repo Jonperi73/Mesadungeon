@@ -118,7 +118,8 @@ const authApi = {
   current: () => window._fbAuth?.currentUser || null,
   listen: (cb) => window._fbOnAuthStateChanged(window._fbAuth, cb),
   signIn: (email, password) => window._fbSignIn(window._fbAuth, email, password),
-
+  signInAnonymously: () => window._fbSignInAnonymously(window._fbAuth),
+};
   register: async (email, password, displayName) => {
     const cred = await window._fbCreateUser(window._fbAuth, email, password);
     const user = cred.user;
