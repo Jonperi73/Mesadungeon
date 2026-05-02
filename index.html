@@ -2245,25 +2245,6 @@ useEffect(() => {
 const authUid = authUser ? authUser.uid : null;
 
 useEffect(()=>{
-  if(!authReady || !authUser || !isOwner) return;
-
-  let unsub=null;
-  const start=()=>{
-    unsub=fb.listen("users",data=>setAccounts(data||{}));
-  };
-
-  if(window._firebaseReady)start();
-  else{
-    const onReady=()=>start();
-    window.addEventListener("firebase-ready",onReady,{once:true});
-  }
-
-  return()=>{
-    if(typeof unsub==="function")unsub();
-  };
-},[authReady, authUser, isOwner]);
-
-useEffect(()=>{
   let unsub=null;
   const start=()=>{
     unsub=fb.listen("system",data=>setSystemInfo(data||{}));
