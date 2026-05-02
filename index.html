@@ -2681,6 +2681,8 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       approvedDMs={approvedDMs}
       onApproveDm={handleApproveDm}
       onRevokeDm={handleRevokeDm}
+      onPlayerLogin={handlePlayerLogin}
+      onPlayerRegister={handlePlayerRegister}                   
     />}
 
     {screen==="character"&&(
