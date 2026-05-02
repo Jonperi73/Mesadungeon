@@ -2196,14 +2196,20 @@ useEffect(()=>{
 
 useEffect(()=>{
   let unsub=null;
+
   const start=()=>{
-    unsub=fb.listen("sessions",(data)=>{
-      const list=Object.values(data||{}).sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
-      setSessions(list);
+    unsub = authApi.listen(async (user) => {
+      if (!user) {
+        await authApi.signInAnonymously();
+        return;
+      }
+
+      setAuthUser(user);
+      setAuthReady(true);
     });
   };
 
-  if(window._firebaseReady)start();
+  if(window._firebaseReady) start();
   else{
     const onReady=()=>start();
     window.addEventListener("firebase-ready",onReady,{once:true});
