@@ -2162,7 +2162,7 @@ function App() {
   const canCreateRoom=isOwner||isApprovedDm;
  const safeAccounts = Object.values(accounts || {}).filter(Boolean);
 
-const pendingDms = safeAccounts.filter(
+const pendingDMs = safeAccounts.filter(
   acc => acc.role === DM_ROLE && acc.status === STATUS_PENDING
 );
   console.log("PENDING REAL:", pendingDMs);
