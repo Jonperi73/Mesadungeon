@@ -138,7 +138,7 @@ const authApi = {
       const user = cred.user;
 
       const snap = await window._fbGet(
-        window._fbRef(window._fbDb, "users")
+        window._fbRef(window._fbDb, 'users')
       );
       const accounts = snap.exists() ? snap.val() : null;
 
