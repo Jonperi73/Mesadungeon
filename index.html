@@ -138,7 +138,7 @@ const authApi = {
       const user = cred.user;
 
       const snap = await window._fbGet(
-        window._fbRef(window._fbDb, "accounts")
+        window._fbRef(window._fbDb, ""users"")
       );
       const accounts = snap.exists() ? snap.val() : null;
 
@@ -2005,6 +2005,79 @@ const OwnerPanel = ({ ownerAccount, pendingDMs = [], approvedDMs = [], sessions,
     </div>
   );
 };
+const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSetName }) => {
+  const [tab, setTab] = useState("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [working, setWorking] = useState(false);
+
+  const isPlayer = account?.role === "player" && account?.status === "approved";
+  const isOwnerOrDm = account?.role === "owner" || account?.role === "dm";
+
+  if (isOwnerOrDm) return null;
+
+  const submitLogin = async () => {
+    if (!email.trim() || !password) return;
+    setWorking(true);
+    try { await onLogin({ email: email.trim(), password }); }
+    finally { setWorking(false); }
+  };
+
+  const submitRegister = async () => {
+    if (!displayName.trim() || !email.trim() || password.length < 6) return;
+    setWorking(true);
+    try { await onRegister({ displayName: displayName.trim(), email: email.trim(), password }); }
+    finally { setWorking(false); }
+  };
+
+  if (authUser && isPlayer) {
+    return (
+      <div className="card" style={{ padding: 14, marginBottom: 18, borderColor: "rgba(201,168,76,.35)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontFamily: "Cinzel,serif", fontSize: 13, color: "var(--gold)" }}>⚔ Jugador conectado</div>
+            <div style={{ fontSize: 12, color: "var(--text)" }}>{account?.displayName || authUser.displayName}</div>
+            <div style={{ fontSize: 11, color: "var(--muted)" }}>{authUser.email}</div>
+          </div>
+          <button className="btn btn-sm" onClick={onLogout}>Salir</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (authUser && !account) {
+    return null;
+  }
+
+  return (
+    <div className="card" style={{ padding: 18, marginBottom: 18 }}>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontFamily: "Cinzel,serif", fontSize: 14, color: "var(--gold)" }}>⚔ Acceso Jugadores</div>
+        <div style={{ fontSize: 12, color: "var(--muted)" }}>Creá tu cuenta para guardar tu progreso entre sesiones.</div>
+      </div>
+      <div style={{ display: "flex", background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: 3, marginBottom: 12, padding: 2 }}>
+        {[["login", "Ingresar"], ["register", "Registrarse"]].map(([id, label]) => (
+          <button key={id} className={`tab${tab === id ? " act" : ""}`} style={{ flex: 1 }} onClick={() => setTab(id)}>{label}</button>
+        ))}
+      </div>
+      {tab === "login"
+        ? <div className="auth-grid">
+            <input className="inp" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+            <input className="inp" type="password" placeholder="Contraseña" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && submitLogin()} />
+            <button className="btn btn-r" disabled={working || !email.trim() || !password} onClick={submitLogin}>Entrar</button>
+          </div>
+        : <div className="auth-grid">
+            <input className="inp" placeholder="Tu nombre de aventurero" value={displayName} onChange={e => setDisplayName(e.target.value)} />
+            <input className="inp" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+            <input className="inp" type="password" placeholder="Contraseña (mín. 6)" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && submitRegister()} />
+            <button className="btn btn-r" disabled={working || !displayName.trim() || !email.trim() || password.length < 6} onClick={submitRegister}>Crear cuenta</button>
+            <div className="auth-meta">Tu cuenta guarda tu nombre, partidas y personajes automáticamente.</div>
+          </div>}
+    </div>
+  );
+};
+    
 
 // ─── LOBBY ────────────────────────────────────────────────────
 const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm }) => {
@@ -2055,6 +2128,13 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
           onClaimOwner={onClaimOwner}
           onRequestDM={onRequestDM}
         />
+        <PlayerAuthCard
+    authUser={authUser}
+    account={account}
+    onLogin={onPlayerLogin}
+    onRegister={onPlayerRegister}
+    onLogout={onAuthLogout}
+  />
         <div style={{marginBottom:18}}>
           <label style={{fontFamily:"Cinzel,serif",fontSize:11,color:"var(--muted)",letterSpacing:".1em",textTransform:"uppercase",display:"block",marginBottom:6}}>Tu Nombre</label>
           <input className="inp" placeholder="¿Cómo te llaman, aventurero?" value={pname} onChange={e=>setPname(e.target.value)} style={{fontSize:15}}/>
@@ -2324,6 +2404,40 @@ const handleAuthRegister=async({displayName,email,password})=>{
     notify(friendlyAuthError(e));
   }
 };
+
+  const handlePlayerLogin = async ({ email, password }) => {
+  try {
+    await authApi.signIn(email, password);
+    notify("Sesión iniciada");
+  } catch(e) {
+    notify(friendlyAuthError(e));
+  }
+};
+
+const handlePlayerRegister = async ({ displayName, email, password }) => {
+  try {
+    const cred = await window._fbCreateUser(window._fbAuth, email, password);
+    const user = cred.user;
+    if (displayName.trim()) {
+      await window._fbUpdateProfile(user, { displayName: displayName.trim() });
+    }
+    await window._fbSet(window._fbRef(window._fbDb, `users/${user.uid}`), {
+      uid: user.uid,
+      email: user.email,
+      displayName: displayName.trim() || "",
+      role: "player",
+      status: "approved",
+      requestedAt: Date.now(),
+      approvedAt: Date.now(),
+    });
+    setPlayerName(displayName.trim());
+    notify("¡Cuenta de jugador creada! Ya podés unirte a partidas.");
+  } catch(e) {
+    notify(friendlyAuthError(e));
+  }
+};
+
+  
 
   const handleAuthLogout=async()=>{
     try{
