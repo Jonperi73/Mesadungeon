@@ -2142,6 +2142,13 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
             ? <><span className="online-dot"/>Firebase conectado — multijugador real activo</>
             : <span style={{color:"#E24B4A"}}>⏳ Conectando con Firebase...</span>}
         </div>
+        <button 
+  className="btn btn-sm" 
+  onClick={() => setMuted(m => !m)}
+  style={{position:"fixed", top:12, right:12, zIndex:999}}
+>
+  {muted ? "🔇" : "🔊"}
+</button>
       </div>
 
       <div style={{width:"100%",maxWidth:560}}>
