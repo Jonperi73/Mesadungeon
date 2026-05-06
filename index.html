@@ -2088,6 +2088,8 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
   const [tab,setTab]=useState("create");
   const [firebaseOk,setFirebaseOk]=useState(!!window._firebaseReady);
   const [search,setSearch]=useState("");
+  const [muted, setMuted] = useState(false);
+  const audioRef = useRef(null);
 
   useEffect(()=>{
     const h=()=>setFirebaseOk(true);
