@@ -2315,15 +2315,6 @@ useEffect(()=>{
     if(typeof unsub==="function")unsub();
   };
 },[]);
-
-  useEffect(() => {
-  if (!authReady) return;
-
-  if (!authUser) {
-    console.log("🔥 creando usuario anonimo...");
-    authApi.signInAnonymously();
-  }
-}, [authReady, authUser]);
   
 useEffect(() => {
   if (!authReady) return;
