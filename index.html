@@ -2096,6 +2096,14 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
   },[]);
   useEffect(()=>{setPname(initialName||"");},[initialName]);
 
+  useEffect(() => {
+  const audio = new Audio("https://soundimage.org/wp-content/uploads/2014/08/RPG-Theme.mp3");
+  audio.loop = true;
+  audio.volume = 0.4;
+  audio.play().catch(() => {});
+  return () => { audio.pause(); audio.currentTime = 0; };
+}, []);  
+  
   const filteredSessions=(sessions||[]).filter(s=>{
     const q=search.trim().toLowerCase();
     if(!q)return true;
