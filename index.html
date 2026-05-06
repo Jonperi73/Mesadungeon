@@ -2096,13 +2096,28 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
   },[]);
   useEffect(()=>{setPname(initialName||"");},[initialName]);
 
-  useEffect(() => {
+useEffect(() => {
   const audio = new Audio("https://soundimage.org/wp-content/uploads/2014/08/RPG-Theme.mp3");
   audio.loop = true;
   audio.volume = 0.4;
-  audio.play().catch(() => {});
-  return () => { audio.pause(); audio.currentTime = 0; };
-}, []);  
+  audioRef.current = audio;
+
+  const startAudio = () => {
+    audio.play().catch(() => {});
+    document.removeEventListener("click", startAudio);
+    document.removeEventListener("touchstart", startAudio);
+  };
+
+  document.addEventListener("click", startAudio);
+  document.addEventListener("touchstart", startAudio);
+
+  return () => {
+    audio.pause();
+    audio.currentTime = 0;
+    document.removeEventListener("click", startAudio);
+    document.removeEventListener("touchstart", startAudio);
+  };
+}, []);
   
   const filteredSessions=(sessions||[]).filter(s=>{
     const q=search.trim().toLowerCase();
