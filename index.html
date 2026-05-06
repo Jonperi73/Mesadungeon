@@ -2089,6 +2089,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
   const [firebaseOk,setFirebaseOk]=useState(!!window._firebaseReady);
   const [search,setSearch]=useState("");
   const [muted, setMuted] = useState(false);
+  const [started, setStarted] = useState(false);
   const audioRef = useRef(null);
 
   useEffect(()=>{
@@ -2096,35 +2097,38 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
     window.addEventListener("firebase-ready",h);
     return()=>window.removeEventListener("firebase-ready",h);
   },[]);
+
   useEffect(()=>{setPname(initialName||"");},[initialName]);
 
-useEffect(() => {
-  const audio = new Audio("https://soundimage.org/wp-content/uploads/2014/08/RPG-Theme.mp3");
-  audio.loop = true;
-  audio.volume = 0.4;
-  audioRef.current = audio;
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.muted = muted;
+  }, [muted]);
 
-  const startAudio = () => {
+  const handleStart = () => {
+    const audio = new Audio("https://soundimage.org/wp-content/uploads/2014/08/RPG-Theme.mp3");
+    audio.loop = true;
+    audio.volume = 0.4;
+    audioRef.current = audio;
     audio.play().catch(() => {});
-    document.removeEventListener("click", startAudio);
-    document.removeEventListener("touchstart", startAudio);
+    setStarted(true);
   };
 
-  document.addEventListener("pointerdown", startAudio);
-
-  return () => {
-    audio.pause();
-    audio.currentTime = 0;
-    document.removeEventListener("click", startAudio);
-    document.removeEventListener("touchstart", startAudio);
-  };
-}, []);
-  
   const filteredSessions=(sessions||[]).filter(s=>{
     const q=search.trim().toLowerCase();
     if(!q)return true;
     return (s.name||"").toLowerCase().includes(q)||(s.code||s.id||"").toLowerCase().includes(q);
   });
+
+  if (!started) return (
+    <div style={{minHeight:"100vh", background:"var(--bg)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center"}}>
+      <style>{CSS}</style>
+      <h1 style={{fontFamily:"Cinzel,serif", fontSize:40, color:"var(--gold)", marginBottom:8}}>⚔ MESA DUNGEON</h1>
+      <div style={{fontFamily:"Cinzel,serif", fontSize:12, color:"var(--muted)", marginBottom:32}}>Mesa de Rol Online</div>
+      <button className="btn btn-r" style={{padding:"16px 48px", fontSize:18}} onClick={handleStart}>
+        Comenzar Aventura
+      </button>
+    </div>
+  );
 
   return(
     <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20}}>
