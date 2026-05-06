@@ -2110,8 +2110,7 @@ useEffect(() => {
     document.removeEventListener("touchstart", startAudio);
   };
 
-  document.addEventListener("click", startAudio);
-  document.addEventListener("touchstart", startAudio);
+  document.addEventListener("pointerdown", startAudio);
 
   return () => {
     audio.pause();
