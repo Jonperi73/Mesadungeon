@@ -1671,13 +1671,31 @@ const CharacterCreation = ({ onComplete, playerName }) => {
   const [assigns,setAssigns]=useState({});
   const [pool]=useState([...STANDARD]);
   const [used,setUsed]=useState([]);
+  const [statMethod,setStatMethod]=useState(null);
+  const [rolledPool,setRolledPool]=useState([]);
+  const [rolling,setRolling]=useState(false);
+  const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem("tutorial_char_done"));
 
-  const assignStat=(stat,idx)=>{
-    if(used.includes(idx)&&assigns[stat]!==idx)return;
-    const na={...assigns},nu=used.filter(u=>u!==assigns[stat]);
-    na[stat]=idx;nu.push(idx);setAssigns(na);setUsed(nu);
-    const ns={...stats};Object.entries(na).forEach(([s,i])=>{ns[s]=pool[i];});setStats(ns);
-  };
+  const rollAllStats=()=>{
+  setRolling(true);
+  setTimeout(()=>{
+    const rolled=Array.from({length:6},()=>{
+      const dice=Array.from({length:4},()=>Math.floor(Math.random()*6)+1);
+      dice.sort((a,b)=>a-b);
+      return dice.slice(1).reduce((a,b)=>a+b,0);
+    }).sort((a,b)=>b-a);
+    setRolledPool(rolled);
+    setRolling(false);
+  },800);
+};
+
+const assignStat=(stat,idx)=>{
+  if(used.includes(idx)&&assigns[stat]!==idx)return;
+  const activePool=statMethod==="roll"?rolledPool:pool;
+  const na={...assigns},nu=used.filter(u=>u!==assigns[stat]);
+  na[stat]=idx;nu.push(idx);setAssigns(na);setUsed(nu);
+  const ns={...stats};Object.entries(na).forEach(([s,i])=>{ns[s]=activePool[i];});setStats(ns);
+};
 
   const finalize=()=>{
     if(!name.trim()||!race||!cls)return;
@@ -1697,6 +1715,10 @@ const CharacterCreation = ({ onComplete, playerName }) => {
   return(
     <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20}}>
       <style>{CSS}</style>
+      {showTutorial && <Tutorial
+  steps={TUTORIAL_STEPS_CHAR}
+  onClose={()=>{setShowTutorial(false);localStorage.setItem("tutorial_char_done","1");}}
+/>}
       {/* Progress */}
       <div style={{display:"flex",gap:0,marginBottom:28,background:"var(--bg1)",border:"1px solid var(--border)",borderRadius:3,padding:2}}>
         {steps.map((s,i)=>(
@@ -1752,49 +1774,93 @@ const CharacterCreation = ({ onComplete, playerName }) => {
         </div>}
 
         {/* STEP 2 */}
-        {step===2&&<div>
-          <h2 style={{fontFamily:"Cinzel,serif",color:"var(--gold)",textAlign:"center",marginBottom:20,fontSize:22}}>Atributos</h2>
-          <div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
-            <div style={{flex:1,minWidth:260}}>
-              <p style={{color:"var(--muted)",fontSize:13,marginBottom:16,lineHeight:1.5}}>Asigna los valores ({STANDARD.join(", ")}) a tus atributos. Los bonos raciales se aplican automáticamente.</p>
-              <div style={{display:"flex",gap:5,marginBottom:14,flexWrap:"wrap"}}>
-                {STANDARD.map((v,i)=>(
-                  <div key={i} style={{padding:"5px 11px",fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,
-                    background:used.includes(i)?"rgba(0,0,0,.3)":"rgba(201,168,76,.15)",
-                    border:`1px solid ${used.includes(i)?"var(--border)":"var(--gold)"}`,
-                    color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)?.5:1}}>{v}</div>
-                ))}
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:7}}>
-                {STATS.map(s=>{const rb=RACES[race]?.bonus[s]||0,base=stats[s],total=base+rb;return(
-                  <div key={s} style={{display:"flex",alignItems:"center",gap:9}}>
-                    <div style={{width:36,fontFamily:"Cinzel,serif",fontSize:12,color:"var(--muted)",textTransform:"uppercase"}}>{STAT_N[s]}</div>
-                    <select className="sel" value={assigns[s]??""} onChange={e=>e.target.value!==""&&assignStat(s,parseInt(e.target.value))} style={{flex:1}}>
-                      <option value="">— elegir —</option>
-                      {STANDARD.map((v,i)=>(!used.includes(i)||assigns[s]===i)&&<option key={i} value={i}>{v}</option>)}
-                    </select>
-                    <div style={{width:70,textAlign:"right",fontFamily:"Cinzel,serif",fontSize:14,fontWeight:700,color:"var(--gold)"}}>
-                      {total}{rb>0&&<span style={{fontSize:10,color:"#5cb85c"}}>(+{rb})</span>}
-                      <span style={{fontSize:11,color:"var(--muted)",marginLeft:3}}>{modStr(total)}</span>
-                    </div>
-                  </div>
-                );})}
+       {step===2&&<div>
+        <h2 style={{fontFamily:"Cinzel,serif",color:"var(--gold)",textAlign:"center",marginBottom:20,fontSize:22}}>Atributos</h2>
+
+         {/* Elección de método */}
+         {!statMethod&&<div style={{display:"flex",gap:12,justifyContent:"center",marginBottom:24,flexWrap:"wrap"}}>
+           <div className="card" style={{padding:20,textAlign:"center",cursor:"pointer",maxWidth:220}}
+            onClick={()=>setStatMethod("standard")}>
+              <div style={{fontSize:28,marginBottom:8}}>📋</div>
+              <div style={{fontFamily:"Cinzel,serif",fontSize:14,color:"var(--gold)",marginBottom:6}}>Array Estándar</div>
+              <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.5}}>Valores fijos: 15, 14, 13, 12, 10, 8. Balanceado y predecible.</div>
+          </div>
+    <div className="card" style={{padding:20,textAlign:"center",cursor:"pointer",maxWidth:220}}
+      onClick={()=>{setStatMethod("roll");rollAllStats();}}>
+      <div style={{fontSize:28,marginBottom:8}}>🎲</div>
+      <div style={{fontFamily:"Cinzel,serif",fontSize:14,color:"var(--gold)",marginBottom:6}}>Tirar Dados</div>
+      <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.5}}>4d6 descarta el menor × 6. Emocionante pero impredecible.</div>
+    </div>
+  </div>}
+
+  {statMethod&&<div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
+    <div style={{flex:1,minWidth:260}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <p style={{color:"var(--muted)",fontSize:13,lineHeight:1.5}}>
+          {statMethod==="standard"?"Array estándar — asigná los valores a tus atributos.":"Tiraste dados (4d6 drop lowest) — asigná los resultados."}
+        </p>
+        <button className="btn btn-sm" onClick={()=>{setStatMethod(null);setAssigns({});setUsed({});setRolledPool([]);}}>
+          Cambiar método
+        </button>
+      </div>
+
+      {statMethod==="roll"&&<div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap",alignItems:"center"}}>
+        {rolling
+          ? <span style={{fontSize:13,color:"var(--gold)",fontFamily:"Cinzel,serif"}}>🎲 Tirando dados...</span>
+          : (rolledPool).map((v,i)=>(
+            <div key={i} style={{padding:"5px 11px",fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,
+              background:used.includes(i)?"rgba(0,0,0,.3)":"rgba(201,168,76,.15)",
+              border:`1px solid ${used.includes(i)?"var(--border)":"var(--gold)"}`,
+              color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)?.5:1}}>{v}</div>
+          ))
+        }
+        {!rolling&&<button className="btn btn-sm" onClick={()=>{rollAllStats();setAssigns({});setUsed([]);}}>↺ Volver a tirar</button>}
+      </div>}
+
+      {statMethod==="standard"&&<div style={{display:"flex",gap:5,marginBottom:14,flexWrap:"wrap"}}>
+        {STANDARD.map((v,i)=>(
+          <div key={i} style={{padding:"5px 11px",fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,
+            background:used.includes(i)?"rgba(0,0,0,.3)":"rgba(201,168,76,.15)",
+            border:`1px solid ${used.includes(i)?"var(--border)":"var(--gold)"}`,
+            color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)?.5:1}}>{v}</div>
+        ))}
+      </div>}
+
+      {!rolling&&<div style={{display:"flex",flexDirection:"column",gap:7}}>
+        {STATS.map(s=>{
+          const activePool=statMethod==="roll"?rolledPool:pool;
+          const rb=RACES[race]?.bonus[s]||0,base=stats[s],total=base+rb;
+          return(
+            <div key={s} style={{display:"flex",alignItems:"center",gap:9}}>
+              <div style={{width:36,fontFamily:"Cinzel,serif",fontSize:12,color:"var(--muted)",textTransform:"uppercase"}}>{STAT_N[s]}</div>
+              <select className="sel" value={assigns[s]??""} onChange={e=>e.target.value!==""&&assignStat(s,parseInt(e.target.value))} style={{flex:1}}>
+                <option value="">— elegir —</option>
+                {activePool.map((v,i)=>(!used.includes(i)||assigns[s]===i)&&<option key={i} value={i}>{v}</option>)}
+              </select>
+              <div style={{width:70,textAlign:"right",fontFamily:"Cinzel,serif",fontSize:14,fontWeight:700,color:"var(--gold)"}}>
+                {total}{rb>0&&<span style={{fontSize:10,color:"#5cb85c"}}>(+{rb})</span>}
+                <span style={{fontSize:11,color:"var(--muted)",marginLeft:3}}>{modStr(total)}</span>
               </div>
             </div>
-            {preview&&<div style={{width:150,display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
-              <div style={{width:120,height:160}}><CharSVG char={preview}/></div>
-              <div style={{textAlign:"center"}}>
-                <div style={{fontFamily:"Cinzel,serif",fontSize:12,color:"var(--gold)"}}>{RACES[race]?.n}</div>
-                <div style={{fontFamily:"Cinzel,serif",fontSize:12,color:"var(--text)"}}>{CLASSES[cls]?.n}</div>
-                <div style={{fontSize:11,color:"var(--muted)",marginTop:4}}>HP est: {maxHP(cls,1,stats.con+(RACES[race]?.bonus.con||0))}</div>
-              </div>
-            </div>}
-          </div>
-          <div style={{textAlign:"center",marginTop:18,display:"flex",gap:10,justifyContent:"center"}}>
-            <button className="btn" onClick={()=>setStep(1)}>← Volver</button>
-            <button className="btn btn-r" disabled={used.length<6} onClick={()=>setStep(3)} style={{padding:"11px 40px",fontSize:14}}>Ver resumen →</button>
-          </div>
-        </div>}
+          );
+        })}
+      </div>}
+    </div>
+    {preview&&<div style={{width:150,display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+      <div style={{width:120,height:160}}><CharSVG char={preview}/></div>
+      <div style={{textAlign:"center"}}>
+        <div style={{fontFamily:"Cinzel,serif",fontSize:12,color:"var(--gold)"}}>{RACES[race]?.n}</div>
+        <div style={{fontFamily:"Cinzel,serif",fontSize:12,color:"var(--text)"}}>{CLASSES[cls]?.n}</div>
+        <div style={{fontSize:11,color:"var(--muted)",marginTop:4}}>HP est: {maxHP(cls,1,stats.con+(RACES[race]?.bonus.con||0))}</div>
+      </div>
+    </div>}
+  </div>}
+
+  <div style={{textAlign:"center",marginTop:18,display:"flex",gap:10,justifyContent:"center"}}>
+    <button className="btn" onClick={()=>setStep(1)}>← Volver</button>
+    <button className="btn btn-r" disabled={!statMethod||rolling||used.length<6} onClick={()=>setStep(3)} style={{padding:"11px 40px",fontSize:14}}>Ver resumen →</button>
+  </div>
+</div>}
 
         {/* STEP 3 */}
         {step===3&&<div>
@@ -2078,7 +2144,97 @@ const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSe
   );
 };
     
+// ─── TUTORIAL ────────────────────────────────────────────────
+const TUTORIAL_STEPS_LOBBY = [
+  {
+    title:"¡Bienvenido a Mesa Dungeon!",
+    text:"Esta es tu mesa de rol online multijugador. Acá vas a poder crear partidas de D&D 5e con amigos en tiempo real.",
+    icon:"🎲"
+  },
+  {
+    title:"¿Sos Owner/DM o Jugador?",
+    text:"Los Owner y DM crean y gestionan las partidas. Los Jugadores se unen a aventuras creadas por un DM.",
+    icon:"🎭"
+  },
+  {
+    title:"Acceso Owner / DM",
+    text:"Si sos DM necesitás crear una cuenta con email. El primer usuario en registrarse se convierte en Owner automáticamente.",
+    icon:"👑"
+  },
+  {
+    title:"Acceso Jugadores",
+    text:"Como jugador también podés crear una cuenta para guardar tu personaje y tus partidas entre sesiones.",
+    icon:"⚔️"
+  },
+  {
+    title:"Unirse a una partida",
+    text:"Para unirte pedile el código de 6 letras a tu DM e ingresalo en 'Unirse con código'. ¡Listo para la aventura!",
+    icon:"🚪"
+  },
+];
 
+const TUTORIAL_STEPS_CHAR = [
+  {
+    title:"Creación de Personaje",
+    text:"Vas a crear tu aventurero en 4 pasos: Nombre y Raza, Clase, Atributos y Resumen final.",
+    icon:"📜"
+  },
+  {
+    title:"Raza",
+    text:"Cada raza tiene bonificaciones distintas a tus estadísticas. ¡Elegí la que más se adapte a tu estilo de juego!",
+    icon:"🧝"
+  },
+  {
+    title:"Clase",
+    text:"La clase define tu rol en combate. Los guerreros pelean cuerpo a cuerpo, los magos lanzan hechizos, los pícaros atacan desde las sombras...",
+    icon:"⚔️"
+  },
+  {
+    title:"Atributos",
+    text:"Podés usar el Array Estándar (valores fijos balanceados) o Tirar Dados (4d6 descarta el menor — más emocionante pero impredecible).",
+    icon:"🎲"
+  },
+  {
+    title:"¡A jugar!",
+    text:"Una vez creado tu personaje vas a entrar directo al chat de la partida. ¡El DM te estará esperando!",
+    icon:"🏰"
+  },
+];
+
+const Tutorial = ({ steps, onClose, storageKey }) => {
+  const [step, setStep] = useState(0);
+  const current = steps[step];
+  const isLast = step === steps.length - 1;
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.88)",zIndex:9000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}
+      onClick={()=>isLast?onClose():setStep(s=>s+1)}>
+      <div style={{background:"var(--bg1)",border:"1px solid var(--gold)",borderRadius:6,padding:32,maxWidth:420,width:"100%",textAlign:"center",animation:"fadeIn .3s"}}
+        onClick={e=>e.stopPropagation()}>
+        <div style={{fontSize:48,marginBottom:16}}>{current.icon}</div>
+        <div style={{fontFamily:"Cinzel,serif",fontSize:20,color:"var(--gold)",marginBottom:12}}>{current.title}</div>
+        <div style={{fontSize:14,color:"var(--muted)",lineHeight:1.7,marginBottom:24}}>{current.text}</div>
+        <div style={{display:"flex",justifyContent:"center",gap:6,marginBottom:20}}>
+          {steps.map((_,i)=>(
+            <div key={i} style={{width:8,height:8,borderRadius:"50%",
+              background:i===step?"var(--gold)":"rgba(201,168,76,.3)",
+              cursor:"pointer",transition:"all .2s"}}
+              onClick={()=>setStep(i)}/>
+          ))}
+        </div>
+        <div style={{display:"flex",gap:8,justifyContent:"center"}}>
+          {step>0&&<button className="btn btn-sm" onClick={()=>setStep(s=>s-1)}>← Anterior</button>}
+          <button className="btn btn-r" style={{padding:"8px 28px"}} onClick={()=>isLast?onClose():setStep(s=>s+1)}>
+            {isLast?"¡Entendido! ✓":"Siguiente →"}
+          </button>
+        </div>
+        <div style={{marginTop:12}}>
+          <button className="btn btn-sm" style={{opacity:.5,fontSize:10}} onClick={onClose}>Saltar tutorial</button>
+        </div>
+      </div>
+    </div>
+  );
+};
 // ─── LOBBY ────────────────────────────────────────────────────
 const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm, onPlayerLogin, onPlayerRegister }) => {
   const [pname,setPname]=useState(initialName||"");
@@ -2092,6 +2248,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
   const [roleScreen, setRoleScreen] = useState("choose");
   const [started, setStarted] = useState(false);
   const audioRef = useRef(null);
+  const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem("tutorial_lobby_done"));
 
   useEffect(()=>{
     const h=()=>setFirebaseOk(true);
@@ -2135,6 +2292,10 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
   if (roleScreen === "choose") return (
     <div style={{minHeight:"100vh", background:"var(--bg)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:20}}>
       <style>{CSS}</style>
+      {showTutorial && <Tutorial
+  steps={TUTORIAL_STEPS_LOBBY}
+  onClose={()=>{setShowTutorial(false);localStorage.setItem("tutorial_lobby_done","1");}}
+/>}
       <button className="btn btn-sm" onClick={() => setMuted(m => !m)} style={{position:"fixed", top:12, right:12, zIndex:999}}>
         {muted ? "🔇" : "🔊"}
       </button>
