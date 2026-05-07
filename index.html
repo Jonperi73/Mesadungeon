@@ -2120,7 +2120,6 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
     return (s.name||"").toLowerCase().includes(q)||(s.code||s.id||"").toLowerCase().includes(q);
   });
 
-  const [roleScreen, setRoleScreen] = useState("choose");
 
   if (!started) return (
     <div style={{minHeight:"100vh", background:"var(--bg)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center"}}>
