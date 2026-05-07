@@ -1241,6 +1241,7 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
   const [coinType,setCoinType]=useState("gold");
   const [coinAmount,setCoinAmount]=useState("10");
   const chatEnd=useRef();
+  const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem(isDM?"tutorial_game_dm_done":"tutorial_game_player_done"));
 
   const playersList=Object.values(roomData?.players||{});
   const isHost=roomData?.hostId===playerId;
@@ -1443,6 +1444,14 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
   return(
     <div className="game-wrap">
       <style>{CSS}</style>
+      {showTutorial && <Tutorial
+  steps={isDM ? TUTORIAL_STEPS_GAME_DM : TUTORIAL_STEPS_GAME_PLAYER}
+  onClose={()=>{
+    const key = isDM ? "tutorial_game_dm_done" : "tutorial_game_player_done";
+    setShowTutorial(false);
+    localStorage.setItem(key,"1");
+  }}
+/>}
 
       {/* Header */}
       <div style={{background:"var(--bg1)",borderBottom:"1px solid var(--border)",padding:"9px 14px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
@@ -1454,6 +1463,7 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
         <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
           <span style={{fontSize:10,color:"var(--muted)"}}>{playersList.length}/10</span>
           {isDM&&<button className="btn btn-sm" onClick={()=>setShowDM(!showDM)} style={{fontSize:10}}>🎭 DM</button>}
+          <button className="btn btn-sm" onClick={()=>setShowTutorial(true)} style={{fontSize:10}}>?</button>
           <button className="btn btn-sm" onClick={onSave} style={{fontSize:10}}>💾</button>
         </div>
       </div>
@@ -1674,9 +1684,11 @@ const CharacterCreation = ({ onComplete, playerName }) => {
   const [statMethod,setStatMethod]=useState(null);
   const [rolledPool,setRolledPool]=useState([]);
   const [rolling,setRolling]=useState(false);
+  const [rollsLeft, setRollsLeft] = useState(3);
   const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem("tutorial_char_done"));
 
   const rollAllStats=()=>{
+  if(rollsLeft<=0)return;
   setRolling(true);
   setTimeout(()=>{
     const rolled=Array.from({length:6},()=>{
@@ -1686,6 +1698,7 @@ const CharacterCreation = ({ onComplete, playerName }) => {
     }).sort((a,b)=>b-a);
     setRolledPool(rolled);
     setRolling(false);
+    setRollsLeft(r=>r-1);
   },800);
 };
 
@@ -1814,8 +1827,15 @@ const assignStat=(stat,idx)=>{
               color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)?.5:1}}>{v}</div>
           ))
         }
-        {!rolling&&<button className="btn btn-sm" onClick={()=>{rollAllStats();setAssigns({});setUsed([]);}}>↺ Volver a tirar</button>}
-      </div>}
+        {!rolling&&<div style={{display:"flex",alignItems:"center",gap:8}}>
+  <button className="btn btn-sm" disabled={rollsLeft<=0} onClick={()=>{rollAllStats();setAssigns({});setUsed([]);}}>
+    ↺ Volver a tirar
+  </button>
+  <span style={{fontSize:11,color:rollsLeft>0?"var(--muted)":"#E24B4A",fontFamily:"Cinzel,serif"}}>
+    {rollsLeft>0?`${rollsLeft} tirada${rollsLeft>1?"s":""}  restante${rollsLeft>1?"s":""}`:
+    "⚠ Sin tiradas — aceptá estos valores o cambiá al array estándar"}
+  </span>
+</div>}
 
       {statMethod==="standard"&&<div style={{display:"flex",gap:5,marginBottom:14,flexWrap:"wrap"}}>
         {STANDARD.map((v,i)=>(
@@ -2157,10 +2177,10 @@ const TUTORIAL_STEPS_LOBBY = [
     icon:"🎭"
   },
   {
-    title:"Acceso Owner / DM",
-    text:"Si sos DM necesitás crear una cuenta con email. El primer usuario en registrarse se convierte en Owner automáticamente.",
-    icon:"👑"
-  },
+  title:"Acceso Owner / DM",
+  text:"Si sos DM necesitás crear una cuenta con email y solicitar acceso. El Owner de la plataforma deberá aprobar tu solicitud antes de que puedas crear partidas.",
+  icon:"👑"
+},
   {
     title:"Acceso Jugadores",
     text:"Como jugador también podés crear una cuenta para guardar tu personaje y tus partidas entre sesiones.",
@@ -2198,6 +2218,62 @@ const TUTORIAL_STEPS_CHAR = [
     title:"¡A jugar!",
     text:"Una vez creado tu personaje vas a entrar directo al chat de la partida. ¡El DM te estará esperando!",
     icon:"🏰"
+  },
+];
+      
+const TUTORIAL_STEPS_GAME_PLAYER = [
+  {
+    title:"¡Bienvenido a la partida!",
+    text:"Estás en la sala de juego. Acá es donde transcurre toda la aventura en tiempo real con tus compañeros.",
+    icon:"🏰"
+  },
+  {
+    title:"El Chat",
+    text:"En el centro escribís las acciones de tu personaje. El Dungeon Master responderá narrando lo que pasa.",
+    icon:"💬"
+  },
+  {
+    title:"Tu Ficha",
+    text:"A la derecha (o tocando 📜 en móvil) ves tu ficha con HP, CA, velocidad y estadísticas de tu personaje.",
+    icon:"📜"
+  },
+  {
+    title:"Los Dados",
+    text:"Cuando el DM habilite los dados, podés tirar desde el panel 🎲. Hay ventaja, desventaja y tiradas rápidas.",
+    icon:"🎲"
+  },
+  {
+    title:"Tu Personaje",
+    text:"En el panel 🎒 manejás tu equipo, mochila, monedero y estadísticas completas. Equipá items desde la mochila.",
+    icon:"🎒"
+  },
+];
+
+const TUTORIAL_STEPS_GAME_DM = [
+  {
+    title:"Panel del Dungeon Master",
+    text:"Sos el DM de esta partida. Tenés herramientas especiales para controlar la sesión.",
+    icon:"🎭"
+  },
+  {
+    title:"Narración",
+    text:"Tocá el botón '🎭 DM' en el header para abrir tu panel. Desde ahí podés narrar eventos directamente al chat.",
+    icon:"📖"
+  },
+  {
+    title:"Control de Dados",
+    text:"Desde tu panel podés habilitar o bloquear las tiradas de dados para los jugadores cuando vos lo decidas.",
+    icon:"🎲"
+  },
+  {
+    title:"Stock del DM",
+    text:"Con '🎁 Stock del DM' podés cargar items y monedas para repartir a los jugadores como recompensas.",
+    icon:"🎁"
+  },
+  {
+    title:"Los Jugadores",
+    text:"En la barra superior ves el HP de cada jugador en tiempo real. Supervisá el estado del grupo.",
+    icon:"⚔️"
   },
 ];
 
