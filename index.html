@@ -3292,103 +3292,202 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
     }catch(e){setAiLoading(false);notify("Error conectando con el DM IA");}
   };
 
-  const createRoom=async(name,dmMode,roomName)=>{
-    if(!canCreateRoom||!authUser){notify("Solo el Owner o un DM aprobado pueden crear partidas.");return;}
-    const activeManagedRooms=sessions.filter(s=>s.dmUid===authUser.uid&&(s.lifecycleStatus||"active")==="active");
-    if(activeManagedRooms.length>=ACTIVE_ROOM_LIMIT){notify(`Límite alcanzado: ${ACTIVE_ROOM_LIMIT} partidas activas por DM.`);return;}
-    const id=genId(6);
-    const safeName=name.trim();
-    const title=roomName?.trim()||`Sala de ${safeName}`;
-    const dmDisplayName=account?.displayName||authUser.displayName||safeName;
-    const room=normalizeRoom({
-      id,name:title,hostId:playerId,
-      dmUid:authUser.uid,dmName:dmDisplayName,createdByUid:authUser.uid,
-      dmMode,dmPlayerId:playerId,diceEnabled:false,
-      dmStock:{items:{},coins:normalizeWallet()},
-      players:{[playerId]:{id:playerId,authUid:authUser.uid,name:safeName,isHost:true,isDM:true,character:null,connected:true}},
-      messages:[{id:Date.now(),t:"sys",text:`🏰 Sala creada. Código: ${id}`,ts:Date.now()}],
-      gameState:"lobby",createdAt:Date.now(),lastActivityAt:Date.now(),lifecycleStatus:"active",
-    });
-    await fb.set(`rooms/${id}`,room);
-    await syncSessionIndex(room);
-    setRoomId(id);setRoomData(room);setPlayerName(safeName);
-    setScreen("character");
-    notify(`✦ Partida creada: ${title} · Código: ${id}`);
-  };
+ const createRoom=async(name,dmMode,roomName)=>{
+  if(!canCreateRoom||!authUser){
+    notify("Solo el Owner o un DM aprobado pueden crear partidas.");
+    return;
+  }
 
-  const joinRoom=async(name,code)=>{
-    const safeName=name.trim();
-    const c=code.trim().toUpperCase();
-    try{
-      const data=normalizeRoom(await fb.get(`rooms/${c}`));
-      if(!data){notify("Sala no encontrada");return;}
-      const players=data.players||{};
-      const existing=players[playerId];
-      if(existing){
-        await syncSessionIndex(data);
-        setRoomId(c);setRoomData(data);setPlayerName(safeName);
-        if(existing.character){setCharacter(existing.character);setScreen("game");}
-        else setScreen("character");
-        return;
-      }
-      const sameAuthEntry=authUser?Object.entries(players).find(([id,p])=>id!==playerId&&p.authUid===authUser.uid):null;
-      const sameNameEntry=Object.entries(players).find(([id,p])=>id!==playerId&&nameKey(p.name)===nameKey(safeName));
-      const recoveredEntry=sameAuthEntry||sameNameEntry;
-      if(recoveredEntry){
-        const [oldId,oldPlayer]=recoveredEntry;
-        const reclaimedPlayers={...players};
-        delete reclaimedPlayers[oldId];
-        reclaimedPlayers[playerId]={...oldPlayer,id:playerId,name:safeName,authUid:oldPlayer.authUid||authUser && authUser.uid||null,connected:true};
-        const reclaimed=normalizeRoom({
-          ...data,
-          hostId:data.hostId===oldId?playerId:data.hostId,
-          dmPlayerId:data.dmPlayerId===oldId?playerId:data.dmPlayerId,
-          dmUid:data.dmUid||authUser && authUser.uid||null,
-          players:reclaimedPlayers,
-          messages:[...(data.messages||[]),{id:Date.now(),t:"sys",text:`↩ ${safeName} volvió a la partida.`,ts:Date.now()}],
-          lastActivityAt:Date.now(),
-        });
-        await fb.set(`rooms/${c}`,reclaimed);
-        await syncSessionIndex(reclaimed);
-        setRoomId(c);setRoomData(reclaimed);setPlayerName(safeName);
-        if(reclaimed.players?.[playerId]?.character){setCharacter(reclaimed.players[playerId].character);setScreen("game");}
-        else setScreen("character");
-        notify("Recuperaste tu lugar en la partida");
-        return;
-      }
-      if(Object.keys(players).length>=10){notify("Sala llena (máx. 10)");return;}
-      const updated=normalizeRoom({...data,
-        players:{...players,[playerId]:{id:playerId,authUid:authUser && authUser.uid||null,name:safeName,isHost:false,isDM:false,character:null,connected:true}},
-        messages:[...(data.messages||[]),{id:Date.now(),t:"sys",text:`⚔ ${safeName} se unió a la aventura.`,ts:Date.now()}],
-        lastActivityAt:Date.now(),
-      });
-      await fb.set(`rooms/${c}`,updated);
-      await syncSessionIndex(updated);
-      setRoomId(c);setRoomData(updated);setPlayerName(safeName);
-      setScreen("character");
-    }catch(e){notify("Error al unirse. Verificá el código.");}
-  };
+  const activeManagedRooms=sessions.filter(
+    s=>s.dmUid===authUser.uid&&(s.lifecycleStatus||"active")==="active"
+  );
 
-  const completeCharacter=async(char)=>{
-    setCharacter(char);
-    await updateRoom(d=>({
-      ...d,
-      players:{...(d.players||{}),[playerId]:{...(d.players?.[playerId]||{}),character:char}},
-      messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`🎭 ${playerName} entró como ${RACES[char.race]?.n} ${CLASSES[char.class]?.n}: ${char.name}.`,ts:Date.now()}]
-    }));
-    setScreen("game");
-    if(roomData?.dmMode==="ai"||roomData?.dmMode==="hybrid"){
-      setTimeout(()=>callAI(`${playerName} creó su personaje: ${char.name}, ${RACES[char.race]?.n} ${CLASSES[char.class]?.n} nivel 1. HP:${char.maxHP} CA:${char.ac}. Dale una bienvenida épica (2 párrafos).`),800);
+  if(activeManagedRooms.length>=ACTIVE_ROOM_LIMIT){
+    notify(`Límite alcanzado: ${ACTIVE_ROOM_LIMIT} partidas activas por DM.`);
+    return;
+  }
+
+  const id=genId(6);
+  const safeName=name.trim();
+  const title=roomName?.trim()||`Sala de ${safeName}`;
+  const dmDisplayName=account?.displayName||authUser.displayName||safeName;
+
+  const room=normalizeRoom({
+    id,
+    name:title,
+    hostId:playerId,
+    owner:authUser.uid,
+
+    dmUid:authUser.uid,
+    dmName:dmDisplayName,
+    createdByUid:authUser.uid,
+
+    dmMode,
+    dmPlayerId:playerId,
+    diceEnabled:false,
+
+    dmStock:{
+      items:{},
+      coins:normalizeWallet()
+    },
+
+    players:{
+      [playerId]:{
+        id:playerId,
+        authUid:authUser.uid,
+        name:safeName,
+        isHost:true,
+        isDM:true,
+        character:null,
+        connected:true
+      }
+    },
+
+    messages:[
+      {
+        id:Date.now(),
+        t:"sys",
+        text:`🏰 Sala creada. Código: ${id}`,
+        ts:Date.now()
+      }
+    ],
+
+    gameState:"lobby",
+    createdAt:Date.now(),
+    lastActivityAt:Date.now(),
+    lifecycleStatus:"active",
+  });
+
+  await fb.set(`rooms/${id}`,room);
+
+  await syncSessionIndex(room);
+
+  setRoomId(id);
+  setRoomData(room);
+  setPlayerName(safeName);
+
+  setScreen("character");
+
+  notify(`✦ Partida creada: ${title} · Código: ${id}`);
+};
+
+const joinRoom=async(name,code)=>{
+
+  const safeName=name.trim();
+  const c=code.trim().toUpperCase();
+
+  try{
+
+    const data=normalizeRoom(await fb.get(`rooms/${c}`));
+
+    if(!data){
+      notify("Sala no encontrada");
+      return;
     }
-  };
 
-  const saveSession=async()=>{
-    try{
-      await syncSessionIndex(roomData);
-      notify("💾 Sesión guardada en Firebase");
-    }catch(e){notify("Error guardando sesión");}
-  };
+    const players=data.players||{};
+    const existing=players[playerId];
 
+    if(existing){
+
+      await syncSessionIndex(data);
+
+      setRoomId(c);
+      setRoomData(data);
+      setPlayerName(safeName);
+
+      if(existing.character){
+        setCharacter(existing.character);
+        setScreen("game");
+      }else{
+        setScreen("character");
+      }
+
+      return;
+    }
+
+    const sameAuthEntry=authUser
+      ? Object.entries(players).find(([id,p]) =>
+          id!==playerId && p.authUid===authUser.uid
+        )
+      : null;
+
+    const sameNameEntry=Object.entries(players).find(([id,p]) =>
+      id!==playerId && nameKey(p.name)===nameKey(safeName)
+    );
+
+    const recoveredEntry=sameAuthEntry||sameNameEntry;
+
+    if(recoveredEntry){
+
+      const [oldId,oldPlayer]=recoveredEntry;
+
+      await fb.set(`rooms/${c}/players/${playerId}`,{
+        ...oldPlayer,
+        id:playerId,
+        name:safeName,
+        authUid:(oldPlayer.authUid || (authUser && authUser.uid) || null),
+        connected:true
+      });
+
+      await fb.remove(`rooms/${c}/players/${oldId}`);
+
+      await fb.set(`rooms/${c}/lastActivityAt`,Date.now());
+
+      const reclaimed = normalizeRoom(await fb.get(`rooms/${c}`));
+
+      await syncSessionIndex(reclaimed);
+
+      setRoomId(c);
+      setRoomData(reclaimed);
+      setPlayerName(safeName);
+
+      if(reclaimed.players?.[playerId]?.character){
+        setCharacter(reclaimed.players[playerId].character);
+        setScreen("game");
+      }else{
+        setScreen("character");
+      }
+
+      notify("Recuperaste tu lugar en la partida");
+
+      return;
+    }
+
+    if(Object.keys(players).length>=10){
+      notify("Sala llena (máx. 10)");
+      return;
+    }
+
+    await fb.set(`rooms/${c}/players/${playerId}`,{
+      id:playerId,
+      authUid:(authUser && authUser.uid)||null,
+      name:safeName,
+      isHost:false,
+      isDM:false,
+      character:null,
+      connected:true
+    });
+
+    await fb.set(`rooms/${c}/lastActivityAt`,Date.now());
+
+    const updated = normalizeRoom(await fb.get(`rooms/${c}`));
+
+    await syncSessionIndex(updated);
+
+    setRoomId(c);
+    setRoomData(updated);
+    setPlayerName(safeName);
+
+    setScreen("character");
+
+  }catch(e){
+
+    console.error(e);
+
+    notify("Error al unirse. Verificá el código.");
+  }
+};
   return(
   <>
     {notif&&<div className="notif">{notif}</div>}
