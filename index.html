@@ -53,13 +53,13 @@
         window._firebaseReady = true;
         window.dispatchEvent(new Event("firebase-ready"));
       });
-      // ðŸ”¥ REGISTRO CON OWNER AUTOMÃTICO
+      // 🔥 REGISTRO CON OWNER AUTOMÁTICO
 window._registerUser = async (email, password, displayName) => {
   try {
     const cred = await window._fbCreateUser(window._fbAuth, email, password);
     const user = cred.user;
 
-    // ðŸ” Verificar si ya hay usuarios
+    // 🔍 Verificar si ya hay usuarios
     const snap = await window._fbGet(
      window._fbRef(window._fbDb, "users")
     );
@@ -67,11 +67,11 @@ window._registerUser = async (email, password, displayName) => {
 
     const isFirstUser = !accounts || Object.keys(accounts).length === 0;
 
-    // ðŸ§  Definir rol
+    // 🧠 Definir rol
     const role = isFirstUser ? "owner" : "dm";
     const status = isFirstUser ? "approved" : "pending";
 
-    // ðŸ’¾ Guardar usuario con rol
+    // 💾 Guardar usuario con rol
     await window._fbSet(
       window._fbRef(window._fbDb, `users/${user.uid}`),
       {
@@ -99,11 +99,11 @@ window._registerUser = async (email, password, displayName) => {
 
   <script type="text/babel" data-presets="react">
 // ============================================================
-// ðŸŽ² MESA DUNGEON â€” Firebase Realtime + Lineage 2 Character UI
+// 🎲 MESA DUNGEON — Firebase Realtime + Lineage 2 Character UI
 // ============================================================
 const { useState, useEffect, useRef, useCallback } = React;
 
-// â”€â”€â”€ FIREBASE HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── FIREBASE HELPERS ────────────────────────────────────────
 const fb = {
   ref: (path) => window._fbRef(window._fbDb, path),
   set: (path, val) => window._fbSet(window._fbRef(window._fbDb, path), val),
@@ -174,7 +174,7 @@ const authApi = {
     window._fbUpdateProfile(user, data),
 };
 
-// â”€â”€â”€ GLOBAL STYLES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── GLOBAL STYLES ───────────────────────────────────────────
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap');
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -265,7 +265,7 @@ const CSS = `
   @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:1} }
   .roll-a { animation:roll .65s ease-in-out; }
 
-  /* â”€â”€ LINEAGE 2 CHARACTER PANEL â”€â”€ */
+  /* ── LINEAGE 2 CHARACTER PANEL ── */
   .l2-panel {
     background: linear-gradient(160deg, #0e0b06 0%, #1a1208 50%, #0a0804 100%);
     border: 1px solid rgba(201,168,76,.35);
@@ -386,30 +386,30 @@ const CSS = `
   .ornament { color:var(--gold); opacity:.45; font-size:11px; }
 `;
 
-// â”€â”€â”€ D&D DATA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── D&D DATA ────────────────────────────────────────────────
 const RACES = {
-  human:{n:"Humano",e:"ðŸ‘¤",spd:30,sz:"Med",bonus:{str:1,dex:1,con:1,int:1,wis:1,cha:1},traits:["VersÃ¡til (+1 todos stats)","Habilidad extra"],desc:"Adaptables y ambiciosos."},
-  elf:{n:"Elfo",e:"ðŸ§",spd:30,sz:"Med",bonus:{dex:2,int:1},traits:["VisiÃ³n penumbra 60ft","Sentidos agudizados","Trance (4h)"],desc:"Gracia y magia milenaria."},
-  dwarf:{n:"Enano",e:"â›ï¸",spd:25,sz:"Med",bonus:{con:2,wis:1},traits:["VisiÃ³n penumbra 60ft","Resistencia veneno","Comp. herramientas"],desc:"Valientes, forjados en las profundidades."},
-  halfling:{n:"Mediano",e:"ðŸ€",spd:25,sz:"Peq",bonus:{dex:2,cha:1},traits:["Afortunado (reroll 1s)","ValentÃ­a vs miedo"],desc:"Suerte extraordinaria."},
-  gnome:{n:"Gnomo",e:"ðŸ”®",spd:25,sz:"Peq",bonus:{int:2,con:1},traits:["VisiÃ³n penumbra","Astucia gnÃ³mica","IlusiÃ³n menor"],desc:"Inventores curiosos."},
-  halforc:{n:"Semiorco",e:"ðŸ’€",spd:30,sz:"Med",bonus:{str:2,con:1},traits:["VisiÃ³n penumbra","Amenazador","Resistencia implacable"],desc:"Fuerza bruta incomparable."},
-  tiefling:{n:"Tiefling",e:"ðŸ˜ˆ",spd:30,sz:"Med",bonus:{int:1,cha:2},traits:["Resistencia fuego","Oscuridad nv3","Llama infernal nv5"],desc:"Linaje infernal."},
-  dragonborn:{n:"DracÃ³nido",e:"ðŸ‰",spd:30,sz:"Med",bonus:{str:2,cha:1},traits:["Ascendencia dracÃ³nica","Aliento 2d6","Resistencia ancestral"],desc:"Poder de los dragones."},
+  human:{n:"Humano",e:"👤",spd:30,sz:"Med",bonus:{str:1,dex:1,con:1,int:1,wis:1,cha:1},traits:["Versátil (+1 todos stats)","Habilidad extra"],desc:"Adaptables y ambiciosos."},
+  elf:{n:"Elfo",e:"🧝",spd:30,sz:"Med",bonus:{dex:2,int:1},traits:["Visión penumbra 60ft","Sentidos agudizados","Trance (4h)"],desc:"Gracia y magia milenaria."},
+  dwarf:{n:"Enano",e:"⛏️",spd:25,sz:"Med",bonus:{con:2,wis:1},traits:["Visión penumbra 60ft","Resistencia veneno","Comp. herramientas"],desc:"Valientes, forjados en las profundidades."},
+  halfling:{n:"Mediano",e:"🍀",spd:25,sz:"Peq",bonus:{dex:2,cha:1},traits:["Afortunado (reroll 1s)","Valentía vs miedo"],desc:"Suerte extraordinaria."},
+  gnome:{n:"Gnomo",e:"🔮",spd:25,sz:"Peq",bonus:{int:2,con:1},traits:["Visión penumbra","Astucia gnómica","Ilusión menor"],desc:"Inventores curiosos."},
+  halforc:{n:"Semiorco",e:"💀",spd:30,sz:"Med",bonus:{str:2,con:1},traits:["Visión penumbra","Amenazador","Resistencia implacable"],desc:"Fuerza bruta incomparable."},
+  tiefling:{n:"Tiefling",e:"😈",spd:30,sz:"Med",bonus:{int:1,cha:2},traits:["Resistencia fuego","Oscuridad nv3","Llama infernal nv5"],desc:"Linaje infernal."},
+  dragonborn:{n:"Dracónido",e:"🐉",spd:30,sz:"Med",bonus:{str:2,cha:1},traits:["Ascendencia dracónica","Aliento 2d6","Resistencia ancestral"],desc:"Poder de los dragones."},
 };
 const CLASSES = {
-  fighter:{n:"Guerrero",e:"âš”ï¸",hd:10,pstat:"str",saves:["str","con"],caster:false,armorProf:"Todas",desc:"Maestro del combate.",features:["Segunda oportunidad (2/desc.)","Estilo de combate","Habilidades adicionales"]},
-  wizard:{n:"Mago",e:"ðŸ§™",hd:6,pstat:"int",saves:["int","wis"],caster:true,spellStat:"int",armorProf:"Ninguna",desc:"Domina la magia arcana.",features:["Recuperar hechizos arcanos","TradiciÃ³n arcana","Dominar hechizo"]},
-  rogue:{n:"PÃ­caro",e:"ðŸ—¡ï¸",hd:8,pstat:"dex",saves:["dex","int"],caster:false,armorProf:"Ligera",desc:"Sigilo y ataque preciso.",features:["Experto (doble prof.)","Ataque furtivo","AcciÃ³n astuciosa"]},
-  cleric:{n:"ClÃ©rigo",e:"âœï¸",hd:8,pstat:"wis",saves:["wis","cha"],caster:true,spellStat:"wis",armorProf:"Ligera+media",desc:"Poder divino.",features:["Dominio divino","Canalizar divinidad","IntervenciÃ³n divina nv10"]},
-  barbarian:{n:"BÃ¡rbaro",e:"ðŸª“",hd:12,pstat:"str",saves:["str","con"],caster:false,armorProf:"Ligera+media",desc:"Furia devastadora.",features:["Furia (2/desc.largo)","Defensa sin armadura","Sentido del peligro"]},
-  bard:{n:"Bardo",e:"ðŸŽµ",hd:8,pstat:"cha",saves:["dex","cha"],caster:true,spellStat:"cha",armorProf:"Ligera",desc:"Magia del arte.",features:["InspiraciÃ³n bÃ¡rdica","Jack of All Trades","Secretos bÃ¡rdicos"]},
-  druid:{n:"Druida",e:"ðŸŒ¿",hd:8,pstat:"wis",saves:["int","wis"],caster:true,spellStat:"wis",armorProf:"Ligera+media",desc:"GuardiÃ¡n de la naturaleza.",features:["Forma salvaje (2/desc.)","CÃ­rculo druÃ­dico","RecuperaciÃ³n natural"]},
-  paladin:{n:"PaladÃ­n",e:"âšœï¸",hd:10,pstat:"cha",saves:["wis","cha"],caster:true,spellStat:"cha",armorProf:"Todas",desc:"Guerrero sagrado.",features:["ImposiciÃ³n de manos","Sentido divino","Aura de protecciÃ³n nv6"]},
-  ranger:{n:"Guardabosques",e:"ðŸ¹",hd:10,pstat:"dex",saves:["str","dex"],caster:true,spellStat:"wis",armorProf:"Ligera+media",desc:"Explorador y cazador.",features:["Enemigo predilecto","Explorador natural","CompaÃ±ero animal nv3"]},
-  sorcerer:{n:"Hechicero",e:"âœ¨",hd:6,pstat:"cha",saves:["con","cha"],caster:true,spellStat:"cha",armorProf:"Ninguna",desc:"Magia innata.",features:["Origen de hechicero","Puntos de hechicerÃ­a","Metamagia"]},
-  warlock:{n:"Brujo",e:"ðŸŒ‘",hd:8,pstat:"cha",saves:["wis","cha"],caster:true,spellStat:"cha",armorProf:"Ligera",desc:"Pacto con entidades.",features:["PatrÃ³n sobrenatural","Invocaciones espectrales","Magia de pacto"]},
-  monk:{n:"Monje",e:"â˜¯ï¸",hd:8,pstat:"dex",saves:["str","dex"],caster:false,armorProf:"Ninguna",desc:"Artes marciales y ki.",features:["Artes marciales","Defensa sin armadura","Puntos ki nv2"]},
+  fighter:{n:"Guerrero",e:"⚔️",hd:10,pstat:"str",saves:["str","con"],caster:false,armorProf:"Todas",desc:"Maestro del combate.",features:["Segunda oportunidad (2/desc.)","Estilo de combate","Habilidades adicionales"]},
+  wizard:{n:"Mago",e:"🧙",hd:6,pstat:"int",saves:["int","wis"],caster:true,spellStat:"int",armorProf:"Ninguna",desc:"Domina la magia arcana.",features:["Recuperar hechizos arcanos","Tradición arcana","Dominar hechizo"]},
+  rogue:{n:"Pícaro",e:"🗡️",hd:8,pstat:"dex",saves:["dex","int"],caster:false,armorProf:"Ligera",desc:"Sigilo y ataque preciso.",features:["Experto (doble prof.)","Ataque furtivo","Acción astuciosa"]},
+  cleric:{n:"Clérigo",e:"✝️",hd:8,pstat:"wis",saves:["wis","cha"],caster:true,spellStat:"wis",armorProf:"Ligera+media",desc:"Poder divino.",features:["Dominio divino","Canalizar divinidad","Intervención divina nv10"]},
+  barbarian:{n:"Bárbaro",e:"🪓",hd:12,pstat:"str",saves:["str","con"],caster:false,armorProf:"Ligera+media",desc:"Furia devastadora.",features:["Furia (2/desc.largo)","Defensa sin armadura","Sentido del peligro"]},
+  bard:{n:"Bardo",e:"🎵",hd:8,pstat:"cha",saves:["dex","cha"],caster:true,spellStat:"cha",armorProf:"Ligera",desc:"Magia del arte.",features:["Inspiración bárdica","Jack of All Trades","Secretos bárdicos"]},
+  druid:{n:"Druida",e:"🌿",hd:8,pstat:"wis",saves:["int","wis"],caster:true,spellStat:"wis",armorProf:"Ligera+media",desc:"Guardián de la naturaleza.",features:["Forma salvaje (2/desc.)","Círculo druídico","Recuperación natural"]},
+  paladin:{n:"Paladín",e:"⚜️",hd:10,pstat:"cha",saves:["wis","cha"],caster:true,spellStat:"cha",armorProf:"Todas",desc:"Guerrero sagrado.",features:["Imposición de manos","Sentido divino","Aura de protección nv6"]},
+  ranger:{n:"Guardabosques",e:"🏹",hd:10,pstat:"dex",saves:["str","dex"],caster:true,spellStat:"wis",armorProf:"Ligera+media",desc:"Explorador y cazador.",features:["Enemigo predilecto","Explorador natural","Compañero animal nv3"]},
+  sorcerer:{n:"Hechicero",e:"✨",hd:6,pstat:"cha",saves:["con","cha"],caster:true,spellStat:"cha",armorProf:"Ninguna",desc:"Magia innata.",features:["Origen de hechicero","Puntos de hechicería","Metamagia"]},
+  warlock:{n:"Brujo",e:"🌑",hd:8,pstat:"cha",saves:["wis","cha"],caster:true,spellStat:"cha",armorProf:"Ligera",desc:"Pacto con entidades.",features:["Patrón sobrenatural","Invocaciones espectrales","Magia de pacto"]},
+  monk:{n:"Monje",e:"☯️",hd:8,pstat:"dex",saves:["str","dex"],caster:false,armorProf:"Ninguna",desc:"Artes marciales y ki.",features:["Artes marciales","Defensa sin armadura","Puntos ki nv2"]},
 };
 const STATS=["str","dex","con","int","wis","cha"];
 const STAT_N={str:"FUE",dex:"DES",con:"CON",int:"INT",wis:"SAB",cha:"CAR"};
@@ -420,50 +420,45 @@ const profBonus=lv=>Math.ceil(lv/4)+1;
 const maxHP=(cls,lv,con)=>{const hd=CLASSES[cls]?.hd||8;return hd+mod(con)+(lv-1)*(Math.floor(hd/2)+1+mod(con));};
 
 const ITEMS = {
-  longsword:{id:"longsword",n:"Espada Larga",e:"âš”ï¸",t:"weapon",slot:"mainhand",dmg:"1d8",dt:"tajo",w:3,minStr:10,val:15,rar:"c",desc:"Hoja larga de filo doble."},
-  shortsword:{id:"shortsword",n:"Espada Corta",e:"ðŸ—¡ï¸",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"perforante",w:2,val:10,rar:"c",desc:"Ãgil y veloz, favorita de pÃ­caros."},
-  staff:{id:"staff",n:"BastÃ³n Arcano",e:"ðŸª„",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"contundente",w:4,minInt:8,val:5,rar:"c",desc:"Imbuido de energÃ­a arcana."},
-  dagger:{id:"dagger",n:"Daga",e:"ðŸ”ª",t:"weapon",slot:"mainhand",dmg:"1d4",dt:"perforante",w:1,val:2,rar:"c",desc:"PequeÃ±a pero letal."},
-  greataxe:{id:"greataxe",n:"Hacha Grande",e:"ðŸª“",t:"weapon",slot:"mainhand",dmg:"1d12",dt:"tajo",w:7,minStr:15,val:30,rar:"c",desc:"Devastadora."},
-  longbow:{id:"longbow",n:"Arco Largo",e:"ðŸ¹",t:"weapon",slot:"mainhand",dmg:"1d8",dt:"perforante",w:2,ranged:true,val:50,rar:"c",desc:"Alcance 150/600ft."},
-  handaxe:{id:"handaxe",n:"Hacha de Mano",e:"ðŸªƒ",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"tajo",w:2,val:5,rar:"c",desc:"Ligera, puede lanzarse."},
-  mace:{id:"mace",n:"Maza",e:"ðŸ”¨",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"contundente",w:4,val:5,rar:"c",desc:"Efectiva contra no-muertos."},
-  quarterstaff:{id:"quarterstaff",n:"BastÃ³n",e:"ðŸªµ",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"contundente",w:4,val:2,rar:"c",desc:"Simple y versÃ¡til."},
-  flamesword:{id:"flamesword",n:"Espada Llameante",e:"ðŸ”¥",t:"weapon",slot:"mainhand",dmg:"1d8+1d6",dt:"fuego",w:3,minStr:12,minLevel:5,val:800,rar:"r",magical:true,desc:"+1d6 daÃ±o de fuego.",bonus:{str:0}},
-  katana:{id:"katana",n:"Katana Lunar",e:"ðŸŒ™",t:"weapon",slot:"mainhand",dmg:"1d8",dt:"tajo",w:2,val:25,rar:"u",desc:"Hoja curva de duelo."},
-  chainmail:{id:"chainmail",n:"Cota de Malla",e:"ðŸ›¡ï¸",t:"armor",slot:"body",ac:16,w:55,minStr:13,val:75,rar:"c",stealthDisadv:true,desc:"Anillos metÃ¡licos entrelazados."},
-  leather:{id:"leather",n:"Armadura Cuero",e:"ðŸ¥‹",t:"armor",slot:"body",ac:11,acDex:true,w:10,val:10,rar:"c",desc:"Ligera y silenciosa."},
-  robes:{id:"robes",n:"TÃºnica de Mago",e:"ðŸ‘˜",t:"armor",slot:"body",ac:11,acDex:true,w:4,val:10,rar:"c",desc:"ProtecciÃ³n arcana."},
-  platemail:{id:"platemail",n:"Armadura Placas",e:"ðŸ¦º",t:"armor",slot:"body",ac:18,w:65,minStr:15,val:1500,rar:"u",stealthDisadv:true,desc:"ProtecciÃ³n mÃ¡xima."},
-  scalemail:{id:"scalemail",n:"Armadura Escamas",e:"ðŸ",t:"armor",slot:"body",ac:14,acDex:true,maxDex:2,w:45,minStr:11,val:50,rar:"c",desc:"Escamas de metal."},
-  shield:{id:"shield",n:"Escudo",e:"ðŸ›¡",t:"armor",slot:"offhand",ac:2,w:6,val:10,rar:"c",desc:"Madera con refuerzo de acero."},
-  towershield:{id:"towershield",n:"Escudo Torre",e:"ðŸ°",t:"armor",slot:"offhand",ac:3,w:15,minStr:14,val:30,rar:"c",desc:"Gran protecciÃ³n, pesado."},
-  cloak:{id:"cloak",n:"Capa del Viajero",e:"ðŸ§¥",t:"armor",slot:"cape",w:1,val:5,rar:"c",desc:"Lana gruesa para el viaje."},
-  redscarf:{id:"redscarf",n:"Bufanda Escarlata",e:"ðŸ§£",t:"armor",slot:"cape",w:0.3,val:8,rar:"c",desc:"Flamea al correr."},
-  cloakprotection:{id:"cloakprotection",n:"Capa ProtecciÃ³n",e:"âœ¨",t:"armor",slot:"cape",ac:1,w:1,val:500,rar:"u",magical:true,saveMod:1,desc:"+1 CA y salvaciones."},
-  elvishcloak:{id:"elvishcloak",n:"Capa Ã‰lfica",e:"ðŸŒ¿",t:"armor",slot:"cape",w:0.5,val:400,rar:"u",magical:true,bonus:{dex:1},desc:"Ventaja en Sigilo."},
-  helm:{id:"helm",n:"Yelmo de Hierro",e:"â›‘ï¸",t:"armor",slot:"head",w:3,val:10,rar:"c",desc:"ProtecciÃ³n bÃ¡sica."},
-  adventurerhood:{id:"adventurerhood",n:"Capucha Aventurero",e:"ðŸª–",t:"armor",slot:"head",w:0.5,val:8,rar:"c",desc:"Aire misterioso y viajero."},
-  hairribbon:{id:"hairribbon",n:"Lazo Heroico",e:"ðŸŽ€",t:"armor",slot:"head",w:0.1,val:4,rar:"c",desc:"EnergÃ­a protagonista."},
-  wizardhat:{id:"wizardhat",n:"Sombrero de Mago",e:"ðŸŽ©",t:"armor",slot:"head",w:0.5,val:50,rar:"u",magical:true,bonus:{int:1},classOnly:["wizard","sorcerer","warlock"],desc:"+1 INT."},
-  crownvalor:{id:"crownvalor",n:"Corona del Valor",e:"ðŸ‘‘",t:"armor",slot:"head",w:0.8,val:800,rar:"r",magical:true,bonus:{cha:2},desc:"+2 CAR. Presencia imponente.",minLevel:5},
-  elfleafhelm:{id:"elfleafhelm",n:"Yelmo Hoja Ã‰lfica",e:"ðŸƒ",t:"armor",slot:"head",w:1,val:120,rar:"u",desc:"Casco liviano de hojas endurecidas, ajustado para elfos.",bonus:{dex:1}},
-  elfleafmail:{id:"elfleafmail",n:"Pechera Hoja Ã‰lfica",e:"ðŸ¥¬",t:"armor",slot:"body",ac:13,acDex:true,w:12,val:220,rar:"u",desc:"Pechera flexible de escamas verdes y plata, pensada para moverse sin ruido."},
-  elfcourtiertunic:{id:"elfcourtiertunic",n:"TÃºnica Cortesana Ã‰lfica",e:"ðŸŸ¢",t:"armor",slot:"body",ac:11,acDex:true,w:3,val:80,rar:"c",desc:"Vestimenta bÃ¡sica Ã©lfica de viaje, cÃ³moda y elegante."},
-  elfroundshield:{id:"elfroundshield",n:"Escudo Redondo Ã‰lfico",e:"ðŸ›¡ï¸",t:"armor",slot:"offhand",ac:2,w:5,val:110,rar:"u",desc:"Escudo circular ornamentado con aro dorado y nÃºcleo azul."},
-  runesunblade:{id:"runesunblade",n:"Hoja Solar RÃºnica",e:"âšœï¸",t:"weapon",slot:"mainhand",dmg:"1d8+1d8",dt:"radiante",w:3,val:1200,rar:"r",magical:true,desc:"Arma Ã©pica Ã©lfica. La hoja brilla con runas solares y suma daÃ±o radiante.",bonus:{cha:1}},
-  spellbook:{id:"spellbook",n:"Grimorio",e:"ðŸ“–",t:"acc",slot:"acc",val:50,rar:"u",classOnly:["wizard","warlock"],desc:"FÃ³rmulas arcanas."},
-  mooncharm:{id:"mooncharm",n:"Amuleto Lunar",e:"ðŸŒ™",t:"acc",slot:"acc",val:20,rar:"c",desc:"Colgante plateado."},
-  amuletHealth:{id:"amuletHealth",n:"Amuleto Salud",e:"ðŸ’š",t:"acc",slot:"acc",val:500,rar:"u",magical:true,bonus:{con:2},desc:"+2 CON."},
-  ringProtection:{id:"ringProtection",n:"Anillo ProtecciÃ³n",e:"ðŸ’",t:"acc",slot:"acc",val:750,rar:"r",magical:true,ac:1,saveMod:1,desc:"+1 CA y salvaciones."},
-  healingpotion:{id:"healingpotion",n:"PociÃ³n Curativa",e:"ðŸ§ª",t:"consumable",val:50,rar:"c",w:0.5,desc:"Al beberla recupera 2d4 + 2 puntos de golpe."},
-  greaterhealingpotion:{id:"greaterhealingpotion",n:"PociÃ³n Curativa Mayor",e:"ðŸ§´",t:"consumable",val:150,rar:"u",w:0.5,desc:"Una versiÃ³n reforzada para emergencias serias."},
-  antitoxin:{id:"antitoxin",n:"Antitoxina",e:"ðŸ§¬",t:"consumable",val:50,rar:"c",w:0.5,desc:"Ayuda a resistir venenos y toxinas."},
-  rations:{id:"rations",n:"Raciones de Viaje",e:"ðŸ¥–",t:"misc",val:1,rar:"c",w:2,desc:"Comida seca para seguir la aventura."},
-  rope:{id:"rope",n:"Cuerda de CÃ¡Ã±amo",e:"ðŸª¢",t:"misc",val:1,rar:"c",w:10,desc:"50 pies de cuerda resistente."},
+  longsword:{id:"longsword",n:"Espada Larga",e:"⚔️",t:"weapon",slot:"mainhand",dmg:"1d8",dt:"tajo",w:3,minStr:10,val:15,rar:"c",desc:"Hoja larga de filo doble."},
+  shortsword:{id:"shortsword",n:"Espada Corta",e:"🗡️",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"perforante",w:2,val:10,rar:"c",desc:"Ágil y veloz, favorita de pícaros."},
+  staff:{id:"staff",n:"Bastón Arcano",e:"🪄",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"contundente",w:4,minInt:8,val:5,rar:"c",desc:"Imbuido de energía arcana."},
+  dagger:{id:"dagger",n:"Daga",e:"🔪",t:"weapon",slot:"mainhand",dmg:"1d4",dt:"perforante",w:1,val:2,rar:"c",desc:"Pequeña pero letal."},
+  greataxe:{id:"greataxe",n:"Hacha Grande",e:"🪓",t:"weapon",slot:"mainhand",dmg:"1d12",dt:"tajo",w:7,minStr:15,val:30,rar:"c",desc:"Devastadora."},
+  longbow:{id:"longbow",n:"Arco Largo",e:"🏹",t:"weapon",slot:"mainhand",dmg:"1d8",dt:"perforante",w:2,ranged:true,val:50,rar:"c",desc:"Alcance 150/600ft."},
+  handaxe:{id:"handaxe",n:"Hacha de Mano",e:"🪃",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"tajo",w:2,val:5,rar:"c",desc:"Ligera, puede lanzarse."},
+  mace:{id:"mace",n:"Maza",e:"🔨",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"contundente",w:4,val:5,rar:"c",desc:"Efectiva contra no-muertos."},
+  quarterstaff:{id:"quarterstaff",n:"Bastón",e:"🪵",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"contundente",w:4,val:2,rar:"c",desc:"Simple y versátil."},
+  flamesword:{id:"flamesword",n:"Espada Llameante",e:"🔥",t:"weapon",slot:"mainhand",dmg:"1d8+1d6",dt:"fuego",w:3,minStr:12,minLevel:5,val:800,rar:"r",magical:true,desc:"+1d6 daño de fuego.",bonus:{str:0}},
+  katana:{id:"katana",n:"Katana Lunar",e:"🌙",t:"weapon",slot:"mainhand",dmg:"1d8",dt:"tajo",w:2,val:25,rar:"u",desc:"Hoja curva de duelo."},
+  chainmail:{id:"chainmail",n:"Cota de Malla",e:"🛡️",t:"armor",slot:"body",ac:16,w:55,minStr:13,val:75,rar:"c",stealthDisadv:true,desc:"Anillos metálicos entrelazados."},
+  leather:{id:"leather",n:"Armadura Cuero",e:"🥋",t:"armor",slot:"body",ac:11,acDex:true,w:10,val:10,rar:"c",desc:"Ligera y silenciosa."},
+  robes:{id:"robes",n:"Túnica de Mago",e:"👘",t:"armor",slot:"body",ac:11,acDex:true,w:4,val:10,rar:"c",desc:"Protección arcana."},
+  platemail:{id:"platemail",n:"Armadura Placas",e:"🦺",t:"armor",slot:"body",ac:18,w:65,minStr:15,val:1500,rar:"u",stealthDisadv:true,desc:"Protección máxima."},
+  scalemail:{id:"scalemail",n:"Armadura Escamas",e:"🐍",t:"armor",slot:"body",ac:14,acDex:true,maxDex:2,w:45,minStr:11,val:50,rar:"c",desc:"Escamas de metal."},
+  shield:{id:"shield",n:"Escudo",e:"🛡",t:"armor",slot:"offhand",ac:2,w:6,val:10,rar:"c",desc:"Madera con refuerzo de acero."},
+  towershield:{id:"towershield",n:"Escudo Torre",e:"🏰",t:"armor",slot:"offhand",ac:3,w:15,minStr:14,val:30,rar:"c",desc:"Gran protección, pesado."},
+  cloak:{id:"cloak",n:"Capa del Viajero",e:"🧥",t:"armor",slot:"cape",w:1,val:5,rar:"c",desc:"Lana gruesa para el viaje."},
+  redscarf:{id:"redscarf",n:"Bufanda Escarlata",e:"🧣",t:"armor",slot:"cape",w:0.3,val:8,rar:"c",desc:"Flamea al correr."},
+  cloakprotection:{id:"cloakprotection",n:"Capa Protección",e:"✨",t:"armor",slot:"cape",ac:1,w:1,val:500,rar:"u",magical:true,saveMod:1,desc:"+1 CA y salvaciones."},
+  elvishcloak:{id:"elvishcloak",n:"Capa Élfica",e:"🌿",t:"armor",slot:"cape",w:0.5,val:400,rar:"u",magical:true,bonus:{dex:1},desc:"Ventaja en Sigilo."},
+  helm:{id:"helm",n:"Yelmo de Hierro",e:"⛑️",t:"armor",slot:"head",w:3,val:10,rar:"c",desc:"Protección básica."},
+  adventurerhood:{id:"adventurerhood",n:"Capucha Aventurero",e:"🪖",t:"armor",slot:"head",w:0.5,val:8,rar:"c",desc:"Aire misterioso y viajero."},
+  hairribbon:{id:"hairribbon",n:"Lazo Heroico",e:"🎀",t:"armor",slot:"head",w:0.1,val:4,rar:"c",desc:"Energía protagonista."},
+  wizardhat:{id:"wizardhat",n:"Sombrero de Mago",e:"🎩",t:"armor",slot:"head",w:0.5,val:50,rar:"u",magical:true,bonus:{int:1},classOnly:["wizard","sorcerer","warlock"],desc:"+1 INT."},
+  crownvalor:{id:"crownvalor",n:"Corona del Valor",e:"👑",t:"armor",slot:"head",w:0.8,val:800,rar:"r",magical:true,bonus:{cha:2},desc:"+2 CAR. Presencia imponente.",minLevel:5},
+  spellbook:{id:"spellbook",n:"Grimorio",e:"📖",t:"acc",slot:"acc",val:50,rar:"u",classOnly:["wizard","warlock"],desc:"Fórmulas arcanas."},
+  mooncharm:{id:"mooncharm",n:"Amuleto Lunar",e:"🌙",t:"acc",slot:"acc",val:20,rar:"c",desc:"Colgante plateado."},
+  amuletHealth:{id:"amuletHealth",n:"Amuleto Salud",e:"💚",t:"acc",slot:"acc",val:500,rar:"u",magical:true,bonus:{con:2},desc:"+2 CON."},
+  ringProtection:{id:"ringProtection",n:"Anillo Protección",e:"💍",t:"acc",slot:"acc",val:750,rar:"r",magical:true,ac:1,saveMod:1,desc:"+1 CA y salvaciones."},
+  healingpotion:{id:"healingpotion",n:"Poción Curativa",e:"🧪",t:"consumable",val:50,rar:"c",w:0.5,desc:"Al beberla recupera 2d4 + 2 puntos de golpe."},
+  greaterhealingpotion:{id:"greaterhealingpotion",n:"Poción Curativa Mayor",e:"🧴",t:"consumable",val:150,rar:"u",w:0.5,desc:"Una versión reforzada para emergencias serias."},
+  antitoxin:{id:"antitoxin",n:"Antitoxina",e:"🧬",t:"consumable",val:50,rar:"c",w:0.5,desc:"Ayuda a resistir venenos y toxinas."},
+  rations:{id:"rations",n:"Raciones de Viaje",e:"🥖",t:"misc",val:1,rar:"c",w:2,desc:"Comida seca para seguir la aventura."},
+  rope:{id:"rope",n:"Cuerda de Cáñamo",e:"🪢",t:"misc",val:1,rar:"c",w:10,desc:"50 pies de cuerda resistente."},
 };
 const CLASS_ITEMS={fighter:["longsword","chainmail","shield"],wizard:["staff","robes","spellbook"],rogue:["shortsword","dagger","leather"],cleric:["mace","chainmail","shield"],barbarian:["greataxe","leather"],bard:["shortsword","leather"],druid:["quarterstaff","leather","cloak"],paladin:["longsword","chainmail","shield"],ranger:["longbow","leather","handaxe"],sorcerer:["dagger","robes"],warlock:["dagger","robes","spellbook"],monk:["quarterstaff"]};
-const STYLE_LOADOUTS={all:["cloak","redscarf","mooncharm","elfleafhelm","elfleafmail","elfcourtiertunic","elfroundshield","runesunblade"],fighter:["katana","helm","handaxe"],wizard:["dagger","adventurerhood","wizardhat"],rogue:["katana","hairribbon","cloak"],cleric:["quarterstaff","helm","mooncharm"],barbarian:["handaxe","katana","adventurerhood"],bard:["dagger","hairribbon","redscarf"],druid:["dagger","adventurerhood","mooncharm"],paladin:["katana","helm","cloak"],ranger:["shortsword","adventurerhood","redscarf"],sorcerer:["staff","hairribbon","wizardhat"],warlock:["staff","adventurerhood","wizardhat"],monk:["dagger","hairribbon","redscarf"]};
+const STYLE_LOADOUTS={all:["cloak","redscarf","mooncharm"],fighter:["katana","helm","handaxe"],wizard:["dagger","adventurerhood","wizardhat"],rogue:["katana","hairribbon","cloak"],cleric:["quarterstaff","helm","mooncharm"],barbarian:["handaxe","katana","adventurerhood"],bard:["dagger","hairribbon","redscarf"],druid:["dagger","adventurerhood","mooncharm"],paladin:["katana","helm","cloak"],ranger:["shortsword","adventurerhood","redscarf"],sorcerer:["staff","hairribbon","wizardhat"],warlock:["staff","adventurerhood","wizardhat"],monk:["dagger","hairribbon","redscarf"]};
 
 const buildStarterLoadout=(cls)=>{
   const equipment={},owned=[],seen=new Set();
@@ -474,9 +469,9 @@ const buildStarterLoadout=(cls)=>{
 };
 
 const COIN_TYPES=[
-  {type:"gold",icon:"ðŸª™",label:"Oro",color:"#C9A84C"},
-  {type:"silver",icon:"ðŸ¥ˆ",label:"Plata",color:"#A8A8B8"},
-  {type:"copper",icon:"ðŸŸ¤",label:"Cobre",color:"#B87040"},
+  {type:"gold",icon:"🪙",label:"Oro",color:"#C9A84C"},
+  {type:"silver",icon:"🥈",label:"Plata",color:"#A8A8B8"},
+  {type:"copper",icon:"🟤",label:"Cobre",color:"#B87040"},
 ];
 const EQUIP_SLOTS=new Set(["head","mainhand","body","offhand","cape","acc"]);
 const SLOT_LABELS={head:"Cabeza",mainhand:"Mano principal",body:"Cuerpo",offhand:"Mano secundaria",cape:"Capa",acc:"Accesorio"};
@@ -583,12 +578,12 @@ const buildAccountRecord=(user,extra={})=>({
 });
 const friendlyAuthError=err=>{
   const code=err?.code||"";
-  if(code.includes("invalid-email"))return"El email no es vÃ¡lido.";
-  if(code.includes("email-already-in-use"))return"Ese email ya estÃ¡ registrado.";
-  if(code.includes("weak-password"))return"La contraseÃ±a debe tener al menos 6 caracteres.";
-  if(code.includes("invalid-credential")||code.includes("wrong-password")||code.includes("user-not-found"))return"Email o contraseÃ±a incorrectos.";
-  if(code.includes("too-many-requests"))return"Demasiados intentos. ProbÃ¡ de nuevo en unos minutos.";
-  return err?.message||"No se pudo completar la autenticaciÃ³n.";
+  if(code.includes("invalid-email"))return"El email no es válido.";
+  if(code.includes("email-already-in-use"))return"Ese email ya está registrado.";
+  if(code.includes("weak-password"))return"La contraseña debe tener al menos 6 caracteres.";
+  if(code.includes("invalid-credential")||code.includes("wrong-password")||code.includes("user-not-found"))return"Email o contraseña incorrectos.";
+  if(code.includes("too-many-requests"))return"Demasiados intentos. Probá de nuevo en unos minutos.";
+  return err?.message||"No se pudo completar la autenticación.";
 };
 
 const checkItem=(char,item)=>{
@@ -621,10 +616,8 @@ const calcBonuses=(char)=>{
 };
 
 const genId=(n=8)=>Math.random().toString(36).substring(2,2+n).toUpperCase();
-const ELF_BASE_SPRITE = 'data:image/png;base64,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';
 
-
-// â”€â”€â”€ LINEAGE 2 CHARACTER SVG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── LINEAGE 2 CHARACTER SVG ─────────────────────────────────
 const CharSVG = ({ char }) => {
   if (!char) return null;
   const eq = char.equipment || {};
@@ -638,7 +631,7 @@ const CharSVG = ({ char }) => {
   // Armor color by equipped body
   const bodyId = eq.body;
   const bodyItem = ITEMS[bodyId];
-  const armorColor = bodyItem ? (bodyId==="elfleafmail"?"#4D7355":bodyId==="elfcourtiertunic"?"#2F6B46":bodyId==="chainmail"||bodyId==="scalemail"?"#9AA8B0":bodyId==="platemail"?"#C8D0D8":bodyId==="leather"?"#8B6040":bodyId==="robes"?"#5050A0":"#888") : "none";
+  const armorColor = bodyItem ? (bodyId==="chainmail"||bodyId==="scalemail"?"#9AA8B0":bodyId==="platemail"?"#C8D0D8":bodyId==="leather"?"#8B6040":bodyId==="robes"?"#5050A0":"#888") : "none";
   const hasArmor = !!bodyItem;
   const hasShield = !!eq.offhand;
   const hasWeapon = !!eq.mainhand;
@@ -647,11 +640,6 @@ const CharSVG = ({ char }) => {
   const capeColor = hasCape ? (eq.cape==="elvishcloak"?"#4A7A50":eq.cape==="cloakprotection"?"#8060A0":"#6A4020") : null;
   const weaponItem = ITEMS[eq.mainhand];
   const weaponColor = weaponItem ? (weaponItem.rar==="r"?"#C9A84C":weaponItem.rar==="u"?"#5BA3E0":"#9AA0A8") : "#9AA0A8";
-  const isLeafmail = bodyId==="elfleafmail";
-  const isCourtierTunic = bodyId==="elfcourtiertunic";
-  const isElfShield = eq.offhand==="elfroundshield";
-  const isRuneSunblade = eq.mainhand==="runesunblade";
-  const useElfSprite = race==="elf";
 
   const isFemale = char.appearance?.bodyType === "female";
   const hairY = isFemale ? 18 : 20;
@@ -664,92 +652,53 @@ const CharSVG = ({ char }) => {
         <stop offset="100%" stopColor="#C9A84C" stopOpacity="0"/>
       </radialGradient>
       <ellipse cx="50" cy="130" rx="38" ry="14" fill="url(#pglow)"/>
-      {useElfSprite && <image href={ELF_BASE_SPRITE} x="16" y="4" width="68" height="150" preserveAspectRatio="xMidYMid meet"/>}
 
       {/* Cape (back layer) */}
       {hasCape && <path d={`M${isFemale?36:38},50 Q${isFemale?18:20},95 ${isFemale?22:24},145 L${isFemale?32:34},145 Q${isFemale?28:30},95 ${isFemale?42:44},55Z`} fill={capeColor} opacity="0.9"/>}
       {hasCape && <path d={`M${isFemale?64:62},50 Q${isFemale?82:80},95 ${isFemale?78:76},145 L${isFemale?68:66},145 Q${isFemale?72:70},95 ${isFemale?58:56},55Z`} fill={capeColor} opacity="0.9"/>}
 
       {/* Legs */}
-      {!useElfSprite && <>
-        <rect x={isFemale?37:38} y="105" width={isFemale?9:9} height="40" rx="3" fill={hasArmor?"#5A6068":skin}/>
-        <rect x={isFemale?54:53} y="105" width={isFemale?9:9} height="40" rx="3" fill={hasArmor?"#5A6068":skin}/>
-        {/* Boots */}
-        <rect x={isFemale?36:37} y="138" width={isFemale?11:11} height="8" rx="3" fill="#3A2A18"/>
-        <rect x={isFemale?53:52} y="138" width={isFemale?11:11} height="8" rx="3" fill="#3A2A18"/>
-      </>}
+      <rect x={isFemale?37:38} y="105" width={isFemale?9:9} height="40" rx="3" fill={hasArmor?"#5A6068":skin}/>
+      <rect x={isFemale?54:53} y="105" width={isFemale?9:9} height="40" rx="3" fill={hasArmor?"#5A6068":skin}/>
+      {/* Boots */}
+      <rect x={isFemale?36:37} y="138" width={isFemale?11:11} height="8" rx="3" fill="#3A2A18"/>
+      <rect x={isFemale?53:52} y="138" width={isFemale?11:11} height="8" rx="3" fill="#3A2A18"/>
 
       {/* Body */}
-      {!useElfSprite && (hasArmor
+      {hasArmor
         ? <rect x={isFemale?32:34} y="60" width={isFemale?36:32} height="48" rx="6" fill={armorColor}/>
         : <rect x={isFemale?32:34} y="60" width={isFemale?36:32} height="48" rx="6" fill={skin}/>
-      )}
-      {!useElfSprite && hasArmor && <rect x={isFemale?32:34} y="60" width={isFemale?36:32} height="6" rx="3" fill="rgba(255,255,255,0.1)"/>}
+      }
+      {hasArmor && <rect x={isFemale?32:34} y="60" width={isFemale?36:32} height="6" rx="3" fill="rgba(255,255,255,0.1)"/>}
 
       {/* Arms */}
-      {!useElfSprite && <>
-        <rect x={isFemale?18:20} y="62" width={isFemale?14:13} height="38" rx="5" fill={hasArmor?armorColor:skin}/>
-        <rect x={isFemale?68:67} y="62" width={isFemale?14:13} height="38" rx="5" fill={hasArmor?armorColor:skin}/>
-      </>}
-      {isLeafmail && <>
-        <path d="M31,62 Q50,52 69,62 L64,108 Q50,116 36,108Z" fill="#425C56" stroke="#9FB8A0" strokeWidth="1"/>
-        <path d="M35,66 Q50,58 65,66 L61,104 Q50,111 39,104Z" fill="#5F8A55"/>
-        {[0,1,2,3].map(i=><path key={i} d={`M38,${72+i*7} Q50,${78+i*5} 62,${72+i*7}`} stroke="#B8C0B0" strokeWidth="1" opacity=".75" fill="none"/>)}
-        <path d="M40,62 Q50,70 60,62" stroke="#C9A84C" strokeWidth="1.5" fill="none"/>
-      </>}
-      {isCourtierTunic && <>
-        <path d="M32,61 Q50,54 68,61 L66,106 Q50,117 34,106Z" fill="#1F5438" stroke="#8AB06C" strokeWidth="1"/>
-        <path d="M42,62 L50,109 L58,62" fill="#C7D59A" opacity=".55"/>
-        <path d="M36,75 Q50,82 64,75" stroke="#D2B870" strokeWidth="2" fill="none"/>
-        <path d="M34,104 Q50,112 66,104" stroke="#D2B870" strokeWidth="1.2" fill="none"/>
-      </>}
+      <rect x={isFemale?18:20} y="62" width={isFemale?14:13} height="38" rx="5" fill={hasArmor?armorColor:skin}/>
+      <rect x={isFemale?68:67} y="62" width={isFemale?14:13} height="38" rx="5" fill={hasArmor?armorColor:skin}/>
       {/* Hands */}
-      {!useElfSprite && <>
-        <ellipse cx={isFemale?25:26} cy="103" rx="6" ry="5" fill={skin}/>
-        <ellipse cx={isFemale?75:74} cy="103" rx="6" ry="5" fill={skin}/>
-      </>}
+      <ellipse cx={isFemale?25:26} cy="103" rx="6" ry="5" fill={skin}/>
+      <ellipse cx={isFemale?75:74} cy="103" rx="6" ry="5" fill={skin}/>
 
       {/* Shield */}
-      {hasShield && isElfShield && <>
-        <circle cx="16" cy="90" r="15" fill="#263B42" stroke="#C9A84C" strokeWidth="2"/>
-        <circle cx="16" cy="90" r="9" fill="#4E6E73" stroke="#9CC4C4" strokeWidth="1"/>
-        <circle cx="16" cy="90" r="3" fill="#5BA3E0"/>
-        <path d="M16,75 L19,88 L31,90 L19,93 L16,105 L13,93 L1,90 L13,88Z" fill="none" stroke="#C9A84C" strokeWidth="1" opacity=".8"/>
-      </>}
-      {hasShield && !isElfShield && <ellipse cx={isFemale?15:15} cy="90" rx="10" ry="14" fill="#6A7880" stroke="#8A9098" strokeWidth="1.5"/>}
-      {hasShield && !isElfShield && <line x1={isFemale?15:15} y1="78" x2={isFemale?15:15} y2="102" stroke="#C9A84C" strokeWidth="1.2"/>}
-      {hasShield && !isElfShield && <line x1="8" y1="90" x2="22" y2="90" stroke="#C9A84C" strokeWidth="1.2"/>}
+      {hasShield && <ellipse cx={isFemale?15:15} cy="90" rx="10" ry="14" fill="#6A7880" stroke="#8A9098" strokeWidth="1.5"/>}
+      {hasShield && <line x1={isFemale?15:15} y1="78" x2={isFemale?15:15} y2="102" stroke="#C9A84C" strokeWidth="1.2"/>}
+      {hasShield && <line x1="8" y1="90" x2="22" y2="90" stroke="#C9A84C" strokeWidth="1.2"/>}
 
       {/* Weapon */}
-      {hasWeapon && isRuneSunblade
-        ? <>
-            <path d="M79,106 L91,38" stroke="#8E6B2A" strokeWidth="4" strokeLinecap="round"/>
-            <path d="M82,43 L92,36 L95,48 L88,95 L77,106 Z" fill="#E9D08A" stroke="#C9A84C" strokeWidth="1.5"/>
-            <path d="M86,47 L91,45 L86,91 L81,99 Z" fill="#7EC8D8" opacity=".85"/>
-            <path d="M75,104 L88,111" stroke="#C9A84C" strokeWidth="4" strokeLinecap="round"/>
-            <circle cx="83" cy="103" r="3" fill="#5BA3E0"/>
-            <circle cx="88" cy="60" r="8" fill="rgba(201,168,76,.18)" style={{animation:"glow 2s infinite"}}/>
-          </>
-        : hasWeapon && weaponItem?.ranged
-          ? <path d="M82,50 L86,130" stroke={weaponColor} strokeWidth="2" strokeLinecap="round"/>
-          : hasWeapon && <path d={`M78,45 L82,115`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>
+      {hasWeapon && weaponItem?.ranged
+        ? <path d="M82,50 L86,130" stroke={weaponColor} strokeWidth="2" strokeLinecap="round"/>
+        : hasWeapon && <path d={`M78,45 L82,115`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>
       }
-      {hasWeapon && !isRuneSunblade && weaponItem?.t==="weapon" && !weaponItem?.ranged && <path d={`M75,43 L85,43`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>}
-      {weaponItem?.magical && hasWeapon && !isRuneSunblade && <circle cx="79" cy="50" r="4" fill="rgba(201,168,76,0.4)" style={{animation:"glow 2s infinite"}}/>}
+      {hasWeapon && weaponItem?.t==="weapon" && !weaponItem?.ranged && <path d={`M75,43 L85,43`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>}
+      {weaponItem?.magical && hasWeapon && <circle cx="79" cy="50" r="4" fill="rgba(201,168,76,0.4)" style={{animation:"glow 2s infinite"}}/>}
 
       {/* Neck */}
-      {!useElfSprite && <rect x="44" y="50" width="12" height="13" rx="4" fill={skin}/>}
+      <rect x="44" y="50" width="12" height="13" rx="4" fill={skin}/>
 
       {/* Head */}
-      {!useElfSprite && <ellipse cx="50" cy={isFemale?36:38} rx={isFemale?16:15} ry={isFemale?18:17} fill={skin}/>}
+      <ellipse cx="50" cy={isFemale?36:38} rx={isFemale?16:15} ry={isFemale?18:17} fill={skin}/>
 
       {/* Helm */}
       {hasHelm && eq.head==="helm" && <path d="M34,38 Q34,20 50,20 Q66,20 66,38 L62,38 Q62,24 50,24 Q38,24 38,38Z" fill="#7A8890"/>}
-      {hasHelm && eq.head==="elfleafhelm" && <>
-        <path d="M34,39 Q35,21 50,17 Q65,21 66,39 L60,35 Q56,27 50,25 Q44,27 40,35Z" fill="#365F42" stroke="#9CB67C" strokeWidth="1"/>
-        <path d="M50,16 Q46,29 35,36 Q48,34 50,45 Q52,34 65,36 Q54,29 50,16Z" fill="#6EA063" opacity=".95"/>
-        <path d="M39,28 Q47,24 50,17 Q53,24 61,28" stroke="#C9A84C" strokeWidth="1.2" fill="none"/>
-      </>}
       {hasHelm && eq.head==="wizardhat" && <>
         <path d="M50,5 L58,30 L42,30Z" fill="#3A2A70"/>
         <rect x="36" y="28" width="28" height="5" rx="2" fill="#5A4A90"/>
@@ -761,17 +710,15 @@ const CharSVG = ({ char }) => {
       {hasHelm && eq.head==="hairribbon" && <path d="M40,28 Q50,22 60,28 Q55,24 50,26 Q45,24 40,28Z" fill="#C83040"/>}
 
       {/* Hair */}
-      {!useElfSprite && !hasHelm && isFemale && <path d="M34,36 Q34,14 50,14 Q66,14 66,36 Q60,20 50,20 Q40,20 34,36Z" fill="#4A3020"/>}
-      {!useElfSprite && !hasHelm && isFemale && <path d="M34,36 Q28,50 30,65" stroke="#4A3020" strokeWidth="6" strokeLinecap="round" fill="none"/>}
-      {!useElfSprite && !hasHelm && isFemale && <path d="M66,36 Q72,50 70,65" stroke="#4A3020" strokeWidth="6" strokeLinecap="round" fill="none"/>}
-      {!useElfSprite && !hasHelm && !isFemale && <path d="M35,38 Q35,18 50,18 Q65,18 65,38 Q60,22 50,22 Q40,22 35,38Z" fill="#3A2818"/>}
+      {!hasHelm && isFemale && <path d="M34,36 Q34,14 50,14 Q66,14 66,36 Q60,20 50,20 Q40,20 34,36Z" fill="#4A3020"/>}
+      {!hasHelm && isFemale && <path d="M34,36 Q28,50 30,65" stroke="#4A3020" strokeWidth="6" strokeLinecap="round" fill="none"/>}
+      {!hasHelm && isFemale && <path d="M66,36 Q72,50 70,65" stroke="#4A3020" strokeWidth="6" strokeLinecap="round" fill="none"/>}
+      {!hasHelm && !isFemale && <path d="M35,38 Q35,18 50,18 Q65,18 65,38 Q60,22 50,22 Q40,22 35,38Z" fill="#3A2818"/>}
 
       {/* Face */}
-      {!useElfSprite && <>
-        <ellipse cx="44" cy={isFemale?37:39} rx="2.5" ry="2" fill="rgba(0,0,0,0.45)"/>
-        <ellipse cx="56" cy={isFemale?37:39} rx="2.5" ry="2" fill="rgba(0,0,0,0.45)"/>
-        <path d={`M45,${isFemale?44:46} Q50,${isFemale?47:49} 55,${isFemale?44:46}`} stroke="rgba(0,0,0,0.3)" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
-      </>}
+      <ellipse cx="44" cy={isFemale?37:39} rx="2.5" ry="2" fill="rgba(0,0,0,0.45)"/>
+      <ellipse cx="56" cy={isFemale?37:39} rx="2.5" ry="2" fill="rgba(0,0,0,0.45)"/>
+      <path d={`M45,${isFemale?44:46} Q50,${isFemale?47:49} 55,${isFemale?44:46}`} stroke="rgba(0,0,0,0.3)" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
 
       {/* Magical glow on armor */}
       {bodyItem?.magical && <rect x={isFemale?32:34} y="60" width={isFemale?36:32} height="48" rx="6" fill="rgba(90,90,200,0.08)" stroke="rgba(100,100,220,0.3)" strokeWidth="0.5"/>}
@@ -782,14 +729,14 @@ const CharSVG = ({ char }) => {
   );
 };
 
-// â”€â”€â”€ EQUIPMENT SLOTS LAYOUT (Lineage 2 style) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── EQUIPMENT SLOTS LAYOUT (Lineage 2 style) ────────────────
 const SLOT_LAYOUT = [
-  { id:"head",    label:"Cabeza",    icon:"â›‘ï¸",  pos:{top:0, left:"50%", transform:"translateX(-50%)"} },
-  { id:"mainhand",label:"Arma",      icon:"âš”ï¸",  pos:{top:60, left:4} },
-  { id:"body",    label:"Cuerpo",    icon:"ðŸ›¡ï¸",  pos:{top:60, left:"50%", transform:"translateX(-50%)"} },
-  { id:"offhand", label:"Escudo",    icon:"ðŸ›¡",   pos:{top:60, right:4} },
-  { id:"cape",    label:"Capa",      icon:"ðŸ§¥",  pos:{top:130, left:4} },
-  { id:"acc",     label:"Accesorio", icon:"ðŸ’",  pos:{top:130, left:"50%", transform:"translateX(-50%)"} },
+  { id:"head",    label:"Cabeza",    icon:"⛑️",  pos:{top:0, left:"50%", transform:"translateX(-50%)"} },
+  { id:"mainhand",label:"Arma",      icon:"⚔️",  pos:{top:60, left:4} },
+  { id:"body",    label:"Cuerpo",    icon:"🛡️",  pos:{top:60, left:"50%", transform:"translateX(-50%)"} },
+  { id:"offhand", label:"Escudo",    icon:"🛡",   pos:{top:60, right:4} },
+  { id:"cape",    label:"Capa",      icon:"🧥",  pos:{top:130, left:4} },
+  { id:"acc",     label:"Accesorio", icon:"💍",  pos:{top:130, left:"50%", transform:"translateX(-50%)"} },
 ];
 
 const rarBadgeColor = {c:"#888",u:"#5cb85c",r:"#5ba3e0"};
@@ -805,12 +752,12 @@ const EquipSlot = ({ slotId, char, onEquip }) => {
       className={`l2-slot${item?" filled":""}`}
       style={slotDef?.pos ? {...slotDef.pos, position:"absolute"} : {}}
       onClick={() => item && onEquip(null, slotId)}
-      title={item ? `${item.n} â€” click para desequipar` : slotDef?.label}
+      title={item ? `${item.n} — click para desequipar` : slotDef?.label}
     >
       {item ? <>
         <span className="slot-icon">{item.e}</span>
         <span className="slot-name" style={{maxWidth:36,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.n.split(" ")[0]}</span>
-        <span className="slot-rarity" style={{color:rarBadgeColor[item.rar]||"#888"}}>â—</span>
+        <span className="slot-rarity" style={{color:rarBadgeColor[item.rar]||"#888"}}>●</span>
       </> : <>
         <span style={{fontSize:14,opacity:.4}}>{slotDef?.icon}</span>
         <span className="slot-label">{slotDef?.label}</span>
@@ -819,7 +766,7 @@ const EquipSlot = ({ slotId, char, onEquip }) => {
   );
 };
 
-// â”€â”€â”€ L2 CHARACTER MODAL CONTENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── L2 CHARACTER MODAL CONTENT ──────────────────────────────
 const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
   const [activeTab, setActiveTab] = useState("equipment");
   const [hpDelta, setHpDelta] = useState("");
@@ -857,7 +804,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
     onUpdateWallet(newWallet);
   };
 
-  // All items for inventory grid â€” fill to multiple of 6
+  // All items for inventory grid — fill to multiple of 6
   const gridItems = [...inv];
   while (gridItems.length % 6 !== 0 || gridItems.length < 12) gridItems.push(null);
 
@@ -867,7 +814,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
       <div style={{padding:"14px 16px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:12}}>
         <div style={{flex:1}}>
           <div style={{fontFamily:"Cinzel,serif",fontSize:18,color:"var(--gold)"}}>{char.name}</div>
-          <div style={{fontSize:12,color:"var(--muted)"}}>{RACES[char.race]?.n} {CLASSES[char.class]?.n} Â· Nivel {char.level}</div>
+          <div style={{fontSize:12,color:"var(--muted)"}}>{RACES[char.race]?.n} {CLASSES[char.class]?.n} · Nivel {char.level}</div>
         </div>
         <div style={{display:"flex",gap:6}}>
           <div style={{textAlign:"center",background:"rgba(0,0,0,.3)",border:"1px solid var(--border)",borderRadius:3,padding:"4px 10px"}}>
@@ -894,7 +841,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
       </div>
 
       <div style={{padding:14,overflowY:"auto",maxHeight:"calc(90vh - 200px)"}}>
-        {/* â”€â”€ EQUIPMENT TAB â”€â”€ */}
+        {/* ── EQUIPMENT TAB ── */}
         {activeTab==="equipment" && (
           <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
             {/* Portrait + slots */}
@@ -905,34 +852,34 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
                 <div style={{position:"absolute",top:30,left:60,width:100,height:160}}>
                   <CharSVG char={char}/>
                 </div>
-                {/* HEAD slot â€” top center */}
+                {/* HEAD slot — top center */}
                 <div style={{position:"absolute",top:0,left:"50%",transform:"translateX(-50%)"}}>
                   <EquipSlot slotId="head" char={char} onEquip={onEquip}/>
                 </div>
-                {/* MAINHAND â€” left */}
+                {/* MAINHAND — left */}
                 <div style={{position:"absolute",top:65,left:0}}>
                   <EquipSlot slotId="mainhand" char={char} onEquip={onEquip}/>
                 </div>
-                {/* BODY â€” center below head */}
+                {/* BODY — center below head */}
                 <div style={{position:"absolute",top:65,left:"50%",transform:"translateX(-50%)"}}>
                   <EquipSlot slotId="body" char={char} onEquip={onEquip}/>
                 </div>
-                {/* OFFHAND â€” right */}
+                {/* OFFHAND — right */}
                 <div style={{position:"absolute",top:65,right:0}}>
                   <EquipSlot slotId="offhand" char={char} onEquip={onEquip}/>
                 </div>
-                {/* CAPE â€” bottom left */}
+                {/* CAPE — bottom left */}
                 <div style={{position:"absolute",top:140,left:0}}>
                   <EquipSlot slotId="cape" char={char} onEquip={onEquip}/>
                 </div>
-                {/* ACC â€” bottom center */}
+                {/* ACC — bottom center */}
                 <div style={{position:"absolute",top:140,left:"50%",transform:"translateX(-50%)"}}>
                   <EquipSlot slotId="acc" char={char} onEquip={onEquip}/>
                 </div>
               </div>
               <div style={{fontSize:11,color:"var(--muted)",textAlign:"center",lineHeight:1.4}}>
                 Click en slot equipado para desequipar.<br/>
-                <span style={{color:"var(--gold)"}}>Mochila â†’ click item para equipar.</span>
+                <span style={{color:"var(--gold)"}}>Mochila → click item para equipar.</span>
               </div>
             </div>
 
@@ -949,12 +896,12 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
                         <span style={{fontSize:16}}>{item.e}</span>
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{fontSize:13,color:ok?"var(--text)":"var(--muted)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.n}</div>
-                          <div style={{fontSize:10,color:"var(--muted)"}}>{getItemMetaLabel(item)} {item.dmg&&`Â· ${item.dmg}`}</div>
+                          <div style={{fontSize:10,color:"var(--muted)"}}>{getItemMetaLabel(item)} {item.dmg&&`· ${item.dmg}`}</div>
                         </div>
                         {equipped&&<span className="badge badge-l" style={{fontSize:8}}>EQ</span>}
                         <span style={{width:5,height:5,borderRadius:"50%",background:rarBadgeColor[item.rar],flexShrink:0,display:"inline-block"}}/>
                       </div>
-                      {!ok&&<div style={{fontSize:10,color:"#E24B4A",marginTop:2}}>âš  Sin requisitos</div>}
+                      {!ok&&<div style={{fontSize:10,color:"#E24B4A",marginTop:2}}>⚠ Sin requisitos</div>}
                     </div>
                   );
                 })}
@@ -964,15 +911,15 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
           </div>
         )}
 
-        {/* â”€â”€ INVENTORY (GRID) TAB â”€â”€ */}
+        {/* ── INVENTORY (GRID) TAB ── */}
         {activeTab==="inventory" && (
           <div>
             <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:10}}>
-              Mochila Â· {(char.inventory||[]).length} objetos
+              Mochila · {(char.inventory||[]).length} objetos
             </div>
             <div className="inv-grid">
               {gridItems.map((itemId,i)=>{
-                if(!itemId) return <div key={i} className="inv-cell empty"><span style={{fontSize:10,color:"rgba(255,255,255,.1)"}}>Â·</span></div>;
+                if(!itemId) return <div key={i} className="inv-cell empty"><span style={{fontSize:10,color:"rgba(255,255,255,.1)"}}>·</span></div>;
                 const item=ITEMS[itemId];
                 if(!item)return<div key={i} className="inv-cell empty"/>;
                 const equipped=Object.values(eq).includes(itemId);
@@ -991,7 +938,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
           </div>
         )}
 
-        {/* â”€â”€ STATS TAB â”€â”€ */}
+        {/* ── STATS TAB ── */}
         {activeTab==="stats" && (
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {/* HP control */}
@@ -1002,7 +949,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
               </div>
               <div className="hp-bar"><div className="hp-fill" style={{width:`${hpPct}%`,background:hpColor}}/></div>
               <div style={{display:"flex",gap:6,marginTop:8}}>
-                <input className="inp" style={{fontSize:13}} placeholder="Â±HP" value={hpDelta} onChange={e=>setHpDelta(e.target.value)}
+                <input className="inp" style={{fontSize:13}} placeholder="±HP" value={hpDelta} onChange={e=>setHpDelta(e.target.value)}
                   onKeyDown={e=>e.key==="Enter"&&hpDelta&&(onUpdateHP(char.currentHP+parseInt(hpDelta)||0),setHpDelta(""))}/>
                 <button className="btn btn-sm btn-r" onClick={()=>hpDelta&&(onUpdateHP(char.currentHP+parseInt(hpDelta)||0),setHpDelta(""))}>OK</button>
               </div>
@@ -1031,14 +978,14 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
             </div>
             {/* Saves */}
             <div style={{background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:3,padding:10}}>
-              <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",marginBottom:6,textTransform:"uppercase",letterSpacing:".08em"}}>Tiradas de SalvaciÃ³n</div>
+              <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",marginBottom:6,textTransform:"uppercase",letterSpacing:".08em"}}>Tiradas de Salvación</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:2}}>
                 {STATS.map(s=>{
                   const proficient=CLASSES[char.class]?.saves.includes(s);
                   const total=mod(char.stats[s])+(bonuses[s]||0)+(proficient?prof:0);
                   return(
                     <div key={s} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"2px 4px"}}>
-                      <span style={{color:proficient?"var(--gold)":"var(--muted)"}}>{proficient?"â—†":"â—‡"} {STAT_N[s]}</span>
+                      <span style={{color:proficient?"var(--gold)":"var(--muted)"}}>{proficient?"◆":"◇"} {STAT_N[s]}</span>
                       <span style={{fontFamily:"Cinzel,serif"}}>{total>=0?"+":""}{total}</span>
                     </div>
                   );
@@ -1048,7 +995,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
           </div>
         )}
 
-        {/* â”€â”€ WALLET TAB â”€â”€ */}
+        {/* ── WALLET TAB ── */}
         {activeTab==="wallet" && (
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",letterSpacing:".1em",textTransform:"uppercase"}}>Monedero del Aventurero</div>
@@ -1059,14 +1006,14 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
                   <div className="coin-amt" style={{color}}>{wallet[type]||0}</div>
                   <div className="coin-label">{label}</div>
                   <div style={{display:"flex",gap:4,justifyContent:"center",marginTop:6}}>
-                    <button className="btn btn-sm" style={{fontSize:10,padding:"3px 8px"}} onClick={()=>addCoin(type,-1)}>âˆ’1</button>
+                    <button className="btn btn-sm" style={{fontSize:10,padding:"3px 8px"}} onClick={()=>addCoin(type,-1)}>−1</button>
                     <button className="btn btn-sm btn-g" style={{fontSize:10,padding:"3px 8px"}} onClick={()=>addCoin(type,1)}>+1</button>
                   </div>
                 </div>
               ))}
             </div>
             <div style={{background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:3,padding:12}}>
-              <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",marginBottom:8}}>Ajuste rÃ¡pido</div>
+              <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",marginBottom:8}}>Ajuste rápido</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
                 {[["gold","+5 oro",5],["gold","+10 oro",10],["gold","-5 oro",-5],["silver","+10 plata",10],["copper","+20 cobre",20],["gold","+50 oro",50]].map(([type,label,amt],i)=>(
                   <button key={i} className="btn btn-sm" style={{fontSize:10}} onClick={()=>addCoin(type,amt)}>{label}</button>
@@ -1074,7 +1021,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
               </div>
             </div>
             <div style={{background:"rgba(201,168,76,.06)",border:"1px solid var(--gold-dim)",borderRadius:3,padding:10}}>
-              <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--gold)",marginBottom:4}}>ConversiÃ³n estÃ¡ndar</div>
+              <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--gold)",marginBottom:4}}>Conversión estándar</div>
               <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.6}}>1 po = 10 pp = 100 pc</div>
             </div>
           </div>
@@ -1092,19 +1039,19 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
                   <div style={{fontSize:12,color:"var(--muted)"}}>
                     {canEquipItem(showItemDetail) ? `Slot: ${getItemMetaLabel(showItemDetail)}` : `Tipo: ${getItemTypeLabel(showItemDetail)}`}
                     <span className={`badge badge-${showItemDetail.rar}`} style={{marginLeft:8}}>
-                      {showItemDetail.rar==="c"?"ComÃºn":showItemDetail.rar==="u"?"Infrecuente":"Raro"}
+                      {showItemDetail.rar==="c"?"Común":showItemDetail.rar==="u"?"Infrecuente":"Raro"}
                     </span>
-                  {showItemDetail.magical && <span className="badge badge-l" style={{marginLeft:4}}>âœ¦ MÃ¡gico</span>}
+                  {showItemDetail.magical && <span className="badge badge-l" style={{marginLeft:4}}>✦ Mágico</span>}
                 </div>
               </div>
             </div>
             <div style={{fontSize:14,color:"var(--text)",marginBottom:10,lineHeight:1.5}}>{showItemDetail.desc}</div>
-            {showItemDetail.dmg && <div style={{fontSize:13,color:"var(--gold)",marginBottom:6}}>âš” DaÃ±o: {showItemDetail.dmg} {showItemDetail.dt}</div>}
-            {showItemDetail.ac && <div style={{fontSize:13,color:"var(--gold)",marginBottom:6}}>ðŸ›¡ CA: {showItemDetail.ac}{showItemDetail.acDex?" + DES":""}</div>}
+            {showItemDetail.dmg && <div style={{fontSize:13,color:"var(--gold)",marginBottom:6}}>⚔ Daño: {showItemDetail.dmg} {showItemDetail.dt}</div>}
+            {showItemDetail.ac && <div style={{fontSize:13,color:"var(--gold)",marginBottom:6}}>🛡 CA: {showItemDetail.ac}{showItemDetail.acDex?" + DES":""}</div>}
             {showItemDetail.bonus && <div style={{fontSize:13,color:"#5cb85c",marginBottom:6}}>
               {Object.entries(showItemDetail.bonus).map(([k,v])=>`+${v} ${STAT_N[k]}`).join(", ")}
             </div>}
-            <div style={{fontSize:12,color:"var(--muted)",marginBottom:14}}>Valor: {showItemDetail.val} po Â· Peso: {showItemDetail.w} lb</div>
+            <div style={{fontSize:12,color:"var(--muted)",marginBottom:14}}>Valor: {showItemDetail.val} po · Peso: {showItemDetail.w} lb</div>
             <div style={{display:"flex",gap:8}}>
               {canEquipItem(showItemDetail)&&<button className="btn btn-r" style={{flex:1}} onClick={()=>{tryEquip(showItemDetail.id,showItemDetail.slot);setShowItemDetail(null);}}>
                 Equipar
@@ -1119,12 +1066,12 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
       {showReq && (
         <div className="overlay" onClick={()=>setShowReq(null)}>
           <div className="modal" style={{maxWidth:340}} onClick={e=>e.stopPropagation()}>
-            <div style={{fontFamily:"Cinzel,serif",fontSize:16,color:"#E24B4A",marginBottom:10}}>âš  Requisitos no cumplidos</div>
+            <div style={{fontFamily:"Cinzel,serif",fontSize:16,color:"#E24B4A",marginBottom:10}}>⚠ Requisitos no cumplidos</div>
             <div style={{fontSize:14,color:"var(--gold)",marginBottom:6}}>{showReq.item.n}</div>
-            {showReq.issues.map(i=><div key={i} style={{color:"#E24B4A",fontSize:13,marginBottom:3}}>âœ— {i}</div>)}
-            <div style={{fontSize:13,color:"var(--muted)",margin:"12px 0"}}>PodÃ©s intentarlo igual con penalizaciones.</div>
+            {showReq.issues.map(i=><div key={i} style={{color:"#E24B4A",fontSize:13,marginBottom:3}}>✗ {i}</div>)}
+            <div style={{fontSize:13,color:"var(--muted)",margin:"12px 0"}}>Podés intentarlo igual con penalizaciones.</div>
             <div style={{display:"flex",gap:8}}>
-              <button className="btn btn-r" style={{flex:1}} onClick={()=>{onEquip(showReq.itemId,showReq.slot,true);setShowReq(null);}}>âš  Intentar igual</button>
+              <button className="btn btn-r" style={{flex:1}} onClick={()=>{onEquip(showReq.itemId,showReq.slot,true);setShowReq(null);}}>⚠ Intentar igual</button>
               <button className="btn" style={{flex:1}} onClick={()=>setShowReq(null)}>Cancelar</button>
             </div>
           </div>
@@ -1134,7 +1081,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
   );
 };
 
-// â”€â”€â”€ DICE PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── DICE PANEL ──────────────────────────────────────────────
 const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) => {
   const [sel,setSel]=useState(20);
   const [cnt,setCnt]=useState(1);
@@ -1152,7 +1099,7 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
       if(adv==="adv"||adv==="dis"){
         const r1=Math.floor(Math.random()*20)+1,r2=Math.floor(Math.random()*20)+1;
         rolls=[r1,r2];total=adv==="adv"?Math.max(r1,r2):Math.min(r1,r2);
-        special=adv==="adv"?`Ventaja: [${r1},${r2}] â†’`:`Desventaja: [${r1},${r2}] â†’`;
+        special=adv==="adv"?`Ventaja: [${r1},${r2}] →`:`Desventaja: [${r1},${r2}] →`;
       } else {
         rolls=Array.from({length:count},()=>Math.floor(Math.random()*sides)+1);
         total=rolls.reduce((a,b)=>a+b,0);
@@ -1160,7 +1107,7 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
       const r={sides,count,rolls,total,label,special,ts:Date.now()};
       setResult(r);setKey(k=>k+1);setHist(h=>[r,...h].slice(0,12));setRolling(false);
       if(char&&updateRoom){
-        const txt=special?`ðŸŽ² ${special} **${total}**${label?` (${label})`:""}`:`ðŸŽ² TirÃ³ ${count}d${sides}${label?` (${label})`:""}: [${rolls.join(",")}] = **${total}**`;
+        const txt=special?`🎲 ${special} **${total}**${label?` (${label})`:""}`:`🎲 Tiró ${count}d${sides}${label?` (${label})`:""}: [${rolls.join(",")}] = **${total}**`;
         await updateRoom(d=>({...d,messages:[...(d.messages||[]),{id:Date.now(),t:"roll",text:txt,senderName:char.name,ts:Date.now()}]}));
       }
     },650);
@@ -1170,14 +1117,14 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
   const quickRolls=char?[
     {label:"Iniciativa",fn:()=>roll(20,1,"Iniciativa","normal")},
     {label:"Ataque",fn:()=>roll(20,1,`Ataque +${mod(char.stats[CLASSES[char.class]?.pstat||"str"])+profBonus(char.level)}`)},
-    {label:"PercepciÃ³n",fn:()=>roll(20,1,`Percep ${modStr(char.stats.wis)}`)},
+    {label:"Percepción",fn:()=>roll(20,1,`Percep ${modStr(char.stats.wis)}`)},
     {label:"Sigilo",fn:()=>roll(20,1,`Sigilo ${modStr(char.stats.dex)}`)},
   ]:[];
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:10}}>
       {!isDM&&!canRoll&&<div className="card" style={{padding:12,fontSize:13,lineHeight:1.5,color:"var(--muted)"}}>
-        ðŸŽ² El DM todavÃ­a no habilitÃ³ las tiradas para los jugadores.
+        🎲 El DM todavía no habilitó las tiradas para los jugadores.
       </div>}
       {!isDM&&canRoll&&diceEnabled&&<div style={{fontSize:11,color:"var(--gold)",fontFamily:"Cinzel,serif",letterSpacing:".08em",textTransform:"uppercase"}}>
         Tiradas habilitadas por el DM
@@ -1195,19 +1142,19 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
         ))}
       </div>}
       <button className="btn btn-r" onClick={()=>roll()} disabled={!canRoll||rolling} style={{width:"100%",padding:"11px",fontSize:13}}>
-        {rolling?"â³ Tirando...":"ðŸŽ² Tirar "+`${cnt>1?cnt+"d"+sel:"d"+sel}`}
+        {rolling?"⏳ Tirando...":"🎲 Tirar "+`${cnt>1?cnt+"d"+sel:"d"+sel}`}
       </button>
       {result&&<div key={key} className="card" style={{padding:14,textAlign:"center"}}>
-        <div style={{fontSize:11,color:"var(--muted)",fontFamily:"Cinzel,serif",marginBottom:3}}>{result.special||`${result.count}d${result.sides} â†’ [${result.rolls.join(", ")}]`}</div>
+        <div style={{fontSize:11,color:"var(--muted)",fontFamily:"Cinzel,serif",marginBottom:3}}>{result.special||`${result.count}d${result.sides} → [${result.rolls.join(", ")}]`}</div>
         <div className="roll-a" style={{fontSize:46,fontFamily:"Cinzel,serif",fontWeight:700,color:getColor(result.total,result.sides),lineHeight:1}}>
           {result.total}
         </div>
         {result.label&&<div style={{fontSize:11,color:"var(--muted)",marginTop:3}}>{result.label}</div>}
-        {result.total===20&&result.sides===20&&<div style={{color:"#C9A84C",fontFamily:"Cinzel,serif",fontSize:12,marginTop:4}}>âœ¦ Â¡CRÃTICO!</div>}
-        {result.total===1&&result.sides===20&&<div style={{color:"#E24B4A",fontFamily:"Cinzel,serif",fontSize:12,marginTop:4}}>â˜  Pifia total</div>}
+        {result.total===20&&result.sides===20&&<div style={{color:"#C9A84C",fontFamily:"Cinzel,serif",fontSize:12,marginTop:4}}>✦ ¡CRÍTICO!</div>}
+        {result.total===1&&result.sides===20&&<div style={{color:"#E24B4A",fontFamily:"Cinzel,serif",fontSize:12,marginTop:4}}>☠ Pifia total</div>}
       </div>}
       {quickRolls.length>0&&<>
-        <div style={{fontSize:10,color:"var(--muted)",fontFamily:"Cinzel,serif",letterSpacing:".1em",textTransform:"uppercase"}}>Tiradas rÃ¡pidas</div>
+        <div style={{fontSize:10,color:"var(--muted)",fontFamily:"Cinzel,serif",letterSpacing:".1em",textTransform:"uppercase"}}>Tiradas rápidas</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5}}>
           {quickRolls.map(q=><button key={q.label} className="btn btn-sm" onClick={q.fn} style={{fontSize:10}} disabled={!canRoll||rolling}>{q.label}</button>)}
         </div>
@@ -1216,7 +1163,7 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
   );
 };
 
-// â”€â”€â”€ CHAR SHEET â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── CHAR SHEET ───────────────────────────────────────────────
 const CharSheet = ({ char, onUpdateHP }) => {
   const [hpDelta,setHpDelta]=useState("");
   const [slots,setSlots]=useState(null);
@@ -1234,7 +1181,7 @@ const CharSheet = ({ char, onUpdateHP }) => {
     <div style={{display:"flex",flexDirection:"column",gap:10}}>
       <div style={{textAlign:"center"}}>
         <div style={{fontFamily:"Cinzel,serif",fontSize:16,color:"var(--gold)"}}>{char.name}</div>
-        <div style={{fontSize:12,color:"var(--muted)"}}>{race?.n} {cls?.n} Â· Nv{char.level}</div>
+        <div style={{fontSize:12,color:"var(--muted)"}}>{race?.n} {cls?.n} · Nv{char.level}</div>
       </div>
       <div className="card" style={{padding:10}}>
         <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
@@ -1243,7 +1190,7 @@ const CharSheet = ({ char, onUpdateHP }) => {
         </div>
         <div className="hp-bar"><div className="hp-fill" style={{width:`${hpPct}%`,background:hpColor}}/></div>
         <div style={{display:"flex",gap:5,marginTop:7}}>
-          <input className="inp" placeholder="Â±HP" value={hpDelta} onChange={e=>setHpDelta(e.target.value)} style={{fontSize:13}}
+          <input className="inp" placeholder="±HP" value={hpDelta} onChange={e=>setHpDelta(e.target.value)} style={{fontSize:13}}
             onKeyDown={e=>e.key==="Enter"&&hpDelta&&(onUpdateHP(char.currentHP+parseInt(hpDelta)||0),setHpDelta(""))}/>
           <button className="btn btn-sm btn-r" onClick={()=>hpDelta&&(onUpdateHP(char.currentHP+parseInt(hpDelta)||0),setHpDelta(""))}>OK</button>
         </div>
@@ -1269,18 +1216,18 @@ const CharSheet = ({ char, onUpdateHP }) => {
         <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:6}}>Espacios de Hechizo</div>
         {slots.map((total,i)=>total>0&&<div key={i} style={{display:"flex",alignItems:"center",gap:6,marginBottom:3}}>
           <span style={{fontSize:11,color:"var(--muted)",width:36}}>Nv.{i+1}</span>
-          {Array.from({length:total},(_,j)=><span key={j} className="spell-slot avail">â—†</span>)}
+          {Array.from({length:total},(_,j)=><span key={j} className="spell-slot avail">◆</span>)}
         </div>)}
       </div>}
       <div className="card" style={{padding:10}}>
         <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:5}}>Rasgos</div>
-        {race?.traits.map(t=><div key={t} style={{fontSize:12,padding:"1px 0"}}>â—ˆ {t}</div>)}
+        {race?.traits.map(t=><div key={t} style={{fontSize:12,padding:"1px 0"}}>◈ {t}</div>)}
       </div>
     </div>
   );
 };
 
-// â”€â”€â”€ GAME ROOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── GAME ROOM ────────────────────────────────────────────────
 const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerName, onSave, aiLoading, callAI, notify, levelUpPlayer }) => {
   const [chatInput,setChatInput]=useState("");
   const [activeTab,setActiveTab]=useState("sheet");
@@ -1365,7 +1312,7 @@ useEffect(()=>{
 
   const sendDM=async()=>{
     if(!dmInput.trim())return;
-    await updateRoom(d=>({...d,messages:[...(d.messages||[]),{id:Date.now(),t:"dm",text:dmInput,senderName:"ðŸŽ­ Dungeon Master",ts:Date.now()}]}));
+    await updateRoom(d=>({...d,messages:[...(d.messages||[]),{id:Date.now(),t:"dm",text:dmInput,senderName:"🎭 Dungeon Master",ts:Date.now()}]}));
     setDmInput("");
   };
 
@@ -1375,7 +1322,7 @@ useEffect(()=>{
     await updateRoom(d=>({
       ...d,
       diceEnabled:next,
-      messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:next?"ðŸŽ² El DM habilitÃ³ las tiradas para los jugadores.":"â›” El DM bloqueÃ³ las tiradas para los jugadores.",ts:Date.now()}]
+      messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:next?"🎲 El DM habilitó las tiradas para los jugadores.":"⛔ El DM bloqueó las tiradas para los jugadores.",ts:Date.now()}]
     }));
     notify?.(next?"Tiradas habilitadas para jugadores":"Tiradas bloqueadas para jugadores");
   };
@@ -1389,9 +1336,9 @@ useEffect(()=>{
     await updateRoom(d=>({
       ...d,
       players:{...(d.players||{}),[playerId]:{...(d.players?.[playerId]||{}),character:newChar}},
-      messages:force&&item?[...(d.messages||[]),{id:Date.now(),t:"sys",text:`âš  ${character.name} intenta usar ${item.n} sin los requisitos...`,ts:Date.now()}]:(d.messages||[])
+      messages:force&&item?[...(d.messages||[]),{id:Date.now(),t:"sys",text:`⚠ ${character.name} intenta usar ${item.n} sin los requisitos...`,ts:Date.now()}]:(d.messages||[])
     }));
-    if(force&&roomData?.dmMode==="ai")callAI(`${character.name} intentÃ³ equipar ${item.n} sin cumplir los requisitos. Narra las consecuencias.`);
+    if(force&&roomData?.dmMode==="ai")callAI(`${character.name} intentó equipar ${item.n} sin cumplir los requisitos. Narra las consecuencias.`);
   };
 
   const handleUpdateHP=async(newHP)=>{
@@ -1422,7 +1369,7 @@ useEffect(()=>{
 
   const giveStockItem=async()=>{
     if(!isDM||!selectedItem)return;
-    if(!stockTargetId){notify?.("ElegÃ­ un jugador para entregar el item");return;}
+    if(!stockTargetId){notify?.("Elegí un jugador para entregar el item");return;}
     const amount=parseAmount(stockQty,1);
     let delivered=false;
     let reason="No se pudo entregar el item";
@@ -1430,7 +1377,7 @@ useEffect(()=>{
       const available=d.dmStock.items?.[stockItemId]||0;
       const targetPlayer=d.players?.[stockTargetId];
       const targetChar=targetPlayer?.character;
-      if(!targetChar){reason="Ese jugador todavÃ­a no creÃ³ su personaje";return d;}
+      if(!targetChar){reason="Ese jugador todavía no creó su personaje";return d;}
       if(available<amount){reason="No hay suficiente stock para esa entrega";return d;}
       const items={...(d.dmStock.items||{})};
       const nextCount=available-amount;
@@ -1449,7 +1396,7 @@ useEffect(()=>{
             }
           }
         },
-        messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`ðŸŽ El DM entregÃ³ ${amount}x ${selectedItem.n} a ${targetChar.name}.`,ts:Date.now()}]
+        messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`🎁 El DM entregó ${amount}x ${selectedItem.n} a ${targetChar.name}.`,ts:Date.now()}]
       };
     });
     if(!delivered){notify?.(reason);return;}
@@ -1475,7 +1422,7 @@ useEffect(()=>{
 
   const giveStockCoins=async()=>{
     if(!isDM)return;
-    if(!stockTargetId){notify?.("ElegÃ­ un jugador para entregar monedas");return;}
+    if(!stockTargetId){notify?.("Elegí un jugador para entregar monedas");return;}
     const amount=parseAmount(coinAmount,1);
     let delivered=false;
     let reason="No se pudieron entregar las monedas";
@@ -1483,7 +1430,7 @@ useEffect(()=>{
       const available=d.dmStock.coins?.[coinType]||0;
       const targetPlayer=d.players?.[stockTargetId];
       const targetChar=targetPlayer?.character;
-      if(!targetChar){reason="Ese jugador todavÃ­a no creÃ³ su personaje";return d;}
+      if(!targetChar){reason="Ese jugador todavía no creó su personaje";return d;}
       if(available<amount){reason="No hay suficiente tesoro en stock";return d;}
       const targetWallet=normalizeWallet(targetChar.wallet);
       delivered=true;
@@ -1503,7 +1450,7 @@ useEffect(()=>{
             }
           }
         },
-        messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`ðŸª™ El DM entregÃ³ ${amount} ${coinLabel(coinType).toLowerCase()} a ${targetChar.name}.`,ts:Date.now()}]
+        messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`🪙 El DM entregó ${amount} ${coinLabel(coinType).toLowerCase()} a ${targetChar.name}.`,ts:Date.now()}]
       };
     });
     if(!delivered){notify?.(reason);return;}
@@ -1569,15 +1516,15 @@ useEffect(()=>{
       {/* Header */}
       <div style={{background:"var(--bg1)",borderBottom:"1px solid var(--border)",padding:"9px 14px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
-          <span style={{fontFamily:"Cinzel,serif",fontSize:15,color:"var(--gold)",whiteSpace:"nowrap"}}>âš” {roomData?.name}</span>
+          <span style={{fontFamily:"Cinzel,serif",fontSize:15,color:"var(--gold)",whiteSpace:"nowrap"}}>⚔ {roomData?.name}</span>
           <span style={{fontSize:10,color:"var(--muted)",fontFamily:"Cinzel,serif",padding:"2px 7px",border:"1px solid var(--border)",borderRadius:2,whiteSpace:"nowrap"}}>{roomData?.id}</span>
           <span className="online-dot"/><span style={{fontSize:10,color:"#4CAF50",fontFamily:"Cinzel,serif"}}>Online</span>
         </div>
         <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
           <span style={{fontSize:10,color:"var(--muted)"}}>{playersList.length}/10</span>
-          {isDM&&<button className="btn btn-sm" onClick={()=>setShowDM(!showDM)} style={{fontSize:10}}>ðŸŽ­ DM</button>}
+          {isDM&&<button className="btn btn-sm" onClick={()=>setShowDM(!showDM)} style={{fontSize:10}}>🎭 DM</button>}
           <button className="btn btn-sm" onClick={()=>setShowTutorial(true)} style={{fontSize:10}}>?</button>
-          <button className="btn btn-sm" onClick={onSave} style={{fontSize:10}}>ðŸ’¾</button>
+          <button className="btn btn-sm" onClick={onSave} style={{fontSize:10}}>💾</button>
         </div>
       </div>
 
@@ -1585,12 +1532,12 @@ useEffect(()=>{
 {showDM&&isDM&&<div style={{background:"rgba(139,26,26,.12)",borderBottom:"1px solid rgba(139,26,26,.3)",padding:"9px 14px",display:"flex",flexDirection:"column",gap:8}}>
   <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
     <span style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--crimson2)",textTransform:"uppercase",whiteSpace:"nowrap"}}>
-      DM â†’
+      DM →
     </span>
 
     <input
       className="inp"
-      placeholder="NarraciÃ³n..."
+      placeholder="Narración..."
       value={dmInput}
       onChange={e=>setDmInput(e.target.value)}
       onKeyDown={e=>e.key==="Enter"&&sendDM()}
@@ -1612,22 +1559,22 @@ useEffect(()=>{
       onClick={toggleDiceAccess}
     >
       {roomData?.diceEnabled
-        ?"â›” Bloquear tiradas"
-        :"ðŸŽ² Habilitar tiradas"}
+        ?"⛔ Bloquear tiradas"
+        :"🎲 Habilitar tiradas"}
     </button>
 
     <button
       className="btn btn-sm"
       onClick={()=>setShowStock(true)}
     >
-      ðŸŽ Stock del DM
+      🎁 Stock del DM
     </button>
 
     <button
       className="btn btn-sm"
       onClick={()=>setShowPlayerAdmin(true)}
     >
-      ðŸŽ­ Jugadores
+      🎭 Jugadores
     </button>
 
     <span style={{fontSize:11,color:"var(--muted)"}}>
@@ -1671,7 +1618,7 @@ useEffect(()=>{
             whiteSpace:"nowrap"
           }}
         >
-          {playerIsDM?"ðŸŽ­":"âš”"} {c?c.name:p.name}
+          {playerIsDM?"🎭":"⚔"} {c?c.name:p.name}
         </span>
 
         {c&&(
@@ -1682,7 +1629,7 @@ useEffect(()=>{
               fontFamily:"Cinzel,serif"
             }}
           >
-            Lv.{c.level||1} â€¢ {c.currentHP}/{c.maxHP}
+            Lv.{c.level||1} • {c.currentHP}/{c.maxHP}
           </span>
         )}
 
@@ -1697,7 +1644,7 @@ useEffect(()=>{
               minHeight:"unset"
             }}
           >
-            â¬†ï¸
+            ⬆️
           </button>
         )}
       </div>
@@ -1713,7 +1660,7 @@ useEffect(()=>{
             {(roomData?.messages||[]).map(msg=>(
               <div key={msg.id} className={`msg-${msg.t}`} style={{borderRadius:2}}>
                 {msg.t!=="sys"&&<div style={{fontSize:10,color:"var(--muted)",fontFamily:"Cinzel,serif",marginBottom:2}}>
-                  {msg.senderName} Â· {new Date(msg.ts||msg.id).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}
+                  {msg.senderName} · {new Date(msg.ts||msg.id).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}
                 </div>}
                 <div style={{fontSize:14,color:msgColor(msg.t),lineHeight:1.55}}
                   dangerouslySetInnerHTML={{__html:msg.text.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\[([^\]]+)\]/g,"<em style='color:#C9A84C'>[$1]</em>")}}>
@@ -1721,7 +1668,7 @@ useEffect(()=>{
               </div>
             ))}
             {aiLoading&&<div className="msg-dm">
-              <div style={{fontSize:10,color:"var(--muted)",fontFamily:"Cinzel,serif",marginBottom:3}}>ðŸŽ² Dungeon Master Â· escribiendo...</div>
+              <div style={{fontSize:10,color:"var(--muted)",fontFamily:"Cinzel,serif",marginBottom:3}}>🎲 Dungeon Master · escribiendo...</div>
               <div style={{display:"flex",gap:4}}>
                 {[0,1,2].map(i=><div key={i} style={{width:5,height:5,borderRadius:"50%",background:"var(--crimson2)",animation:`pulse 1.2s infinite ${i*0.3}s`}}/>)}
               </div>
@@ -1730,14 +1677,14 @@ useEffect(()=>{
           </div>
           <div style={{padding:10,background:"var(--bg1)",borderTop:"1px solid var(--border)"}}>
             <div className="mobile-quickbar">
-              <button className="btn btn-sm" onClick={()=>openMobilePanel("sheet")}>ðŸ“œ Ficha</button>
+              <button className="btn btn-sm" onClick={()=>openMobilePanel("sheet")}>📜 Ficha</button>
               <button className={`btn btn-sm${activeTab==="dice"?" btn-g":""}`} onClick={()=>openMobilePanel("dice")}>
-                {!isDM&&!roomData?.diceEnabled?"ðŸŽ² Dados ðŸ”’":"ðŸŽ² Dados"}
+                {!isDM&&!roomData?.diceEnabled?"🎲 Dados 🔒":"🎲 Dados"}
               </button>
-              <button className="btn btn-sm" onClick={()=>openMobilePanel("char")}>ðŸŽ’ Equipo</button>
+              <button className="btn btn-sm" onClick={()=>openMobilePanel("char")}>🎒 Equipo</button>
             </div>
             <div style={{display:"flex",gap:8}}>
-              <input className="inp" placeholder={character?"Â¿QuÃ© hace tu personaje?":"Crea tu personaje primero..."}
+              <input className="inp" placeholder={character?"¿Qué hace tu personaje?":"Crea tu personaje primero..."}
                 value={chatInput} onChange={e=>setChatInput(e.target.value)}
                 onKeyDown={e=>e.key==="Enter"&&send()} disabled={!character} style={{flex:1,fontSize:14}}/>
               <button className="btn btn-r" onClick={send} disabled={!character||!chatInput.trim()}>Enviar</button>
@@ -1745,7 +1692,7 @@ useEffect(()=>{
           </div>
         </div>
 
-        {/* Right panel â€” desktop only */}
+        {/* Right panel — desktop only */}
         <div className="right-col">
           <div style={{display:"flex",borderBottom:"1px solid var(--border)",flexShrink:0}}>
             {sideTabs.map(([id,label])=>(
@@ -1763,8 +1710,8 @@ useEffect(()=>{
         <div className="overlay" onClick={()=>setShowCharModal(false)}>
           <div className="l2-modal" onClick={e=>e.stopPropagation()}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",borderBottom:"1px solid var(--border)"}}>
-              <span style={{fontFamily:"Cinzel,serif",color:"var(--gold)",fontSize:15}}>âš” {panelTitle}</span>
-              <button className="btn btn-sm" onClick={()=>setShowCharModal(false)}>âœ• Cerrar</button>
+              <span style={{fontFamily:"Cinzel,serif",color:"var(--gold)",fontSize:15}}>⚔ {panelTitle}</span>
+              <button className="btn btn-sm" onClick={()=>setShowCharModal(false)}>✕ Cerrar</button>
             </div>
             <div style={{display:"flex",borderBottom:"1px solid var(--border)"}}>
               {sideTabs.map(([id,label])=>(
@@ -1784,8 +1731,8 @@ useEffect(()=>{
           <div className="modal" style={{maxWidth:640}} onClick={e=>e.stopPropagation()}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
               <div>
-                <div style={{fontFamily:"Cinzel,serif",fontSize:18,color:"var(--gold)"}}>ðŸŽ Stock del DM</div>
-                <div style={{fontSize:12,color:"var(--muted)"}}>ArmÃ¡ tesoro de campaÃ±a y repartilo cuando haga falta.</div>
+                <div style={{fontFamily:"Cinzel,serif",fontSize:18,color:"var(--gold)"}}>🎁 Stock del DM</div>
+                <div style={{fontSize:12,color:"var(--muted)"}}>Armá tesoro de campaña y repartilo cuando haga falta.</div>
               </div>
               <button className="btn btn-sm" onClick={()=>setShowStock(false)}>Cerrar</button>
             </div>
@@ -1796,12 +1743,12 @@ useEffect(()=>{
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
                   <select className="sel" value={stockItemId} onChange={e=>setStockItemId(e.target.value)} style={{width:"100%"}}>
                     {stockCatalog.map(item=>(
-                      <option key={item.id} value={item.id}>{getItemTypeLabel(item)} Â· {item.n}</option>
+                      <option key={item.id} value={item.id}>{getItemTypeLabel(item)} · {item.n}</option>
                     ))}
                   </select>
                   <input className="inp" value={stockQty} onChange={e=>setStockQty(e.target.value)} inputMode="numeric" placeholder="Cantidad" />
                   <div style={{fontSize:12,color:"var(--muted)"}}>
-                    Disponible: <span style={{color:"var(--gold)"}}>{selectedItemStock}</span>{selectedItem?` Â· ${selectedItem.n}`:""}
+                    Disponible: <span style={{color:"var(--gold)"}}>{selectedItemStock}</span>{selectedItem?` · ${selectedItem.n}`:""}
                   </div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                     <button className="btn btn-sm btn-g" onClick={()=>adjustStockItem(1)}>Cargar stock</button>
@@ -1846,7 +1793,7 @@ useEffect(()=>{
 
             <div style={{fontFamily:"Cinzel,serif",fontSize:11,color:"var(--muted)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>Stock cargado</div>
             {stockEntries.length===0
-              ? <div className="card" style={{padding:12,fontSize:13,color:"var(--muted)"}}>TodavÃ­a no hay Ã­tems en el stock del DM.</div>
+              ? <div className="card" style={{padding:12,fontSize:13,color:"var(--muted)"}}>Todavía no hay ítems en el stock del DM.</div>
               : <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:240,overflowY:"auto"}}>
                   {stockEntries.map(([itemId,qty])=>{
                     const item=ITEMS[itemId];
@@ -1856,7 +1803,7 @@ useEffect(()=>{
                         <span style={{fontSize:20}}>{item.e}</span>
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{fontSize:13,color:"var(--text)"}}>{item.n}</div>
-                          <div style={{fontSize:10,color:"var(--muted)"}}>{getItemTypeLabel(item)} Â· {qty} en stock</div>
+                          <div style={{fontSize:10,color:"var(--muted)"}}>{getItemTypeLabel(item)} · {qty} en stock</div>
                         </div>
                         <button className="btn btn-sm" onClick={()=>{setStockItemId(itemId);setStockQty("1");}}>Usar</button>
                       </div>
@@ -1888,14 +1835,14 @@ useEffect(()=>{
                   fontSize:18,
                   color:"var(--gold)"
                 }}>
-                  ðŸŽ­ Administrar jugador
+                  🎭 Administrar jugador
                 </div>
 
                 <div style={{
                   fontSize:12,
                   color:"var(--muted)"
                 }}>
-                  ControlÃ¡ HP y niveles de los personajes.
+                  Controlá HP y niveles de los personajes.
                 </div>
               </div>
 
@@ -2031,7 +1978,7 @@ useEffect(()=>{
   );
 };
 
-// â”€â”€â”€ CHARACTER CREATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── CHARACTER CREATION ───────────────────────────────────────
 const CharacterCreation = ({ onComplete, playerName }) => {
   const [step,setStep]=useState(0);
   const [name,setName]=useState(playerName||"");
@@ -2099,7 +2046,7 @@ const assignStat=(stat,idx)=>{
           <div key={i} style={{padding:"6px 14px",fontFamily:"Cinzel,serif",fontSize:11,letterSpacing:".08em",textTransform:"uppercase",
             background:i===step?"rgba(201,168,76,.18)":"transparent",color:i===step?"var(--gold)":i<step?"#5cb85c":"var(--muted)",
             borderRight:i<steps.length-1?"1px solid var(--border)":"none",cursor:i<step?"pointer":"default"}}
-            onClick={()=>i<step&&setStep(i)}>{i<step?"âœ“ ":""}{s}</div>
+            onClick={()=>i<step&&setStep(i)}>{i<step?"✓ ":""}{s}</div>
         ))}
       </div>
       <div style={{width:"100%",maxWidth:760}}>
@@ -2108,7 +2055,7 @@ const assignStat=(stat,idx)=>{
           <h2 style={{fontFamily:"Cinzel,serif",color:"var(--gold)",textAlign:"center",marginBottom:20,fontSize:22}}>Nombre y Raza</h2>
           <input className="inp" placeholder="Nombre del personaje..." value={name} onChange={e=>setName(e.target.value)} style={{marginBottom:16,fontSize:17,textAlign:"center"}}/>
           <div style={{display:"flex",gap:8,marginBottom:16,justifyContent:"center"}}>
-            {[{id:"male",label:"âš” VarÃ³n"},{id:"female",label:"âœ¨ Mujer"}].map(opt=>(
+            {[{id:"male",label:"⚔ Varón"},{id:"female",label:"✨ Mujer"}].map(opt=>(
               <button key={opt.id} className={`btn${bodyType===opt.id?" btn-g":""}`} onClick={()=>setBodyType(opt.id)}>{opt.label}</button>
             ))}
           </div>
@@ -2118,12 +2065,12 @@ const assignStat=(stat,idx)=>{
                 <div style={{fontSize:22,marginBottom:4}}>{r.e}</div>
                 <div style={{fontFamily:"Cinzel,serif",fontSize:13,color:"var(--gold)",marginBottom:2}}>{r.n}</div>
                 <div style={{fontSize:11,color:"var(--muted)",marginBottom:5,lineHeight:1.4}}>{r.desc}</div>
-                <div style={{fontSize:10,color:"#5cb85c"}}>{Object.entries(r.bonus).map(([s,v])=>`${STAT_N[s]} +${v}`).join(" Â· ")}</div>
+                <div style={{fontSize:10,color:"#5cb85c"}}>{Object.entries(r.bonus).map(([s,v])=>`${STAT_N[s]} +${v}`).join(" · ")}</div>
               </div>
             ))}
           </div>
           <div style={{textAlign:"center",marginTop:18}}>
-            <button className="btn btn-r" disabled={!name.trim()||!race} onClick={()=>setStep(1)} style={{padding:"11px 40px",fontSize:14}}>Continuar â†’</button>
+            <button className="btn btn-r" disabled={!name.trim()||!race} onClick={()=>setStep(1)} style={{padding:"11px 40px",fontSize:14}}>Continuar →</button>
           </div>
         </div>}
 
@@ -2136,14 +2083,14 @@ const assignStat=(stat,idx)=>{
                 <div style={{fontSize:20,marginBottom:3}}>{c.e}</div>
                 <div style={{fontFamily:"Cinzel,serif",fontSize:13,color:"var(--gold)",marginBottom:2}}>{c.n}</div>
                 <div style={{fontSize:11,color:"var(--muted)",marginBottom:4,lineHeight:1.4}}>{c.desc}</div>
-                <div style={{fontSize:10,color:"var(--muted)"}}>d{c.hd} Â· {c.armorProf}</div>
-                {c.caster&&<div style={{fontSize:10,color:"#7BAED4",marginTop:2}}>âœ¦ Lanzador</div>}
+                <div style={{fontSize:10,color:"var(--muted)"}}>d{c.hd} · {c.armorProf}</div>
+                {c.caster&&<div style={{fontSize:10,color:"#7BAED4",marginTop:2}}>✦ Lanzador</div>}
               </div>
             ))}
           </div>
           <div style={{textAlign:"center",marginTop:18,display:"flex",gap:10,justifyContent:"center"}}>
-            <button className="btn" onClick={()=>setStep(0)}>â† Volver</button>
-            <button className="btn btn-r" disabled={!cls} onClick={()=>setStep(2)} style={{padding:"11px 40px",fontSize:14}}>Continuar â†’</button>
+            <button className="btn" onClick={()=>setStep(0)}>← Volver</button>
+            <button className="btn btn-r" disabled={!cls} onClick={()=>setStep(2)} style={{padding:"11px 40px",fontSize:14}}>Continuar →</button>
           </div>
         </div>}
 
@@ -2151,19 +2098,19 @@ const assignStat=(stat,idx)=>{
        {step===2&&<div>
   <h2 style={{fontFamily:"Cinzel,serif",color:"var(--gold)",textAlign:"center",marginBottom:20,fontSize:22}}>Atributos</h2>
 
-  {/* ElecciÃ³n de mÃ©todo */}
+  {/* Elección de método */}
   {!statMethod&&<div style={{display:"flex",gap:12,justifyContent:"center",marginBottom:24,flexWrap:"wrap"}}>
     <div className="card" style={{padding:20,textAlign:"center",cursor:"pointer",maxWidth:220}}
       onClick={()=>setStatMethod("standard")}>
-      <div style={{fontSize:28,marginBottom:8}}>ðŸ“‹</div>
-      <div style={{fontFamily:"Cinzel,serif",fontSize:14,color:"var(--gold)",marginBottom:6}}>Array EstÃ¡ndar</div>
+      <div style={{fontSize:28,marginBottom:8}}>📋</div>
+      <div style={{fontFamily:"Cinzel,serif",fontSize:14,color:"var(--gold)",marginBottom:6}}>Array Estándar</div>
       <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.5}}>Valores fijos: 15, 14, 13, 12, 10, 8. Balanceado y predecible.</div>
     </div>
     <div className="card" style={{padding:20,textAlign:"center",cursor:"pointer",maxWidth:220}}
       onClick={()=>{setStatMethod("roll");rollAllStats();}}>
-      <div style={{fontSize:28,marginBottom:8}}>ðŸŽ²</div>
+      <div style={{fontSize:28,marginBottom:8}}>🎲</div>
       <div style={{fontFamily:"Cinzel,serif",fontSize:14,color:"var(--gold)",marginBottom:6}}>Tirar Dados</div>
-      <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.5}}>4d6 descarta el menor Ã— 6. Emocionante pero impredecible.</div>
+      <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.5}}>4d6 descarta el menor × 6. Emocionante pero impredecible.</div>
     </div>
   </div>}
 
@@ -2171,16 +2118,16 @@ const assignStat=(stat,idx)=>{
     <div style={{flex:1,minWidth:260}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
         <p style={{color:"var(--muted)",fontSize:13,lineHeight:1.5}}>
-          {statMethod==="standard"?"Array estÃ¡ndar â€” asignÃ¡ los valores a tus atributos.":"Tiraste dados (4d6 drop lowest) â€” asignÃ¡ los resultados."}
+          {statMethod==="standard"?"Array estándar — asigná los valores a tus atributos.":"Tiraste dados (4d6 drop lowest) — asigná los resultados."}
         </p>
         <button className="btn btn-sm" onClick={()=>{setStatMethod(null);setAssigns({});setUsed([]);setRolledPool([]);setRollsLeft(3);}}>
-          Cambiar mÃ©todo
+          Cambiar método
         </button>
       </div>
 
       {statMethod==="roll"&&<div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap",alignItems:"center"}}>
         {rolling
-          ? <span style={{fontSize:13,color:"var(--gold)",fontFamily:"Cinzel,serif"}}>ðŸŽ² Tirando dados...</span>
+          ? <span style={{fontSize:13,color:"var(--gold)",fontFamily:"Cinzel,serif"}}>🎲 Tirando dados...</span>
           : rolledPool.map((v,i)=>(
             <div key={i} style={{padding:"5px 11px",fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,
               background:used.includes(i)?"rgba(0,0,0,.3)":"rgba(201,168,76,.15)",
@@ -2190,11 +2137,11 @@ const assignStat=(stat,idx)=>{
         }
         {!rolling&&<div style={{display:"flex",alignItems:"center",gap:8,marginTop:6}}>
           <button className="btn btn-sm" disabled={rollsLeft<=0} onClick={()=>{rollAllStats();setAssigns({});setUsed([]);}}>
-            â†º Volver a tirar
+            ↺ Volver a tirar
           </button>
           <span style={{fontSize:11,color:rollsLeft>0?"var(--muted)":"#E24B4A",fontFamily:"Cinzel,serif"}}>
             {rollsLeft>0?`${rollsLeft} tirada${rollsLeft>1?"s":""} restante${rollsLeft>1?"s":""}`:
-            "âš  Sin tiradas â€” aceptÃ¡ estos valores o cambiÃ¡ al array estÃ¡ndar"}
+            "⚠ Sin tiradas — aceptá estos valores o cambiá al array estándar"}
           </span>
         </div>}
       </div>}
@@ -2216,7 +2163,7 @@ const assignStat=(stat,idx)=>{
             <div key={s} style={{display:"flex",alignItems:"center",gap:9}}>
               <div style={{width:36,fontFamily:"Cinzel,serif",fontSize:12,color:"var(--muted)",textTransform:"uppercase"}}>{STAT_N[s]}</div>
               <select className="sel" value={assigns[s]??""} onChange={e=>e.target.value!==""&&assignStat(s,parseInt(e.target.value))} style={{flex:1}}>
-                <option value="">â€” elegir â€”</option>
+                <option value="">— elegir —</option>
                 {activePool.map((v,i)=>(!used.includes(i)||assigns[s]===i)&&<option key={i} value={i}>{v}</option>)}
               </select>
               <div style={{width:70,textAlign:"right",fontFamily:"Cinzel,serif",fontSize:14,fontWeight:700,color:"var(--gold)"}}>
@@ -2240,8 +2187,8 @@ const assignStat=(stat,idx)=>{
   </div>}
 
   <div style={{textAlign:"center",marginTop:18,display:"flex",gap:10,justifyContent:"center"}}>
-    <button className="btn" onClick={()=>setStep(1)}>â† Volver</button>
-    <button className="btn btn-r" disabled={!statMethod||rolling||used.length<6} onClick={()=>setStep(3)} style={{padding:"11px 40px",fontSize:14}}>Ver resumen â†’</button>
+    <button className="btn" onClick={()=>setStep(1)}>← Volver</button>
+    <button className="btn btn-r" disabled={!statMethod||rolling||used.length<6} onClick={()=>setStep(3)} style={{padding:"11px 40px",fontSize:14}}>Ver resumen →</button>
   </div>
 </div>}
         {/* STEP 3 */}
@@ -2253,9 +2200,9 @@ const assignStat=(stat,idx)=>{
                 <CharSVG char={{name:name.trim()||"Aventurero",race,class:cls,stats,equipment:starterLoadout.equipment,appearance:{bodyType}}}/>
               </div>
               <div style={{fontFamily:"Cinzel,serif",fontSize:16,color:"var(--gold)"}}>{name}</div>
-              <div style={{color:"var(--muted)",fontSize:12}}>{RACES[race]?.n} {CLASSES[cls]?.n} Â· Nivel 1</div>
+              <div style={{color:"var(--muted)",fontSize:12}}>{RACES[race]?.n} {CLASSES[cls]?.n} · Nivel 1</div>
               <div style={{display:"flex",gap:8,fontSize:12,color:"var(--muted)"}}>
-                <span>ðŸ’° 10 po</span><span>ðŸ¥ˆ 5 pp</span><span>ðŸŸ¤ 20 pc</span>
+                <span>💰 10 po</span><span>🥈 5 pp</span><span>🟤 20 pc</span>
               </div>
             </div>
             <div style={{flex:1,minWidth:220}}>
@@ -2276,8 +2223,8 @@ const assignStat=(stat,idx)=>{
                 })}
               </div>
               <div style={{display:"flex",gap:8}}>
-                <button className="btn" onClick={()=>setStep(2)}>â† Volver</button>
-                <button className="btn btn-r" style={{flex:1,padding:"12px",fontSize:14}} onClick={finalize}>âš” Â¡Comenzar!</button>
+                <button className="btn" onClick={()=>setStep(2)}>← Volver</button>
+                <button className="btn btn-r" style={{flex:1,padding:"12px",fontSize:14}} onClick={finalize}>⚔ ¡Comenzar!</button>
               </div>
             </div>
           </div>
@@ -2348,15 +2295,15 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
       {tab==="login"
         ? <div className="auth-grid">
             <input className="inp" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
-            <input className="inp" type="password" placeholder="ContraseÃ±a" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submitLogin()} />
+            <input className="inp" type="password" placeholder="Contraseña" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submitLogin()} />
             <button className="btn btn-r" disabled={working||!email.trim()||!password} onClick={submitLogin}>Entrar</button>
           </div>
         : <div className="auth-grid">
             <input className="inp" placeholder="Nombre visible" value={displayName} onChange={e=>setDisplayName(e.target.value)} />
             <input className="inp" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
-            <input className="inp" type="password" placeholder="ContraseÃ±a (mÃ­n. 6)" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submitRegister()} />
+            <input className="inp" type="password" placeholder="Contraseña (mín. 6)" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submitRegister()} />
             <button className="btn btn-r" disabled={working||!displayName.trim()||!email.trim()||password.length<6} onClick={submitRegister}>Crear cuenta</button>
-            <div className="auth-meta">Si todavÃ­a no hay owner, la primera cuenta podrÃ¡ reclamar ese rol. Si ya existe, la cuenta podrÃ¡ pedir acceso como DM.</div>
+            <div className="auth-meta">Si todavía no hay owner, la primera cuenta podrá reclamar ese rol. Si ya existe, la cuenta podrá pedir acceso como DM.</div>
           </div>}
     </div>
   );
@@ -2377,23 +2324,23 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
       </div>
 
       {!ownerExists&&!account&&<div className="auth-grid">
-        <div className="auth-meta">TodavÃ­a no hay owner global. Si esta es tu cuenta principal, reclamÃ¡ el control total ahora mismo.</div>
+        <div className="auth-meta">Todavía no hay owner global. Si esta es tu cuenta principal, reclamá el control total ahora mismo.</div>
         <button className="btn btn-r" disabled={working} onClick={async()=>{setWorking(true);try{await onClaimOwner();}finally{setWorking(false);}}}>Reclamar Owner</button>
       </div>}
 
       {ownerExists&&!account&&<div className="auth-grid">
-        <div className="auth-meta">Esta cuenta todavÃ­a no tiene permisos administrativos. PodÃ©s solicitar acceso como DM para que el Owner lo apruebe.</div>
+        <div className="auth-meta">Esta cuenta todavía no tiene permisos administrativos. Podés solicitar acceso como DM para que el Owner lo apruebe.</div>
         <input className="inp" placeholder="Nombre visible de DM" value={requestName} onChange={e=>setRequestName(e.target.value)} />
         <button className="btn btn-r" disabled={working||!requestName.trim()} onClick={submitRequestDM}>Solicitar acceso DM</button>
       </div>}
 
-      {account?.status===STATUS_PENDING&&<div className="auth-meta">Tu acceso de DM estÃ¡ pendiente de aprobaciÃ³n del Owner.</div>}
-      {account?.status===STATUS_REVOKED&&<div className="auth-meta">El Owner revocÃ³ este acceso. Si querÃ©s volver a masterear, necesitÃ¡s una nueva aprobaciÃ³n.</div>}
+      {account?.status===STATUS_PENDING&&<div className="auth-meta">Tu acceso de DM está pendiente de aprobación del Owner.</div>}
+      {account?.status===STATUS_REVOKED&&<div className="auth-meta">El Owner revocó este acceso. Si querés volver a masterear, necesitás una nueva aprobación.</div>}
       {isDm&&<div className="auth-meta">Tu cuenta ya puede crear y administrar partidas como DM.</div>}
-      {isOwner&&<div className="auth-meta">TenÃ©s control global sobre la app y la aprobaciÃ³n de DMs.</div>}
+      {isOwner&&<div className="auth-meta">Tenés control global sobre la app y la aprobación de DMs.</div>}
 
       <div style={{display:"flex",justifyContent:"flex-end",marginTop:12}}>
-        <button className="btn btn-sm" onClick={onLogout}>Cerrar sesiÃ³n</button>
+        <button className="btn btn-sm" onClick={onLogout}>Cerrar sesión</button>
       </div>
     </div>
   );
@@ -2406,7 +2353,7 @@ const OwnerPanel = ({ ownerAccount, pendingDMs = [], approvedDMs = [], sessions,
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,gap:10}}>
         <div>
           <div style={{fontFamily:"Cinzel,serif",fontSize:15,color:"var(--gold)"}}>Panel Owner</div>
-          <div className="auth-meta">AprobÃ¡s quiÃ©n puede masterear y controlÃ¡s la capa alta de la app.</div>
+          <div className="auth-meta">Aprobás quién puede masterear y controlás la capa alta de la app.</div>
         </div>
         <span className="badge badge-l">{ownerAccount?.displayName||"Owner"}</span>
       </div>
@@ -2433,7 +2380,7 @@ const OwnerPanel = ({ ownerAccount, pendingDMs = [], approvedDMs = [], sessions,
         <div className="card" style={{padding:12}}>
           <div style={{fontFamily:"Cinzel,serif",fontSize:11,color:"var(--muted)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:8}}>DMs aprobados</div>
           {approvedDMs.length===0
-            ? <div className="auth-meta">TodavÃ­a no hay DMs aprobados.</div>
+            ? <div className="auth-meta">Todavía no hay DMs aprobados.</div>
             : <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {approvedDMs.map(dm=>(
                   <div key={dm.uid} className="itm" style={{padding:"10px 12px"}}>
@@ -2484,7 +2431,7 @@ const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSe
       <div className="card" style={{ padding: 14, marginBottom: 18, borderColor: "rgba(201,168,76,.35)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <div style={{ fontFamily: "Cinzel,serif", fontSize: 13, color: "var(--gold)" }}>âš” Jugador conectado</div>
+            <div style={{ fontFamily: "Cinzel,serif", fontSize: 13, color: "var(--gold)" }}>⚔ Jugador conectado</div>
             <div style={{ fontSize: 12, color: "var(--text)" }}>{account?.displayName || authUser.displayName}</div>
             <div style={{ fontSize: 11, color: "var(--muted)" }}>{authUser.email}</div>
           </div>
@@ -2501,8 +2448,8 @@ const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSe
   return (
     <div className="card" style={{ padding: 18, marginBottom: 18 }}>
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontFamily: "Cinzel,serif", fontSize: 14, color: "var(--gold)" }}>âš” Acceso Jugadores</div>
-        <div style={{ fontSize: 12, color: "var(--muted)" }}>CreÃ¡ tu cuenta para guardar tu progreso entre sesiones.</div>
+        <div style={{ fontFamily: "Cinzel,serif", fontSize: 14, color: "var(--gold)" }}>⚔ Acceso Jugadores</div>
+        <div style={{ fontSize: 12, color: "var(--muted)" }}>Creá tu cuenta para guardar tu progreso entre sesiones.</div>
       </div>
       <div style={{ display: "flex", background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: 3, marginBottom: 12, padding: 2 }}>
         {[["login", "Ingresar"], ["register", "Registrarse"]].map(([id, label]) => (
@@ -2512,130 +2459,130 @@ const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSe
       {tab === "login"
         ? <div className="auth-grid">
             <input className="inp" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-            <input className="inp" type="password" placeholder="ContraseÃ±a" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && submitLogin()} />
+            <input className="inp" type="password" placeholder="Contraseña" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && submitLogin()} />
             <button className="btn btn-r" disabled={working || !email.trim() || !password} onClick={submitLogin}>Entrar</button>
           </div>
         : <div className="auth-grid">
             <input className="inp" placeholder="Tu nombre de aventurero" value={displayName} onChange={e => setDisplayName(e.target.value)} />
             <input className="inp" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-            <input className="inp" type="password" placeholder="ContraseÃ±a (mÃ­n. 6)" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && submitRegister()} />
+            <input className="inp" type="password" placeholder="Contraseña (mín. 6)" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && submitRegister()} />
             <button className="btn btn-r" disabled={working || !displayName.trim() || !email.trim() || password.length < 6} onClick={submitRegister}>Crear cuenta</button>
-            <div className="auth-meta">Tu cuenta guarda tu nombre, partidas y personajes automÃ¡ticamente.</div>
+            <div className="auth-meta">Tu cuenta guarda tu nombre, partidas y personajes automáticamente.</div>
           </div>}
     </div>
   );
 };
     
-// â”€â”€â”€ TUTORIAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── TUTORIAL ────────────────────────────────────────────────
 const TUTORIAL_STEPS_LOBBY = [
   {
-    title:"Â¡Bienvenido a Mesa Dungeon!",
-    text:"Esta es tu mesa de rol online multijugador. AcÃ¡ vas a poder crear partidas de D&D 5e con amigos en tiempo real.",
-    icon:"ðŸŽ²"
+    title:"¡Bienvenido a Mesa Dungeon!",
+    text:"Esta es tu mesa de rol online multijugador. Acá vas a poder crear partidas de D&D 5e con amigos en tiempo real.",
+    icon:"🎲"
   },
   {
-    title:"Â¿Sos Owner/DM o Jugador?",
+    title:"¿Sos Owner/DM o Jugador?",
     text:"Los Owner y DM crean y gestionan las partidas. Los Jugadores se unen a aventuras creadas por un DM.",
-    icon:"ðŸŽ­"
+    icon:"🎭"
   },
   {
   title:"Acceso Owner / DM",
-  text:"Si sos DM necesitÃ¡s crear una cuenta con email y solicitar acceso. El Owner de la plataforma deberÃ¡ aprobar tu solicitud antes de que puedas crear partidas.",
-  icon:"ðŸ‘‘"
+  text:"Si sos DM necesitás crear una cuenta con email y solicitar acceso. El Owner de la plataforma deberá aprobar tu solicitud antes de que puedas crear partidas.",
+  icon:"👑"
 },
   {
     title:"Acceso Jugadores",
-    text:"Como jugador tambiÃ©n podÃ©s crear una cuenta para guardar tu personaje y tus partidas entre sesiones.",
-    icon:"âš”ï¸"
+    text:"Como jugador también podés crear una cuenta para guardar tu personaje y tus partidas entre sesiones.",
+    icon:"⚔️"
   },
   {
     title:"Unirse a una partida",
-    text:"Para unirte pedile el cÃ³digo de 6 letras a tu DM e ingresalo en 'Unirse con cÃ³digo'. Â¡Listo para la aventura!",
-    icon:"ðŸšª"
+    text:"Para unirte pedile el código de 6 letras a tu DM e ingresalo en 'Unirse con código'. ¡Listo para la aventura!",
+    icon:"🚪"
   },
 ];
 
 const TUTORIAL_STEPS_CHAR = [
   {
-    title:"CreaciÃ³n de Personaje",
+    title:"Creación de Personaje",
     text:"Vas a crear tu aventurero en 4 pasos: Nombre y Raza, Clase, Atributos y Resumen final.",
-    icon:"ðŸ“œ"
+    icon:"📜"
   },
   {
     title:"Raza",
-    text:"Cada raza tiene bonificaciones distintas a tus estadÃ­sticas. Â¡ElegÃ­ la que mÃ¡s se adapte a tu estilo de juego!",
-    icon:"ðŸ§"
+    text:"Cada raza tiene bonificaciones distintas a tus estadísticas. ¡Elegí la que más se adapte a tu estilo de juego!",
+    icon:"🧝"
   },
   {
     title:"Clase",
-    text:"La clase define tu rol en combate. Los guerreros pelean cuerpo a cuerpo, los magos lanzan hechizos, los pÃ­caros atacan desde las sombras...",
-    icon:"âš”ï¸"
+    text:"La clase define tu rol en combate. Los guerreros pelean cuerpo a cuerpo, los magos lanzan hechizos, los pícaros atacan desde las sombras...",
+    icon:"⚔️"
   },
   {
     title:"Atributos",
-    text:"PodÃ©s usar el Array EstÃ¡ndar (valores fijos balanceados) o Tirar Dados (4d6 descarta el menor â€” mÃ¡s emocionante pero impredecible).",
-    icon:"ðŸŽ²"
+    text:"Podés usar el Array Estándar (valores fijos balanceados) o Tirar Dados (4d6 descarta el menor — más emocionante pero impredecible).",
+    icon:"🎲"
   },
   {
-    title:"Â¡A jugar!",
-    text:"Una vez creado tu personaje vas a entrar directo al chat de la partida. Â¡El DM te estarÃ¡ esperando!",
-    icon:"ðŸ°"
+    title:"¡A jugar!",
+    text:"Una vez creado tu personaje vas a entrar directo al chat de la partida. ¡El DM te estará esperando!",
+    icon:"🏰"
   },
 ];
       
 const TUTORIAL_STEPS_GAME_PLAYER = [
   {
-    title:"Â¡Bienvenido a la partida!",
-    text:"EstÃ¡s en la sala de juego. AcÃ¡ es donde transcurre toda la aventura en tiempo real con tus compaÃ±eros.",
-    icon:"ðŸ°"
+    title:"¡Bienvenido a la partida!",
+    text:"Estás en la sala de juego. Acá es donde transcurre toda la aventura en tiempo real con tus compañeros.",
+    icon:"🏰"
   },
   {
     title:"El Chat",
-    text:"En el centro escribÃ­s las acciones de tu personaje. El Dungeon Master responderÃ¡ narrando lo que pasa.",
-    icon:"ðŸ’¬"
+    text:"En el centro escribís las acciones de tu personaje. El Dungeon Master responderá narrando lo que pasa.",
+    icon:"💬"
   },
   {
     title:"Tu Ficha",
-    text:"A la derecha (o tocando ðŸ“œ en mÃ³vil) ves tu ficha con HP, CA, velocidad y estadÃ­sticas de tu personaje.",
-    icon:"ðŸ“œ"
+    text:"A la derecha (o tocando 📜 en móvil) ves tu ficha con HP, CA, velocidad y estadísticas de tu personaje.",
+    icon:"📜"
   },
   {
     title:"Los Dados",
-    text:"Cuando el DM habilite los dados, podÃ©s tirar desde el panel ðŸŽ². Hay ventaja, desventaja y tiradas rÃ¡pidas.",
-    icon:"ðŸŽ²"
+    text:"Cuando el DM habilite los dados, podés tirar desde el panel 🎲. Hay ventaja, desventaja y tiradas rápidas.",
+    icon:"🎲"
   },
   {
     title:"Tu Personaje",
-    text:"En el panel ðŸŽ’ manejÃ¡s tu equipo, mochila, monedero y estadÃ­sticas completas. EquipÃ¡ items desde la mochila.",
-    icon:"ðŸŽ’"
+    text:"En el panel 🎒 manejás tu equipo, mochila, monedero y estadísticas completas. Equipá items desde la mochila.",
+    icon:"🎒"
   },
 ];
 
 const TUTORIAL_STEPS_GAME_DM = [
   {
     title:"Panel del Dungeon Master",
-    text:"Sos el DM de esta partida. TenÃ©s herramientas especiales para controlar la sesiÃ³n.",
-    icon:"ðŸŽ­"
+    text:"Sos el DM de esta partida. Tenés herramientas especiales para controlar la sesión.",
+    icon:"🎭"
   },
   {
-    title:"NarraciÃ³n",
-    text:"TocÃ¡ el botÃ³n 'ðŸŽ­ DM' en el header para abrir tu panel. Desde ahÃ­ podÃ©s narrar eventos directamente al chat.",
-    icon:"ðŸ“–"
+    title:"Narración",
+    text:"Tocá el botón '🎭 DM' en el header para abrir tu panel. Desde ahí podés narrar eventos directamente al chat.",
+    icon:"📖"
   },
   {
     title:"Control de Dados",
-    text:"Desde tu panel podÃ©s habilitar o bloquear las tiradas de dados para los jugadores cuando vos lo decidas.",
-    icon:"ðŸŽ²"
+    text:"Desde tu panel podés habilitar o bloquear las tiradas de dados para los jugadores cuando vos lo decidas.",
+    icon:"🎲"
   },
   {
     title:"Stock del DM",
-    text:"Con 'ðŸŽ Stock del DM' podÃ©s cargar items y monedas para repartir a los jugadores como recompensas.",
-    icon:"ðŸŽ"
+    text:"Con '🎁 Stock del DM' podés cargar items y monedas para repartir a los jugadores como recompensas.",
+    icon:"🎁"
   },
   {
     title:"Los Jugadores",
-    text:"En la barra superior ves el HP de cada jugador en tiempo real. SupervisÃ¡ el estado del grupo.",
-    icon:"âš”ï¸"
+    text:"En la barra superior ves el HP de cada jugador en tiempo real. Supervisá el estado del grupo.",
+    icon:"⚔️"
   },
 ];
 
@@ -2661,9 +2608,9 @@ const Tutorial = ({ steps, onClose, storageKey }) => {
           ))}
         </div>
         <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-          {step>0&&<button className="btn btn-sm" onClick={()=>setStep(s=>s-1)}>â† Anterior</button>}
+          {step>0&&<button className="btn btn-sm" onClick={()=>setStep(s=>s-1)}>← Anterior</button>}
           <button className="btn btn-r" style={{padding:"8px 28px"}} onClick={()=>isLast?onClose():setStep(s=>s+1)}>
-            {isLast?"Â¡Entendido! âœ“":"Siguiente â†’"}
+            {isLast?"¡Entendido! ✓":"Siguiente →"}
           </button>
         </div>
         <div style={{marginTop:12}}>
@@ -2673,7 +2620,7 @@ const Tutorial = ({ steps, onClose, storageKey }) => {
     </div>
   );
 };
-// â”€â”€â”€ LOBBY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── LOBBY ────────────────────────────────────────────────────
 const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm, onPlayerLogin, onPlayerRegister }) => {
   const [pname,setPname]=useState(initialName||"");
   const [code,setCode]=useState("");
@@ -2719,7 +2666,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
   if (!started) return (
     <div style={{minHeight:"100vh", background:"var(--bg)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center"}}>
       <style>{CSS}</style>
-      <h1 style={{fontFamily:"Cinzel,serif", fontSize:40, color:"var(--gold)", marginBottom:8}}>âš” MESA DUNGEON</h1>
+      <h1 style={{fontFamily:"Cinzel,serif", fontSize:40, color:"var(--gold)", marginBottom:8}}>⚔ MESA DUNGEON</h1>
       <div style={{fontFamily:"Cinzel,serif", fontSize:12, color:"var(--muted)", marginBottom:32}}>Mesa de Rol Online</div>
       <button className="btn btn-r" style={{padding:"16px 48px", fontSize:18}} onClick={handleStart}>
         Comenzar Aventura
@@ -2735,19 +2682,19 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
   onClose={()=>{setShowTutorial(false);localStorage.setItem("tutorial_lobby_done","1");}}
 />}
       <button className="btn btn-sm" onClick={() => setMuted(m => !m)} style={{position:"fixed", top:12, right:12, zIndex:999}}>
-        {muted ? "ðŸ”‡" : "ðŸ”Š"}
+        {muted ? "🔇" : "🔊"}
       </button>
       <div style={{textAlign:"center", marginBottom:40}}>
-        <div style={{fontSize:11, color:"var(--muted)", fontFamily:"Cinzel,serif", letterSpacing:".3em", textTransform:"uppercase", marginBottom:8}}>âœ¦ Mesa de Rol Online âœ¦</div>
+        <div style={{fontSize:11, color:"var(--muted)", fontFamily:"Cinzel,serif", letterSpacing:".3em", textTransform:"uppercase", marginBottom:8}}>✦ Mesa de Rol Online ✦</div>
         <h1 style={{fontFamily:"Cinzel,serif", fontSize:36, fontWeight:700, color:"var(--gold)", marginBottom:8}}>{APP_TITLE}</h1>
-        <div style={{fontSize:13, color:"var(--muted)", fontFamily:"Cinzel,serif"}}>Â¿CÃ³mo vas a jugar hoy?</div>
+        <div style={{fontSize:13, color:"var(--muted)", fontFamily:"Cinzel,serif"}}>¿Cómo vas a jugar hoy?</div>
       </div>
       <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, width:"100%", maxWidth:560}}>
         <div className="card" style={{padding:28, textAlign:"center", cursor:"pointer", border:"1px solid var(--gold-dim)"}}
           onClick={() => setRoleScreen("dm")}
           onMouseOver={e => e.currentTarget.style.borderColor="var(--gold)"}
           onMouseOut={e => e.currentTarget.style.borderColor="var(--gold-dim)"}>
-          <div style={{fontSize:48, marginBottom:12}}>ðŸŽ­</div>
+          <div style={{fontSize:48, marginBottom:12}}>🎭</div>
           <div style={{fontFamily:"Cinzel,serif", fontSize:16, color:"var(--gold)", marginBottom:8}}>Owner / DM</div>
           <div style={{fontSize:12, color:"var(--muted)", lineHeight:1.5}}>Crear y gestionar partidas. Narrar la aventura.</div>
         </div>
@@ -2755,13 +2702,13 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
           onClick={() => setRoleScreen("player")}
           onMouseOver={e => e.currentTarget.style.borderColor="var(--gold)"}
           onMouseOut={e => e.currentTarget.style.borderColor="var(--gold-dim)"}>
-          <div style={{fontSize:48, marginBottom:12}}>âš”</div>
+          <div style={{fontSize:48, marginBottom:12}}>⚔</div>
           <div style={{fontFamily:"Cinzel,serif", fontSize:16, color:"var(--gold)", marginBottom:8}}>Jugador</div>
           <div style={{fontSize:12, color:"var(--muted)", lineHeight:1.5}}>Unirse a una aventura. Crear tu personaje.</div>
         </div>
       </div>
       <div style={{marginTop:16, fontSize:11, color:"var(--muted)", fontFamily:"Cinzel,serif"}}>
-        {firebaseOk ? <><span className="online-dot"/>Firebase conectado</> : <span style={{color:"#E24B4A"}}>â³ Conectando...</span>}
+        {firebaseOk ? <><span className="online-dot"/>Firebase conectado</> : <span style={{color:"#E24B4A"}}>⏳ Conectando...</span>}
       </div>
     </div>
   );
@@ -2770,14 +2717,14 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
     <div style={{minHeight:"100vh", background:"var(--bg)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:20}}>
       <style>{CSS}</style>
       <button className="btn btn-sm" onClick={() => setMuted(m => !m)} style={{position:"fixed", top:12, right:12, zIndex:999}}>
-        {muted ? "ðŸ”‡" : "ðŸ”Š"}
+        {muted ? "🔇" : "🔊"}
       </button>
       <button className="btn btn-sm" onClick={() => setRoleScreen("choose")} style={{position:"fixed", top:12, left:12, zIndex:999}}>
-        â† Volver
+        ← Volver
       </button>
       <div style={{textAlign:"center", marginBottom:24}}>
-        <h1 style={{fontFamily:"Cinzel,serif", fontSize:32, color:"var(--gold)", marginBottom:4}}>âš” Jugadores</h1>
-        <div style={{fontSize:12, color:"var(--muted)", fontFamily:"Cinzel,serif"}}>UnÃ­te a la aventura</div>
+        <h1 style={{fontFamily:"Cinzel,serif", fontSize:32, color:"var(--gold)", marginBottom:4}}>⚔ Jugadores</h1>
+        <div style={{fontSize:12, color:"var(--muted)", fontFamily:"Cinzel,serif"}}>Uníte a la aventura</div>
       </div>
       <div style={{width:"100%", maxWidth:480}}>
         <PlayerAuthCard
@@ -2789,41 +2736,41 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
         />
         <div style={{marginBottom:14}}>
           <label style={{fontFamily:"Cinzel,serif", fontSize:11, color:"var(--muted)", letterSpacing:".1em", textTransform:"uppercase", display:"block", marginBottom:6}}>Tu Nombre</label>
-          <input className="inp" placeholder="Â¿CÃ³mo te llaman, aventurero?" value={pname} onChange={e=>setPname(e.target.value)} style={{fontSize:15}}/>
+          <input className="inp" placeholder="¿Cómo te llaman, aventurero?" value={pname} onChange={e=>setPname(e.target.value)} style={{fontSize:15}}/>
         </div>
         <div style={{display:"flex", background:"var(--bg1)", border:"1px solid var(--border)", borderRadius:3, marginBottom:14, padding:2}}>
-          {[["join","Unirse con cÃ³digo"],["resume","Continuar partida"]].map(([id,l])=>(
+          {[["join","Unirse con código"],["resume","Continuar partida"]].map(([id,l])=>(
             <button key={id} className={`tab${tab===id?" act":""}`} style={{flex:1}} onClick={()=>setTab(id)}>{l}</button>
           ))}
         </div>
         {tab==="join"&&<div className="card" style={{padding:18}}>
-          <label style={{fontFamily:"Cinzel,serif", fontSize:11, color:"var(--muted)", textTransform:"uppercase", letterSpacing:".08em", display:"block", marginBottom:6}}>CÃ³digo de Sala</label>
-          <input className="inp" placeholder="CÃ³digo de 6 letras (ej: X7KP2A)" value={code}
+          <label style={{fontFamily:"Cinzel,serif", fontSize:11, color:"var(--muted)", textTransform:"uppercase", letterSpacing:".08em", display:"block", marginBottom:6}}>Código de Sala</label>
+          <input className="inp" placeholder="Código de 6 letras (ej: X7KP2A)" value={code}
             onChange={e=>setCode(e.target.value.toUpperCase())} style={{fontSize:15,letterSpacing:".15em",textAlign:"center",textTransform:"uppercase",marginBottom:12}}/>
           <button className="btn btn-r" style={{width:"100%",padding:"11px",fontSize:14}}
-            disabled={!pname.trim()||!code.trim()||!firebaseOk} onClick={()=>onJoinRoom(pname,code)}>ðŸšª Unirse a la Aventura</button>
+            disabled={!pname.trim()||!code.trim()||!firebaseOk} onClick={()=>onJoinRoom(pname,code)}>🚪 Unirse a la Aventura</button>
         </div>}
         {tab==="resume"&&<div className="card" style={{padding:18}}>
-          <input className="inp" placeholder="Nombre de partida o cÃ³digo..." value={search} onChange={e=>setSearch(e.target.value)} style={{fontSize:15,marginBottom:12}}/>
+          <input className="inp" placeholder="Nombre de partida o código..." value={search} onChange={e=>setSearch(e.target.value)} style={{fontSize:15,marginBottom:12}}/>
           {lastRoom?.id&&<div style={{background:"rgba(201,168,76,.06)",border:"1px solid var(--gold-dim)",borderRadius:3,padding:10,marginBottom:12}}>
-            <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--gold)",marginBottom:4}}>Ãšltima partida usada</div>
+            <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--gold)",marginBottom:4}}>Última partida usada</div>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10}}>
               <div>
                 <div style={{fontSize:13,color:"var(--text)"}}>{lastRoom.name||"Partida sin nombre"}</div>
-                <div style={{fontSize:11,color:"var(--muted)"}}>CÃ³digo: {lastRoom.id}</div>
+                <div style={{fontSize:11,color:"var(--muted)"}}>Código: {lastRoom.id}</div>
               </div>
               <button className="btn btn-sm btn-r" disabled={!pname.trim()||!firebaseOk} onClick={()=>onJoinRoom(pname,lastRoom.id)}>Volver</button>
             </div>
           </div>}
           <div style={{display:"flex",flexDirection:"column",gap:8,maxHeight:280,overflowY:"auto"}}>
             {filteredSessions.length===0
-              ? <div style={{fontSize:12,color:"var(--muted)",textAlign:"center",padding:"18px 0"}}>No encontrÃ© partidas.</div>
+              ? <div style={{fontSize:12,color:"var(--muted)",textAlign:"center",padding:"18px 0"}}>No encontré partidas.</div>
               : filteredSessions.map(session=>(
                 <div key={session.id} className="itm" style={{padding:"10px 12px"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10}}>
                     <div style={{minWidth:0}}>
                       <div style={{fontFamily:"Cinzel,serif",fontSize:13,color:"var(--gold)"}}>{session.name||"Partida sin nombre"}</div>
-                      <div style={{fontSize:11,color:"var(--muted)"}}>CÃ³digo: {session.code||session.id} Â· {session.playerCount||0} jugadores</div>
+                      <div style={{fontSize:11,color:"var(--muted)"}}>Código: {session.code||session.id} · {session.playerCount||0} jugadores</div>
                     </div>
                     <button className="btn btn-sm btn-r" disabled={!pname.trim()||!firebaseOk} onClick={()=>onJoinRoom(pname,session.code||session.id)}>Entrar</button>
                   </div>
@@ -2831,7 +2778,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
               ))}
           </div>
         </div>}
-        <div className="footer-sign">Â© Lord Jonrick</div>
+        <div className="footer-sign">© Lord Jonrick</div>
       </div>
     </div>
   );
@@ -2842,23 +2789,23 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
     <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20}}>
       <style>{CSS}</style>
       <button className="btn btn-sm" onClick={() => setRoleScreen("choose")} style={{position:"fixed", top:12, left:12, zIndex:999}}>
-  â† Volver
+  ← Volver
 </button>
       <div style={{textAlign:"center",marginBottom:36}}>
-        <div style={{fontSize:11,color:"var(--muted)",fontFamily:"Cinzel,serif",letterSpacing:".3em",textTransform:"uppercase",marginBottom:8}}>âœ¦ Mesa de Rol Online âœ¦</div>
+        <div style={{fontSize:11,color:"var(--muted)",fontFamily:"Cinzel,serif",letterSpacing:".3em",textTransform:"uppercase",marginBottom:8}}>✦ Mesa de Rol Online ✦</div>
         <h1 style={{fontFamily:"Cinzel,serif",fontSize:40,fontWeight:700,color:"var(--gold)",lineHeight:1.1,marginBottom:5}}>{APP_TITLE}</h1>
-        <div style={{fontSize:12,color:"var(--muted)",fontFamily:"Cinzel,serif",letterSpacing:".15em"}}>Multijugador Â· Firebase Â· Owner / DM / Jugadores</div>
+        <div style={{fontSize:12,color:"var(--muted)",fontFamily:"Cinzel,serif",letterSpacing:".15em"}}>Multijugador · Firebase · Owner / DM / Jugadores</div>
         <div style={{marginTop:10,fontSize:11,fontFamily:"Cinzel,serif"}}>
           {firebaseOk
-            ? <><span className="online-dot"/>Firebase conectado â€” multijugador real activo</>
-            : <span style={{color:"#E24B4A"}}>â³ Conectando con Firebase...</span>}
+            ? <><span className="online-dot"/>Firebase conectado — multijugador real activo</>
+            : <span style={{color:"#E24B4A"}}>⏳ Conectando con Firebase...</span>}
         </div>
         <button 
   className="btn btn-sm" 
   onClick={() => setMuted(m => !m)}
   style={{position:"fixed", top:12, right:12, zIndex:999}}
 >
-  {muted ? "ðŸ”‡" : "ðŸ”Š"}
+  {muted ? "🔇" : "🔊"}
 </button>
       </div>
 
@@ -2877,7 +2824,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
 
         <div style={{marginBottom:18}}>
           <label style={{fontFamily:"Cinzel,serif",fontSize:11,color:"var(--muted)",letterSpacing:".1em",textTransform:"uppercase",display:"block",marginBottom:6}}>Tu Nombre</label>
-          <input className="inp" placeholder="Â¿CÃ³mo te llaman, aventurero?" value={pname} onChange={e=>setPname(e.target.value)} style={{fontSize:15}}/>
+          <input className="inp" placeholder="¿Cómo te llaman, aventurero?" value={pname} onChange={e=>setPname(e.target.value)} style={{fontSize:15}}/>
         </div>
         <div style={{display:"flex",background:"var(--bg1)",border:"1px solid var(--border)",borderRadius:3,marginBottom:18,padding:2}}>
           {[["create","Crear Sala"],["join","Unirse"],["resume","Continuar"]].map(([id,l])=>(
@@ -2887,60 +2834,60 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
         {tab==="create"&&<div className="card" style={{padding:18}}>
           <div style={{marginBottom:14}}>
             <label style={{fontFamily:"Cinzel,serif",fontSize:11,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".08em",display:"block",marginBottom:6}}>Nombre de la Partida</label>
-            <input className="inp" placeholder="Ej: La Mina del DragÃ³n" value={roomName} onChange={e=>setRoomName(e.target.value)} style={{fontSize:15}}/>
+            <input className="inp" placeholder="Ej: La Mina del Dragón" value={roomName} onChange={e=>setRoomName(e.target.value)} style={{fontSize:15}}/>
           </div>
           <div style={{marginBottom:14}}>
             <label style={{fontFamily:"Cinzel,serif",fontSize:11,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".08em",display:"block",marginBottom:6}}>Modo DM</label>
             <select className="sel" value={dmMode} onChange={e=>setDmMode(e.target.value)} style={{width:"100%"}}>
-              <option value="ai">ðŸ¤– DM con Inteligencia Artificial</option>
-              <option value="human">ðŸ‘¤ DM Humano</option>
-              <option value="hybrid">ðŸ¤ DM Humano + Asistente IA</option>
+              <option value="ai">🤖 DM con Inteligencia Artificial</option>
+              <option value="human">👤 DM Humano</option>
+              <option value="hybrid">🤝 DM Humano + Asistente IA</option>
             </select>
           </div>
           <button className="btn btn-r" style={{width:"100%",padding:"11px",fontSize:14}} disabled={!pname.trim()||!firebaseOk||!canCreateRoom}
-            onClick={()=>onCreateRoom(pname,dmMode,roomName)}>âš” Crear Sala Nueva</button>
+            onClick={()=>onCreateRoom(pname,dmMode,roomName)}>⚔ Crear Sala Nueva</button>
           {!canCreateRoom&&<div style={{fontSize:11,color:"var(--muted)",textAlign:"center",marginTop:10,lineHeight:1.5}}>
             Solo el Owner y los DMs aprobados pueden crear partidas.
           </div>}
-          {!firebaseOk&&<div style={{fontSize:11,color:"var(--muted)",textAlign:"center",marginTop:8}}>Esperando conexiÃ³n Firebase...</div>}
+          {!firebaseOk&&<div style={{fontSize:11,color:"var(--muted)",textAlign:"center",marginTop:8}}>Esperando conexión Firebase...</div>}
         </div>}
         {tab==="join"&&<div className="card" style={{padding:18}}>
           <div style={{marginBottom:14}}>
-            <label style={{fontFamily:"Cinzel,serif",fontSize:11,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".08em",display:"block",marginBottom:6}}>CÃ³digo de Sala</label>
-            <input className="inp" placeholder="CÃ³digo de 6 letras (ej: X7KP2A)" value={code}
+            <label style={{fontFamily:"Cinzel,serif",fontSize:11,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".08em",display:"block",marginBottom:6}}>Código de Sala</label>
+            <input className="inp" placeholder="Código de 6 letras (ej: X7KP2A)" value={code}
               onChange={e=>setCode(e.target.value.toUpperCase())} style={{fontSize:15,letterSpacing:".15em",textAlign:"center",textTransform:"uppercase"}}/>
           </div>
           <button className="btn btn-r" style={{width:"100%",padding:"11px",fontSize:14}}
-            disabled={!pname.trim()||!code.trim()||!firebaseOk} onClick={()=>onJoinRoom(pname,code)}>ðŸšª Unirse a la Aventura</button>
+            disabled={!pname.trim()||!code.trim()||!firebaseOk} onClick={()=>onJoinRoom(pname,code)}>🚪 Unirse a la Aventura</button>
           <div style={{fontSize:11,color:"var(--muted)",textAlign:"center",marginTop:10,lineHeight:1.5}}>
-            UsÃ¡ el mismo nombre de jugador para recuperar tu personaje y tu rol al volver.
+            Usá el mismo nombre de jugador para recuperar tu personaje y tu rol al volver.
           </div>
         </div>}
         {tab==="resume"&&<div className="card" style={{padding:18}}>
           <div style={{marginBottom:14}}>
             <label style={{fontFamily:"Cinzel,serif",fontSize:11,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".08em",display:"block",marginBottom:6}}>Buscar Partida</label>
-            <input className="inp" placeholder="Nombre de partida o cÃ³digo..." value={search} onChange={e=>setSearch(e.target.value)} style={{fontSize:15}}/>
+            <input className="inp" placeholder="Nombre de partida o código..." value={search} onChange={e=>setSearch(e.target.value)} style={{fontSize:15}}/>
           </div>
           {lastRoom?.id&&<div style={{background:"rgba(201,168,76,.06)",border:"1px solid var(--gold-dim)",borderRadius:3,padding:10,marginBottom:12}}>
-            <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--gold)",marginBottom:4}}>Ãšltima partida usada en este dispositivo</div>
+            <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--gold)",marginBottom:4}}>Última partida usada en este dispositivo</div>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10}}>
               <div style={{minWidth:0}}>
                 <div style={{fontSize:13,color:"var(--text)"}}>{lastRoom.name||"Partida sin nombre"}</div>
-                <div style={{fontSize:11,color:"var(--muted)"}}>CÃ³digo: {lastRoom.id}</div>
+                <div style={{fontSize:11,color:"var(--muted)"}}>Código: {lastRoom.id}</div>
               </div>
               <button className="btn btn-sm btn-r" disabled={!pname.trim()||!firebaseOk} onClick={()=>onJoinRoom(pname,lastRoom.id)}>Volver</button>
             </div>
           </div>}
           <div style={{display:"flex",flexDirection:"column",gap:8,maxHeight:280,overflowY:"auto"}}>
             {filteredSessions.length===0
-              ? <div style={{fontSize:12,color:"var(--muted)",textAlign:"center",padding:"18px 0"}}>No encontrÃ© partidas con ese nombre o cÃ³digo.</div>
+              ? <div style={{fontSize:12,color:"var(--muted)",textAlign:"center",padding:"18px 0"}}>No encontré partidas con ese nombre o código.</div>
               : filteredSessions.map(session=>(
                   <div key={session.id} className="itm" style={{padding:"10px 12px"}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10}}>
                       <div style={{minWidth:0}}>
                         <div style={{fontFamily:"Cinzel,serif",fontSize:13,color:"var(--gold)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{session.name||"Partida sin nombre"}</div>
-                        <div style={{fontSize:11,color:"var(--muted)"}}>CÃ³digo: {session.code||session.id} Â· Jugadores: {session.playerCount||0}</div>
-                        <div style={{fontSize:10,color:"var(--muted)"}}>Ãšltima actividad: {new Date(session.updatedAt||session.createdAt||Date.now()).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</div>
+                        <div style={{fontSize:11,color:"var(--muted)"}}>Código: {session.code||session.id} · Jugadores: {session.playerCount||0}</div>
+                        <div style={{fontSize:10,color:"var(--muted)"}}>Última actividad: {new Date(session.updatedAt||session.createdAt||Date.now()).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</div>
                       </div>
                       <button className="btn btn-sm btn-r" disabled={!pname.trim()||!firebaseOk} onClick={()=>onJoinRoom(pname,session.code||session.id)}>Entrar</button>
                     </div>
@@ -2948,7 +2895,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
                 ))}
           </div>
           <div style={{fontSize:11,color:"var(--muted)",textAlign:"center",marginTop:12,lineHeight:1.5}}>
-            Para volver a tu personaje, entrÃ¡ con el mismo nombre que usaste la vez anterior.
+            Para volver a tu personaje, entrá con el mismo nombre que usaste la vez anterior.
           </div>
         </div>}
 
@@ -2961,13 +2908,13 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
           onRevokeDm={onRevokeDm}
         />}
 
-        <div className="footer-sign">Â© Lord Jonrick</div>
+        <div className="footer-sign">© Lord Jonrick</div>
       </div>
     </div>
   );
 };
 
-// â”€â”€â”€ MAIN APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── MAIN APP ─────────────────────────────────────────────────
 function App() {
   const [screen,setScreen]=useState("lobby");
   const [playerId]=useState(()=>storageGet(STORAGE_KEYS.playerId)||genId(12));
@@ -3115,7 +3062,7 @@ useEffect(()=>{
 const handleAuthLogin=async({email,password})=>{
   try{
     await authApi.signIn(email,password);
-    notify("SesiÃ³n iniciada");
+    notify("Sesión iniciada");
   }catch(e){
     notify(friendlyAuthError(e));
   }
@@ -3128,8 +3075,8 @@ const handleAuthRegister=async({displayName,email,password})=>{
       await authApi.updateProfile(cred.user,{displayName:displayName.trim()});
     }
     notify(ownerExists
-      ? "Cuenta creada. Ahora pedÃ­ acceso DM."
-      : "Cuenta creada. Si es tuya, reclamÃ¡ el rol Owner."
+      ? "Cuenta creada. Ahora pedí acceso DM."
+      : "Cuenta creada. Si es tuya, reclamá el rol Owner."
     );
   }catch(e){
     notify(friendlyAuthError(e));
@@ -3139,7 +3086,7 @@ const handleAuthRegister=async({displayName,email,password})=>{
   const handlePlayerLogin = async ({ email, password }) => {
   try {
     await authApi.signIn(email, password);
-    notify("SesiÃ³n iniciada");
+    notify("Sesión iniciada");
   } catch(e) {
     notify(friendlyAuthError(e));
   }
@@ -3162,7 +3109,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       approvedAt: Date.now(),
     });
     setPlayerName(displayName.trim());
-    notify("Â¡Cuenta de jugador creada! Ya podÃ©s unirte a partidas.");
+    notify("¡Cuenta de jugador creada! Ya podés unirte a partidas.");
   } catch(e) {
     notify(friendlyAuthError(e));
   }
@@ -3174,12 +3121,12 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
     try{
       await authApi.signOut();
       setScreen("lobby");
-      notify("SesiÃ³n cerrada");
-    }catch(e){notify("No se pudo cerrar la sesiÃ³n");}
+      notify("Sesión cerrada");
+    }catch(e){notify("No se pudo cerrar la sesión");}
   };
 
   const handleClaimOwner=async()=>{
-    if(!authUser)return notify("Primero iniciÃ¡ sesiÃ³n.");
+    if(!authUser)return notify("Primero iniciá sesión.");
     if(ownerExists&&ownerUid!==authUser.uid)return notify("Ya existe un Owner global.");
     try{
       const record=buildAccountRecord(authUser,{
@@ -3196,7 +3143,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
   };
 
   const handleRequestDm=async({displayName})=>{
-    if(!authUser)return notify("Primero iniciÃ¡ sesiÃ³n.");
+    if(!authUser)return notify("Primero iniciá sesión.");
     try{
       if(displayName.trim()&&(authUser.displayName||"")!==displayName.trim()){
         await authApi.updateProfile(authUser,{displayName:displayName.trim()});
@@ -3215,7 +3162,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
   const handleApproveDm=async(uid)=>{
     if(!isOwner)return notify("Solo el Owner puede aprobar DMs.");
     const current=accounts?.[uid];
-    if(!current)return notify("No encontrÃ© esa solicitud.");
+    if(!current)return notify("No encontré esa solicitud.");
     try{
       await fb.set(`users/${uid}`,{
         ...current,
@@ -3233,7 +3180,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
   const handleRevokeDm=async(uid)=>{
     if(!isOwner)return notify("Solo el Owner puede revocar DMs.");
     const current=accounts?.[uid];
-    if(!current)return notify("No encontrÃ© esa cuenta.");
+    if(!current)return notify("No encontré esa cuenta.");
     try{
       await fb.set(`users/${uid}`,{
         ...current,
@@ -3246,7 +3193,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
     }catch(e){notify("No se pudo revocar ese DM.");}
   };
 
-  // â”€â”€ Firebase room listener â”€â”€
+  // ── Firebase room listener ──
   useEffect(()=>{
     if(!roomId)return;
     if(unsubRef.current)unsubRef.current();
@@ -3320,7 +3267,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
         {
           id:Date.now(),
           t:"sys",
-          text:`ðŸ”¥ ${char.name} alcanzÃ³ el nivel ${newLevel}`,
+          text:`🔥 ${char.name} alcanzó el nivel ${newLevel}`,
           ts:Date.now()
         }
       ]
@@ -3333,13 +3280,13 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
   const callAI=async(prompt,secret=false)=>{
     setAiLoading(true);
     try{
-      const players=Object.values(roomData?.players||{}).filter(p=>p.character).map(p=>`${p.name}: ${RACES[p.character.race]?.n} ${CLASSES[p.character.class]?.n} Nv${p.character.level} HP:${p.character.currentHP}/${p.character.maxHP}`).join(", ")||"ninguno aÃºn";
+      const players=Object.values(roomData?.players||{}).filter(p=>p.character).map(p=>`${p.name}: ${RACES[p.character.race]?.n} ${CLASSES[p.character.class]?.n} Nv${p.character.level} HP:${p.character.currentHP}/${p.character.maxHP}`).join(", ")||"ninguno aún";
       const history=(roomData?.messages||[]).slice(-8).map(m=>`${m.senderName||"Sistema"}: ${m.text}`).join("\n");
-      const sys=`Eres el Dungeon Master de una partida de D&D 5e en espaÃ±ol. Grupo: ${players}. Historial reciente:\n${history}\n\nSÃ© Ã©pico, narrativo y aplica las reglas D&D 5e con precisiÃ³n. Responde en espaÃ±ol. MÃ¡ximo 3 pÃ¡rrafos.`;
+      const sys=`Eres el Dungeon Master de una partida de D&D 5e en español. Grupo: ${players}. Historial reciente:\n${history}\n\nSé épico, narrativo y aplica las reglas D&D 5e con precisión. Responde en español. Máximo 3 párrafos.`;
       const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:sys,messages:[{role:"user",content:prompt}]})});
       const data=await res.json();
       const text=data.content?.[0]?.text||"El DM contempla en silencio...";
-      if(!secret)await updateRoom(d=>({...d,messages:[...(d.messages||[]),{id:Date.now(),t:"dm",text,senderName:"ðŸŽ² Dungeon Master",ts:Date.now()}]}));
+      if(!secret)await updateRoom(d=>({...d,messages:[...(d.messages||[]),{id:Date.now(),t:"dm",text,senderName:"🎲 Dungeon Master",ts:Date.now()}]}));
       setAiLoading(false);
       return text;
     }catch(e){setAiLoading(false);notify("Error conectando con el DM IA");}
@@ -3348,7 +3295,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
   const createRoom=async(name,dmMode,roomName)=>{
     if(!canCreateRoom||!authUser){notify("Solo el Owner o un DM aprobado pueden crear partidas.");return;}
     const activeManagedRooms=sessions.filter(s=>s.dmUid===authUser.uid&&(s.lifecycleStatus||"active")==="active");
-    if(activeManagedRooms.length>=ACTIVE_ROOM_LIMIT){notify(`LÃ­mite alcanzado: ${ACTIVE_ROOM_LIMIT} partidas activas por DM.`);return;}
+    if(activeManagedRooms.length>=ACTIVE_ROOM_LIMIT){notify(`Límite alcanzado: ${ACTIVE_ROOM_LIMIT} partidas activas por DM.`);return;}
     const id=genId(6);
     const safeName=name.trim();
     const title=roomName?.trim()||`Sala de ${safeName}`;
@@ -3359,14 +3306,14 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       dmMode,dmPlayerId:playerId,diceEnabled:false,
       dmStock:{items:{},coins:normalizeWallet()},
       players:{[playerId]:{id:playerId,authUid:authUser.uid,name:safeName,isHost:true,isDM:true,character:null,connected:true}},
-      messages:[{id:Date.now(),t:"sys",text:`ðŸ° Sala creada. CÃ³digo: ${id}`,ts:Date.now()}],
+      messages:[{id:Date.now(),t:"sys",text:`🏰 Sala creada. Código: ${id}`,ts:Date.now()}],
       gameState:"lobby",createdAt:Date.now(),lastActivityAt:Date.now(),lifecycleStatus:"active",
     });
     await fb.set(`rooms/${id}`,room);
     await syncSessionIndex(room);
     setRoomId(id);setRoomData(room);setPlayerName(safeName);
     setScreen("character");
-    notify(`âœ¦ Partida creada: ${title} Â· CÃ³digo: ${id}`);
+    notify(`✦ Partida creada: ${title} · Código: ${id}`);
   };
 
   const joinRoom=async(name,code)=>{
@@ -3398,7 +3345,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
           dmPlayerId:data.dmPlayerId===oldId?playerId:data.dmPlayerId,
           dmUid:data.dmUid||authUser && authUser.uid||null,
           players:reclaimedPlayers,
-          messages:[...(data.messages||[]),{id:Date.now(),t:"sys",text:`â†© ${safeName} volviÃ³ a la partida.`,ts:Date.now()}],
+          messages:[...(data.messages||[]),{id:Date.now(),t:"sys",text:`↩ ${safeName} volvió a la partida.`,ts:Date.now()}],
           lastActivityAt:Date.now(),
         });
         await fb.set(`rooms/${c}`,reclaimed);
@@ -3409,17 +3356,17 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
         notify("Recuperaste tu lugar en la partida");
         return;
       }
-      if(Object.keys(players).length>=10){notify("Sala llena (mÃ¡x. 10)");return;}
+      if(Object.keys(players).length>=10){notify("Sala llena (máx. 10)");return;}
       const updated=normalizeRoom({...data,
         players:{...players,[playerId]:{id:playerId,authUid:authUser && authUser.uid||null,name:safeName,isHost:false,isDM:false,character:null,connected:true}},
-        messages:[...(data.messages||[]),{id:Date.now(),t:"sys",text:`âš” ${safeName} se uniÃ³ a la aventura.`,ts:Date.now()}],
+        messages:[...(data.messages||[]),{id:Date.now(),t:"sys",text:`⚔ ${safeName} se unió a la aventura.`,ts:Date.now()}],
         lastActivityAt:Date.now(),
       });
       await fb.set(`rooms/${c}`,updated);
       await syncSessionIndex(updated);
       setRoomId(c);setRoomData(updated);setPlayerName(safeName);
       setScreen("character");
-    }catch(e){notify("Error al unirse. VerificÃ¡ el cÃ³digo.");}
+    }catch(e){notify("Error al unirse. Verificá el código.");}
   };
 
   const completeCharacter=async(char)=>{
@@ -3427,19 +3374,19 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
     await updateRoom(d=>({
       ...d,
       players:{...(d.players||{}),[playerId]:{...(d.players?.[playerId]||{}),character:char}},
-      messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`ðŸŽ­ ${playerName} entrÃ³ como ${RACES[char.race]?.n} ${CLASSES[char.class]?.n}: ${char.name}.`,ts:Date.now()}]
+      messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`🎭 ${playerName} entró como ${RACES[char.race]?.n} ${CLASSES[char.class]?.n}: ${char.name}.`,ts:Date.now()}]
     }));
     setScreen("game");
     if(roomData?.dmMode==="ai"||roomData?.dmMode==="hybrid"){
-      setTimeout(()=>callAI(`${playerName} creÃ³ su personaje: ${char.name}, ${RACES[char.race]?.n} ${CLASSES[char.class]?.n} nivel 1. HP:${char.maxHP} CA:${char.ac}. Dale una bienvenida Ã©pica (2 pÃ¡rrafos).`),800);
+      setTimeout(()=>callAI(`${playerName} creó su personaje: ${char.name}, ${RACES[char.race]?.n} ${CLASSES[char.class]?.n} nivel 1. HP:${char.maxHP} CA:${char.ac}. Dale una bienvenida épica (2 párrafos).`),800);
     }
   };
 
   const saveSession=async()=>{
     try{
       await syncSessionIndex(roomData);
-      notify("ðŸ’¾ SesiÃ³n guardada en Firebase");
-    }catch(e){notify("Error guardando sesiÃ³n");}
+      notify("💾 Sesión guardada en Firebase");
+    }catch(e){notify("Error guardando sesión");}
   };
 
   return(
@@ -3495,7 +3442,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
           levelUpPlayer={levelUpPlayer}
         />
 
-        {/* ðŸ”¥ SOLICITUDES DM */}
+        {/* 🔥 SOLICITUDES DM */}
         {pendingDMs.length > 0 && (
           <div style={{marginTop:20, padding:10, border:"1px solid gray"}}>
             <h3>Solicitudes DM</h3>
@@ -3514,9 +3461,8 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 );
 }
 window.addEventListener("firebase-ready", () => {
-  console.log("ðŸ”¥ Firebase listo, iniciando app");
+  console.log("🔥 Firebase listo, iniciando app");
 
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(<App />);
 });
-
