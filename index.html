@@ -3196,298 +3196,537 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
   // ── Firebase room listener ──
   useEffect(()=>{
     if(!roomId)return;
+
     if(unsubRef.current)unsubRef.current();
+
     unsubRef.current=fb.listen(`rooms/${roomId}`,(data)=>{
       if(!data)return;
+
       const normalized=normalizeRoom(data);
+
       setRoomData(normalized);
+
       const me=normalized.players?.[playerId];
+
       setCharacter(me?.character||null);
     });
-    return()=>{if(unsubRef.current)unsubRef.current();};
+
+    return()=>{
+      if(unsubRef.current)unsubRef.current();
+    };
   },[roomId,playerId]);
 
   const updateRoom=async(updater)=>{
     try{
+
       const curRaw=await fb.get(`rooms/${roomId}`);
+
       const cur=normalizeRoom(curRaw||roomData);
-      const updated=normalizeRoom({...updater(cur),lastActivityAt:Date.now()});
+
+      const updated=normalizeRoom({
+        ...updater(cur),
+        lastActivityAt:Date.now()
+      });
+
       await fb.set(`rooms/${roomId}`,updated);
+
       syncSessionIndex(updated);
+
       setRoomData(updated);
+
       const me=updated?.players?.[playerId];
+
       setCharacter(me?.character||null);
+
       return updated;
-    }catch(e){console.error("updateRoom error",e);}
+
+    }catch(e){
+
+      console.error("updateRoom error",e);
+    }
   };
 
   const levelUpPlayer=async(targetPlayerId,hpGainInput=null)=>{
+
     console.log("LEVEL UP", targetPlayerId);
+
     let parsedHpGain=parseInt(hpGainInput,10);
 
     if(!Number.isFinite(parsedHpGain)){
-      const promptValue=window.prompt("HP ganado al subir de nivel (tirada de dados + CON):","");
+
+      const promptValue=window.prompt(
+        "HP ganado al subir de nivel (tirada de dados + CON):",
+        ""
+      );
+
       if(promptValue===null)return;
+
       parsedHpGain=parseInt(promptValue,10);
     }
 
     if(!Number.isFinite(parsedHpGain)||parsedHpGain<1){
+
       notify("Ingresa un HP ganado valido para subir nivel.");
+
       return;
     }
-  
 
-  await updateRoom(d=>{
-    const targetPlayer=d.players?.[targetPlayerId];
-    console.log("PLAYER", targetPlayer);
-    const char=targetPlayer?.character;
+    await updateRoom(d=>{
 
-    if(!char)return d;
+      const targetPlayer=d.players?.[targetPlayerId];
 
-    const newLevel=(char.level||1)+1;
-    const newMaxHP=(char.maxHP||1)+parsedHpGain;
-    const newCurrentHP=Math.min(newMaxHP,(char.currentHP||0)+parsedHpGain);
+      console.log("PLAYER", targetPlayer);
 
-    return{
-      ...d,
-      players:{
-        ...(d.players||{}),
-        [targetPlayerId]:{
-          ...targetPlayer,
-          character:{
-            ...char,
-            level:newLevel,
-            maxHP:newMaxHP,
-            currentHP:newCurrentHP
+      const char=targetPlayer?.character;
+
+      if(!char)return d;
+
+      const newLevel=(char.level||1)+1;
+
+      const newMaxHP=(char.maxHP||1)+parsedHpGain;
+
+      const newCurrentHP=Math.min(
+        newMaxHP,
+        (char.currentHP||0)+parsedHpGain
+      );
+
+      return{
+        ...d,
+
+        players:{
+          ...(d.players||{}),
+
+          [targetPlayerId]:{
+            ...targetPlayer,
+
+            character:{
+              ...char,
+              level:newLevel,
+              maxHP:newMaxHP,
+              currentHP:newCurrentHP
+            }
           }
+        },
+
+        messages:[
+          ...(d.messages||[]),
+
+          {
+            id:Date.now(),
+            t:"sys",
+            text:`🔥 ${char.name} alcanzó el nivel ${newLevel}`,
+            ts:Date.now()
+          }
+        ]
+      };
+    });
+
+    notify(`Nivel aumentado (+${parsedHpGain} HP)`);
+  };
+
+  const callAI=async(prompt,secret=false)=>{
+
+    setAiLoading(true);
+
+    try{
+
+      const players=Object.values(roomData?.players||{})
+        .filter(p=>p.character)
+        .map(
+          p=>
+            `${p.name}: ${RACES[p.character.race]?.n} ${CLASSES[p.character.class]?.n} Nv${p.character.level} HP:${p.character.currentHP}/${p.character.maxHP}`
+        )
+        .join(", ")||"ninguno aún";
+
+      const history=(roomData?.messages||[])
+        .slice(-8)
+        .map(m=>`${m.senderName||"Sistema"}: ${m.text}`)
+        .join("\n");
+
+      const sys=`Eres el Dungeon Master de una partida de D&D 5e en español. Grupo: ${players}. Historial reciente:\n${history}\n\nSé épico, narrativo y aplica las reglas D&D 5e con precisión. Responde en español. Máximo 3 párrafos.`;
+
+      const res=await fetch(
+        "https://api.anthropic.com/v1/messages",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":"application/json"
+          },
+
+          body:JSON.stringify({
+            model:"claude-sonnet-4-20250514",
+            max_tokens:1000,
+            system:sys,
+            messages:[
+              {
+                role:"user",
+                content:prompt
+              }
+            ]
+          })
+        }
+      );
+
+      const data=await res.json();
+
+      const text=data.content?.[0]?.text||
+        "El DM contempla en silencio...";
+
+      if(!secret){
+
+        await updateRoom(d=>({
+          ...d,
+
+          messages:[
+            ...(d.messages||[]),
+
+            {
+              id:Date.now(),
+              t:"dm",
+              text,
+              senderName:"🎲 Dungeon Master",
+              ts:Date.now()
+            }
+          ]
+        }));
+      }
+
+      setAiLoading(false);
+
+      return text;
+
+    }catch(e){
+
+      setAiLoading(false);
+
+      notify("Error conectando con el DM IA");
+    }
+  };
+
+  const createRoom=async(name,dmMode,roomName)=>{
+
+    if(!canCreateRoom||!authUser){
+
+      notify("Solo el Owner o un DM aprobado pueden crear partidas.");
+
+      return;
+    }
+
+    const activeManagedRooms=sessions.filter(
+      s=>
+        s.dmUid===authUser.uid &&
+        (s.lifecycleStatus||"active")==="active"
+    );
+
+    if(activeManagedRooms.length>=ACTIVE_ROOM_LIMIT){
+
+      notify(
+        `Límite alcanzado: ${ACTIVE_ROOM_LIMIT} partidas activas por DM.`
+      );
+
+      return;
+    }
+
+    const id=genId(6);
+
+    const safeName=name.trim();
+
+    const title=roomName?.trim()||`Sala de ${safeName}`;
+
+    const dmDisplayName=
+      account?.displayName||
+      authUser.displayName||
+      safeName;
+
+    const room=normalizeRoom({
+
+      id,
+      name:title,
+
+      hostId:playerId,
+
+      owner:authUser.uid,
+
+      dmUid:authUser.uid,
+
+      dmName:dmDisplayName,
+
+      createdByUid:authUser.uid,
+
+      dmMode,
+
+      dmPlayerId:playerId,
+
+      diceEnabled:false,
+
+      dmStock:{
+        items:{},
+        coins:normalizeWallet()
+      },
+
+      players:{
+        [playerId]:{
+          id:playerId,
+          authUid:authUser.uid,
+          name:safeName,
+          isHost:true,
+          isDM:true,
+          character:null,
+          connected:true
         }
       },
+
       messages:[
-        ...(d.messages||[]),
         {
           id:Date.now(),
           t:"sys",
-          text:`🔥 ${char.name} alcanzó el nivel ${newLevel}`,
+          text:`🏰 Sala creada. Código: ${id}`,
           ts:Date.now()
         }
-      ]
-    };
-  });
+      ],
 
-  notify(`Nivel aumentado (+${parsedHpGain} HP)`);
-};
+      gameState:"lobby",
 
-  const callAI=async(prompt,secret=false)=>{
-    setAiLoading(true);
-    try{
-      const players=Object.values(roomData?.players||{}).filter(p=>p.character).map(p=>`${p.name}: ${RACES[p.character.race]?.n} ${CLASSES[p.character.class]?.n} Nv${p.character.level} HP:${p.character.currentHP}/${p.character.maxHP}`).join(", ")||"ninguno aún";
-      const history=(roomData?.messages||[]).slice(-8).map(m=>`${m.senderName||"Sistema"}: ${m.text}`).join("\n");
-      const sys=`Eres el Dungeon Master de una partida de D&D 5e en español. Grupo: ${players}. Historial reciente:\n${history}\n\nSé épico, narrativo y aplica las reglas D&D 5e con precisión. Responde en español. Máximo 3 párrafos.`;
-      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:sys,messages:[{role:"user",content:prompt}]})});
-      const data=await res.json();
-      const text=data.content?.[0]?.text||"El DM contempla en silencio...";
-      if(!secret)await updateRoom(d=>({...d,messages:[...(d.messages||[]),{id:Date.now(),t:"dm",text,senderName:"🎲 Dungeon Master",ts:Date.now()}]}));
-      setAiLoading(false);
-      return text;
-    }catch(e){setAiLoading(false);notify("Error conectando con el DM IA");}
-  };
+      createdAt:Date.now(),
 
- const createRoom=async(name,dmMode,roomName)=>{
-  if(!canCreateRoom||!authUser){
-    notify("Solo el Owner o un DM aprobado pueden crear partidas.");
-    return;
-  }
+      lastActivityAt:Date.now(),
 
-  const activeManagedRooms=sessions.filter(
-    s=>s.dmUid===authUser.uid&&(s.lifecycleStatus||"active")==="active"
-  );
-
-  if(activeManagedRooms.length>=ACTIVE_ROOM_LIMIT){
-    notify(`Límite alcanzado: ${ACTIVE_ROOM_LIMIT} partidas activas por DM.`);
-    return;
-  }
-
-  const id=genId(6);
-  const safeName=name.trim();
-  const title=roomName?.trim()||`Sala de ${safeName}`;
-  const dmDisplayName=account?.displayName||authUser.displayName||safeName;
-
-  const room=normalizeRoom({
-    id,
-    name:title,
-    hostId:playerId,
-    owner:authUser.uid,
-
-    dmUid:authUser.uid,
-    dmName:dmDisplayName,
-    createdByUid:authUser.uid,
-
-    dmMode,
-    dmPlayerId:playerId,
-    diceEnabled:false,
-
-    dmStock:{
-      items:{},
-      coins:normalizeWallet()
-    },
-
-    players:{
-      [playerId]:{
-        id:playerId,
-        authUid:authUser.uid,
-        name:safeName,
-        isHost:true,
-        isDM:true,
-        character:null,
-        connected:true
-      }
-    },
-
-    messages:[
-      {
-        id:Date.now(),
-        t:"sys",
-        text:`🏰 Sala creada. Código: ${id}`,
-        ts:Date.now()
-      }
-    ],
-
-    gameState:"lobby",
-    createdAt:Date.now(),
-    lastActivityAt:Date.now(),
-    lifecycleStatus:"active",
-  });
-
-  await fb.set(`rooms/${id}`,room);
-
-  await syncSessionIndex(room);
-
-  setRoomId(id);
-  setRoomData(room);
-  setPlayerName(safeName);
-
-  setScreen("character");
-
-  notify(`✦ Partida creada: ${title} · Código: ${id}`);
-};
-
-const joinRoom=async(name,code)=>{
-
-  const safeName=name.trim();
-  const c=code.trim().toUpperCase();
-
-  try{
-
-    const data=normalizeRoom(await fb.get(`rooms/${c}`));
-
-    if(!data){
-      notify("Sala no encontrada");
-      return;
-    }
-
-    const players=data.players||{};
-    const existing=players[playerId];
-
-    if(existing){
-
-      await syncSessionIndex(data);
-
-      setRoomId(c);
-      setRoomData(data);
-      setPlayerName(safeName);
-
-      if(existing.character){
-        setCharacter(existing.character);
-        setScreen("game");
-      }else{
-        setScreen("character");
-      }
-
-      return;
-    }
-
-    const sameAuthEntry=authUser
-      ? Object.entries(players).find(([id,p]) =>
-          id!==playerId && p.authUid===authUser.uid
-        )
-      : null;
-
-    const sameNameEntry=Object.entries(players).find(([id,p]) =>
-      id!==playerId && nameKey(p.name)===nameKey(safeName)
-    );
-
-    const recoveredEntry=sameAuthEntry||sameNameEntry;
-
-    if(recoveredEntry){
-
-      const [oldId,oldPlayer]=recoveredEntry;
-
-      await fb.set(`rooms/${c}/players/${playerId}`,{
-        ...oldPlayer,
-        id:playerId,
-        name:safeName,
-        authUid:(oldPlayer.authUid || (authUser && authUser.uid) || null),
-        connected:true
-      });
-
-      await fb.remove(`rooms/${c}/players/${oldId}`);
-
-      await fb.set(`rooms/${c}/lastActivityAt`,Date.now());
-
-      const reclaimed = normalizeRoom(await fb.get(`rooms/${c}`));
-
-      await syncSessionIndex(reclaimed);
-
-      setRoomId(c);
-      setRoomData(reclaimed);
-      setPlayerName(safeName);
-
-      if(reclaimed.players?.[playerId]?.character){
-        setCharacter(reclaimed.players[playerId].character);
-        setScreen("game");
-      }else{
-        setScreen("character");
-      }
-
-      notify("Recuperaste tu lugar en la partida");
-
-      return;
-    }
-
-    if(Object.keys(players).length>=10){
-      notify("Sala llena (máx. 10)");
-      return;
-    }
-
-    await fb.set(`rooms/${c}/players/${playerId}`,{
-      id:playerId,
-      authUid:(authUser && authUser.uid)||null,
-      name:safeName,
-      isHost:false,
-      isDM:false,
-      character:null,
-      connected:true
+      lifecycleStatus:"active",
     });
 
-    await fb.set(`rooms/${c}/lastActivityAt`,Date.now());
+    await fb.set(`rooms/${id}`,room);
 
-    const updated = normalizeRoom(await fb.get(`rooms/${c}`));
+    await syncSessionIndex(room);
 
-    await syncSessionIndex(updated);
+    setRoomId(id);
 
-    setRoomId(c);
-    setRoomData(updated);
+    setRoomData(room);
+
     setPlayerName(safeName);
 
     setScreen("character");
 
-  }catch(e){
+    notify(`✦ Partida creada: ${title} · Código: ${id}`);
+  };
 
-    console.error(e);
+  const joinRoom=async(name,code)=>{
 
-    notify("Error al unirse. Verificá el código.");
-  }
-};
+    const safeName=name.trim();
+
+    const c=code.trim().toUpperCase();
+
+    try{
+
+      const data=normalizeRoom(await fb.get(`rooms/${c}`));
+
+      if(!data){
+
+        notify("Sala no encontrada");
+
+        return;
+      }
+
+      const players=data.players||{};
+
+      const existing=players[playerId];
+
+      if(existing){
+
+        await syncSessionIndex(data);
+
+        setRoomId(c);
+
+        setRoomData(data);
+
+        setPlayerName(safeName);
+
+        if(existing.character){
+
+          setCharacter(existing.character);
+
+          setScreen("game");
+
+        }else{
+
+          setScreen("character");
+        }
+
+        return;
+      }
+
+      const sameAuthEntry=authUser
+        ? Object.entries(players).find(
+            ([id,p])=>
+              id!==playerId &&
+              p.authUid===authUser.uid
+          )
+        : null;
+
+      const sameNameEntry=Object.entries(players).find(
+        ([id,p])=>
+          id!==playerId &&
+          nameKey(p.name)===nameKey(safeName)
+      );
+
+      const recoveredEntry=sameAuthEntry||sameNameEntry;
+
+      if(recoveredEntry){
+
+        const [oldId,oldPlayer]=recoveredEntry;
+
+        await fb.set(`rooms/${c}/players/${playerId}`,{
+          ...oldPlayer,
+          id:playerId,
+          name:safeName,
+          authUid:
+            oldPlayer.authUid||
+            (authUser && authUser.uid)||
+            null,
+          connected:true
+        });
+
+        await fb.remove(`rooms/${c}/players/${oldId}`);
+
+        await fb.set(
+          `rooms/${c}/lastActivityAt`,
+          Date.now()
+        );
+
+        const reclaimed=normalizeRoom(
+          await fb.get(`rooms/${c}`)
+        );
+
+        await syncSessionIndex(reclaimed);
+
+        setRoomId(c);
+
+        setRoomData(reclaimed);
+
+        setPlayerName(safeName);
+
+        if(reclaimed.players?.[playerId]?.character){
+
+          setCharacter(
+            reclaimed.players[playerId].character
+          );
+
+          setScreen("game");
+
+        }else{
+
+          setScreen("character");
+        }
+
+        notify("Recuperaste tu lugar en la partida");
+
+        return;
+      }
+
+      if(Object.keys(players).length>=10){
+
+        notify("Sala llena (máx. 10)");
+
+        return;
+      }
+
+      await fb.set(`rooms/${c}/players/${playerId}`,{
+        id:playerId,
+        authUid:(authUser && authUser.uid)||null,
+        name:safeName,
+        isHost:false,
+        isDM:false,
+        character:null,
+        connected:true
+      });
+
+      await fb.set(
+        `rooms/${c}/lastActivityAt`,
+        Date.now()
+      );
+
+      const updated=normalizeRoom(
+        await fb.get(`rooms/${c}`)
+      );
+
+      await syncSessionIndex(updated);
+
+      setRoomId(c);
+
+      setRoomData(updated);
+
+      setPlayerName(safeName);
+
+      setScreen("character");
+
+    }catch(e){
+
+      console.error(e);
+
+      notify("Error al unirse. Verificá el código.");
+    }
+  };
+
+  const completeCharacter=async(char)=>{
+
+    setCharacter(char);
+
+    await updateRoom(d=>({
+
+      ...d,
+
+      players:{
+        ...(d.players||{}),
+
+        [playerId]:{
+          ...(d.players?.[playerId]||{}),
+          character:char
+        }
+      },
+
+      messages:[
+        ...(d.messages||[]),
+
+        {
+          id:Date.now(),
+          t:"sys",
+          text:`🎭 ${playerName} entró como ${RACES[char.race]?.n} ${CLASSES[char.class]?.n}: ${char.name}.`,
+          ts:Date.now()
+        }
+      ]
+    }));
+
+    setScreen("game");
+
+    if(
+      roomData?.dmMode==="ai"||
+      roomData?.dmMode==="hybrid"
+    ){
+
+      setTimeout(()=>{
+
+        callAI(
+          `${playerName} creó su personaje: ${char.name}, ${RACES[char.race]?.n} ${CLASSES[char.class]?.n} nivel 1. HP:${char.maxHP} CA:${char.ac}. Dale una bienvenida épica (2 párrafos).`
+        );
+
+      },800);
+    }
+  };
+
+  const saveSession=async()=>{
+
+    try{
+
+      await syncSessionIndex(roomData);
+
+      notify("💾 Sesión guardada en Firebase");
+
+    }catch(e){
+
+      notify("Error guardando sesión");
+    }
+  };
+
   return(
   <>
     {notif&&<div className="notif">{notif}</div>}
