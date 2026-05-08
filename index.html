@@ -1242,7 +1242,8 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
   const [stockQty,setStockQty]=useState("1");
   const [coinType,setCoinType]=useState("gold");
   const [coinAmount,setCoinAmount]=useState("10");
-  const [hpAmount,setHpAmount]=useState("5");
+  const [hpAmount,setHpAmount]=useState("");
+  const [levelHpGain,setLevelHpGain]=useState("");
   const chatEnd=useRef();
   const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem("tutorial_game_done"));
   
@@ -1294,6 +1295,10 @@ useEffect(()=>{
 },[playersList,playerId,adminTargetId]);
 
   const parseAmount=(value,fallback=1)=>Math.max(1,parseInt(value,10)||fallback);
+  const parsePositiveAmount=(value)=> {
+    const amount=parseInt(value,10);
+    return Number.isFinite(amount)&&amount>0?amount:null;
+  };
   const coinLabel=(type)=>COIN_TYPES.find(c=>c.type===type)?.label||type;
   const openMobilePanel=(tab)=>{setActiveTab(tab);setShowCharModal(true);};
 
@@ -1450,6 +1455,40 @@ useEffect(()=>{
     });
     if(!delivered){notify?.(reason);return;}
     notify?.(`Entregaste ${amount} ${coinLabel(coinType).toLowerCase()}`);
+  };
+
+  const modifyPlayerStat=async(targetPlayerId,patch)=>{
+    if(!isDM)return;
+    await updateRoom(d=>{
+      const targetPlayer=d.players?.[targetPlayerId];
+      const targetChar=targetPlayer?.character;
+      if(!targetChar)return d;
+      return{
+        ...d,
+        players:{
+          ...(d.players||{}),
+          [targetPlayerId]:{
+            ...targetPlayer,
+            character:{
+              ...targetChar,
+              ...patch
+            }
+          }
+        }
+      };
+    });
+  };
+
+  const adjustPlayerHP=async(targetPlayerId,direction=1)=>{
+    const amount=parsePositiveAmount(hpAmount);
+    if(!amount){notify?.("Ingresa el HP que salio en los dados.");return;}
+    const target=playersList.find(p=>p.id===targetPlayerId);
+    const c=target?.character;
+    if(!c)return;
+    await modifyPlayerStat(targetPlayerId,{
+      currentHP:Math.max(0,Math.min(c.maxHP,(c.currentHP||0)+(direction*amount)))
+    });
+    notify?.(`${direction>0?"Curacion":"Danio"} aplicado: ${amount} HP`);
   };
 
   const renderSidePanel=()=>(
@@ -1871,6 +1910,25 @@ useEffect(()=>{
                       </div>
                     </div>
 
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                      <input
+                        className="inp"
+                        value={levelHpGain}
+                        onChange={e=>setLevelHpGain(e.target.value)}
+                        inputMode="numeric"
+                        placeholder="HP al subir nivel"
+                        style={{fontSize:13}}
+                      />
+                      <input
+                        className="inp"
+                        value={hpAmount}
+                        onChange={e=>setHpAmount(e.target.value)}
+                        inputMode="numeric"
+                        placeholder="HP por dados"
+                        style={{fontSize:13}}
+                      />
+                    </div>
+
                     <div style={{
                       display:"flex",
                       gap:8,
@@ -1879,42 +1937,29 @@ useEffect(()=>{
 
                       <button
                         className="btn btn-sm"
-                        onClick={()=>levelUpPlayer(target.id)}
+                        onClick={()=>{levelUpPlayer(target.id,levelHpGain);setLevelHpGain("");}}
+                        style={{fontSize:0}}
                       >
-                        ⬆️ Nivel
+                        <span style={{fontSize:11}}>Subir nivel</span>
+                        
                       </button>
 
                       <button
                         className="btn btn-sm btn-g"
-                        onClick={()=>modifyPlayerStat(target.id,{
-                          currentHP:Math.min(
-                            c.maxHP,
-                            c.currentHP+5
-                          )
-                        })}
+                        onClick={()=>adjustPlayerHP(target.id,1)}
+                        style={{fontSize:0}}
                       >
-                        ❤️ +5 HP
+                        <span style={{fontSize:11}}>Curar HP</span>
+                        
                       </button>
 
                       <button
                         className="btn btn-sm"
-                        onClick={()=>modifyPlayerStat(target.id,{
-                          currentHP:Math.max(
-                            0,
-                            c.currentHP-5
-                          )
-                        })}
+                        onClick={()=>adjustPlayerHP(target.id,-1)}
+                        style={{fontSize:0}}
                       >
-                        💥 -5 HP
-                      </button>
-
-                      <button
-                        className="btn btn-sm btn-r"
-                        onClick={()=>modifyPlayerStat(target.id,{
-                          currentHP:c.maxHP
-                        })}
-                      >
-                        ✨ Curar
+                        <span style={{fontSize:11}}>Quitar HP</span>
+                        
                       </button>
 
                     </div>
@@ -3198,8 +3243,20 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
     }catch(e){console.error("updateRoom error",e);}
   };
 
-  const levelUpPlayer=async(targetPlayerId)=>{
+  const levelUpPlayer=async(targetPlayerId,hpGainInput=null)=>{
     console.log("LEVEL UP", targetPlayerId);
+    let parsedHpGain=parseInt(hpGainInput,10);
+
+    if(!Number.isFinite(parsedHpGain)){
+      const promptValue=window.prompt("HP ganado al subir de nivel (tirada de dados + CON):","");
+      if(promptValue===null)return;
+      parsedHpGain=parseInt(promptValue,10);
+    }
+
+    if(!Number.isFinite(parsedHpGain)||parsedHpGain<1){
+      notify("Ingresa un HP ganado valido para subir nivel.");
+      return;
+    }
   
 
   await updateRoom(d=>{
@@ -3209,14 +3266,9 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
     if(!char)return d;
 
-    const cls=CLASSES[char.class];
-
-    const hpGain=
-      Math.floor(cls.hd/2)+1+
-      mod(char.stats.con);
-
     const newLevel=(char.level||1)+1;
-    const newMaxHP=(char.maxHP||1)+Math.max(1,hpGain);
+    const newMaxHP=(char.maxHP||1)+parsedHpGain;
+    const newCurrentHP=Math.min(newMaxHP,(char.currentHP||0)+parsedHpGain);
 
     return{
       ...d,
@@ -3228,7 +3280,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
             ...char,
             level:newLevel,
             maxHP:newMaxHP,
-            currentHP:newMaxHP
+            currentHP:newCurrentHP
           }
         }
       },
@@ -3244,7 +3296,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
     };
   });
 
-  notify("Nivel aumentado");
+  notify(`Nivel aumentado (+${parsedHpGain} HP)`);
 };
 
   const callAI=async(prompt,secret=false)=>{
