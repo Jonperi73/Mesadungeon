@@ -1773,6 +1773,161 @@ useEffect(()=>{
           </div>
         </div>
       )}
+      
+      {/* Player Admin Modal */}
+      {showPlayerAdmin&&isDM&&(
+        <div className="overlay" onClick={()=>setShowPlayerAdmin(false)}>
+          <div
+            className="modal"
+            style={{maxWidth:520}}
+            onClick={e=>e.stopPropagation()}
+          >
+
+            <div style={{
+              display:"flex",
+              justifyContent:"space-between",
+              alignItems:"center",
+              marginBottom:14
+            }}>
+              <div>
+                <div style={{
+                  fontFamily:"Cinzel,serif",
+                  fontSize:18,
+                  color:"var(--gold)"
+                }}>
+                  🎭 Administrar jugador
+                </div>
+
+                <div style={{
+                  fontSize:12,
+                  color:"var(--muted)"
+                }}>
+                  Controlá HP y niveles de los personajes.
+                </div>
+              </div>
+
+              <button
+                className="btn btn-sm"
+                onClick={()=>setShowPlayerAdmin(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <div style={{
+              display:"flex",
+              flexDirection:"column",
+              gap:12
+            }}>
+
+              <select
+                className="sel"
+                value={adminTargetId}
+                onChange={e=>setAdminTargetId(e.target.value)}
+                style={{width:"100%"}}
+              >
+                {playersList
+                  .filter(p=>p.character)
+                  .map(p=>(
+                    <option key={p.id} value={p.id}>
+                      {p.character?.name||p.name}
+                    </option>
+                  ))
+                }
+              </select>
+
+              {(()=>{
+                const target=
+                  playersList.find(p=>p.id===adminTargetId);
+
+                const c=target?.character;
+
+                if(!c)return null;
+
+                return(
+                  <div style={{
+                    display:"flex",
+                    flexDirection:"column",
+                    gap:12
+                  }}>
+
+                    <div className="card" style={{
+                      padding:12,
+                      display:"flex",
+                      flexDirection:"column",
+                      gap:6
+                    }}>
+                      <div style={{fontSize:14}}>
+                        <b>Jugador:</b> {c.name}
+                      </div>
+
+                      <div style={{fontSize:14}}>
+                        <b>Nivel:</b> {c.level||1}
+                      </div>
+
+                      <div style={{fontSize:14}}>
+                        <b>HP:</b> {c.currentHP}/{c.maxHP}
+                      </div>
+                    </div>
+
+                    <div style={{
+                      display:"flex",
+                      gap:8,
+                      flexWrap:"wrap"
+                    }}>
+
+                      <button
+                        className="btn btn-sm"
+                        onClick={()=>levelUpPlayer(target.id)}
+                      >
+                        ⬆️ Nivel
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-g"
+                        onClick={()=>modifyPlayerStat(target.id,{
+                          currentHP:Math.min(
+                            c.maxHP,
+                            c.currentHP+5
+                          )
+                        })}
+                      >
+                        ❤️ +5 HP
+                      </button>
+
+                      <button
+                        className="btn btn-sm"
+                        onClick={()=>modifyPlayerStat(target.id,{
+                          currentHP:Math.max(
+                            0,
+                            c.currentHP-5
+                          )
+                        })}
+                      >
+                        💥 -5 HP
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-r"
+                        onClick={()=>modifyPlayerStat(target.id,{
+                          currentHP:c.maxHP
+                        })}
+                      >
+                        ✨ Curar
+                      </button>
+
+                    </div>
+
+                  </div>
+                );
+              })()}
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
