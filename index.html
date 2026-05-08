@@ -1241,8 +1241,8 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
   const [coinType,setCoinType]=useState("gold");
   const [coinAmount,setCoinAmount]=useState("10");
   const chatEnd=useRef();
-  const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem(isDM?"tutorial_game_dm_done":"tutorial_game_player_done"));
-
+  const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem("tutorial_game_done"));
+  
   const playersList=Object.values(roomData?.players||{});
   const isHost=roomData?.hostId===playerId;
   const isDM=!!((roomData?.dmUid&&authUid&&roomData.dmUid===authUid)||isHost);
@@ -1447,7 +1447,7 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
       {showTutorial && <Tutorial
   steps={isDM ? TUTORIAL_STEPS_GAME_DM : TUTORIAL_STEPS_GAME_PLAYER}
   onClose={()=>{
-    const key = isDM ? "tutorial_game_dm_done" : "tutorial_game_player_done";
+    const key = "tutorial_game_done";
     setShowTutorial(false);
     localStorage.setItem(key,"1");
   }}
