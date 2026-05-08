@@ -2961,10 +2961,12 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
   };
 
   const levelUpPlayer=async(targetPlayerId)=>{
+    console.log("LEVEL UP", targetPlayerId);
   if(!isDM)return;
 
   await updateRoom(d=>{
     const targetPlayer=d.players?.[targetPlayerId];
+    console.log("PLAYER", targetPlayer);
     const char=targetPlayer?.character;
 
     if(!char)return d;
