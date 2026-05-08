@@ -1228,7 +1228,7 @@ const CharSheet = ({ char, onUpdateHP }) => {
 };
 
 // ─── GAME ROOM ────────────────────────────────────────────────
-const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerName, onSave, aiLoading, callAI, notify }) => {
+const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerName, onSave, aiLoading, callAI, notify, levelUpPlayer }) => {
   const [chatInput,setChatInput]=useState("");
   const [activeTab,setActiveTab]=useState("sheet");
   const [dmInput,setDmInput]=useState("");
@@ -3169,6 +3169,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
           aiLoading={aiLoading} 
           callAI={callAI} 
           notify={notify}
+          levelUpPlayer={levelUpPlayer}
         />
 
         {/* 🔥 SOLICITUDES DM */}
