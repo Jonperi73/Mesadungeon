@@ -1788,16 +1788,16 @@ const assignStat=(stat,idx)=>{
 
         {/* STEP 2 */}
        {step===2&&<div>
-        <h2 style={{fontFamily:"Cinzel,serif",color:"var(--gold)",textAlign:"center",marginBottom:20,fontSize:22}}>Atributos</h2>
+  <h2 style={{fontFamily:"Cinzel,serif",color:"var(--gold)",textAlign:"center",marginBottom:20,fontSize:22}}>Atributos</h2>
 
-         {/* Elección de método */}
-         {!statMethod&&<div style={{display:"flex",gap:12,justifyContent:"center",marginBottom:24,flexWrap:"wrap"}}>
-           <div className="card" style={{padding:20,textAlign:"center",cursor:"pointer",maxWidth:220}}
-            onClick={()=>setStatMethod("standard")}>
-              <div style={{fontSize:28,marginBottom:8}}>📋</div>
-              <div style={{fontFamily:"Cinzel,serif",fontSize:14,color:"var(--gold)",marginBottom:6}}>Array Estándar</div>
-              <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.5}}>Valores fijos: 15, 14, 13, 12, 10, 8. Balanceado y predecible.</div>
-          </div>
+  {/* Elección de método */}
+  {!statMethod&&<div style={{display:"flex",gap:12,justifyContent:"center",marginBottom:24,flexWrap:"wrap"}}>
+    <div className="card" style={{padding:20,textAlign:"center",cursor:"pointer",maxWidth:220}}
+      onClick={()=>setStatMethod("standard")}>
+      <div style={{fontSize:28,marginBottom:8}}>📋</div>
+      <div style={{fontFamily:"Cinzel,serif",fontSize:14,color:"var(--gold)",marginBottom:6}}>Array Estándar</div>
+      <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.5}}>Valores fijos: 15, 14, 13, 12, 10, 8. Balanceado y predecible.</div>
+    </div>
     <div className="card" style={{padding:20,textAlign:"center",cursor:"pointer",maxWidth:220}}
       onClick={()=>{setStatMethod("roll");rollAllStats();}}>
       <div style={{fontSize:28,marginBottom:8}}>🎲</div>
@@ -1812,7 +1812,7 @@ const assignStat=(stat,idx)=>{
         <p style={{color:"var(--muted)",fontSize:13,lineHeight:1.5}}>
           {statMethod==="standard"?"Array estándar — asigná los valores a tus atributos.":"Tiraste dados (4d6 drop lowest) — asigná los resultados."}
         </p>
-        <button className="btn btn-sm" onClick={()=>{setStatMethod(null);setAssigns({});setUsed({});setRolledPool([]);}}>
+        <button className="btn btn-sm" onClick={()=>{setStatMethod(null);setAssigns({});setUsed([]);setRolledPool([]);setRollsLeft(3);}}>
           Cambiar método
         </button>
       </div>
@@ -1820,22 +1820,23 @@ const assignStat=(stat,idx)=>{
       {statMethod==="roll"&&<div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap",alignItems:"center"}}>
         {rolling
           ? <span style={{fontSize:13,color:"var(--gold)",fontFamily:"Cinzel,serif"}}>🎲 Tirando dados...</span>
-          : (rolledPool).map((v,i)=>(
+          : rolledPool.map((v,i)=>(
             <div key={i} style={{padding:"5px 11px",fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,
               background:used.includes(i)?"rgba(0,0,0,.3)":"rgba(201,168,76,.15)",
               border:`1px solid ${used.includes(i)?"var(--border)":"var(--gold)"}`,
               color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)?.5:1}}>{v}</div>
           ))
         }
-        {!rolling&&<div style={{display:"flex",alignItems:"center",gap:8}}>
-  <button className="btn btn-sm" disabled={rollsLeft<=0} onClick={()=>{rollAllStats();setAssigns({});setUsed([]);}}>
-    ↺ Volver a tirar
-  </button>
-  <span style={{fontSize:11,color:rollsLeft>0?"var(--muted)":"#E24B4A",fontFamily:"Cinzel,serif"}}>
-    {rollsLeft>0?`${rollsLeft} tirada${rollsLeft>1?"s":""}  restante${rollsLeft>1?"s":""}`:
-    "⚠ Sin tiradas — aceptá estos valores o cambiá al array estándar"}
-  </span>
-</div>}
+        {!rolling&&<div style={{display:"flex",alignItems:"center",gap:8,marginTop:6}}>
+          <button className="btn btn-sm" disabled={rollsLeft<=0} onClick={()=>{rollAllStats();setAssigns({});setUsed([]);}}>
+            ↺ Volver a tirar
+          </button>
+          <span style={{fontSize:11,color:rollsLeft>0?"var(--muted)":"#E24B4A",fontFamily:"Cinzel,serif"}}>
+            {rollsLeft>0?`${rollsLeft} tirada${rollsLeft>1?"s":""} restante${rollsLeft>1?"s":""}`:
+            "⚠ Sin tiradas — aceptá estos valores o cambiá al array estándar"}
+          </span>
+        </div>}
+      </div>}
 
       {statMethod==="standard"&&<div style={{display:"flex",gap:5,marginBottom:14,flexWrap:"wrap"}}>
         {STANDARD.map((v,i)=>(
@@ -1865,7 +1866,8 @@ const assignStat=(stat,idx)=>{
           );
         })}
       </div>}
-    
+    </div>
+
     {preview&&<div style={{width:150,display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
       <div style={{width:120,height:160}}><CharSVG char={preview}/></div>
       <div style={{textAlign:"center"}}>
@@ -1881,7 +1883,6 @@ const assignStat=(stat,idx)=>{
     <button className="btn btn-r" disabled={!statMethod||rolling||used.length<6} onClick={()=>setStep(3)} style={{padding:"11px 40px",fontSize:14}}>Ver resumen →</button>
   </div>
 </div>}
-
         {/* STEP 3 */}
         {step===3&&<div>
           <h2 style={{fontFamily:"Cinzel,serif",color:"var(--gold)",textAlign:"center",marginBottom:20,fontSize:22}}>Resumen</h2>
