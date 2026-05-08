@@ -447,6 +447,11 @@ const ITEMS = {
   hairribbon:{id:"hairribbon",n:"Lazo Heroico",e:"🎀",t:"armor",slot:"head",w:0.1,val:4,rar:"c",desc:"Energía protagonista."},
   wizardhat:{id:"wizardhat",n:"Sombrero de Mago",e:"🎩",t:"armor",slot:"head",w:0.5,val:50,rar:"u",magical:true,bonus:{int:1},classOnly:["wizard","sorcerer","warlock"],desc:"+1 INT."},
   crownvalor:{id:"crownvalor",n:"Corona del Valor",e:"👑",t:"armor",slot:"head",w:0.8,val:800,rar:"r",magical:true,bonus:{cha:2},desc:"+2 CAR. Presencia imponente.",minLevel:5},
+  elfleafhelm:{id:"elfleafhelm",n:"Yelmo Hoja Élfica",e:"🍃",t:"armor",slot:"head",w:1,val:120,rar:"u",desc:"Casco liviano de hojas endurecidas, ajustado para elfos.",bonus:{dex:1}},
+  elfleafmail:{id:"elfleafmail",n:"Pechera Hoja Élfica",e:"🥬",t:"armor",slot:"body",ac:13,acDex:true,w:12,val:220,rar:"u",desc:"Pechera flexible de escamas verdes y plata, pensada para moverse sin ruido."},
+  elfcourtiertunic:{id:"elfcourtiertunic",n:"Túnica Cortesana Élfica",e:"🟢",t:"armor",slot:"body",ac:11,acDex:true,w:3,val:80,rar:"c",desc:"Vestimenta básica élfica de viaje, cómoda y elegante."},
+  elfroundshield:{id:"elfroundshield",n:"Escudo Redondo Élfico",e:"🛡️",t:"armor",slot:"offhand",ac:2,w:5,val:110,rar:"u",desc:"Escudo circular ornamentado con aro dorado y núcleo azul."},
+  runesunblade:{id:"runesunblade",n:"Hoja Solar Rúnica",e:"⚜️",t:"weapon",slot:"mainhand",dmg:"1d8+1d8",dt:"radiante",w:3,val:1200,rar:"r",magical:true,desc:"Arma épica élfica. La hoja brilla con runas solares y suma daño radiante.",bonus:{cha:1}},
   spellbook:{id:"spellbook",n:"Grimorio",e:"📖",t:"acc",slot:"acc",val:50,rar:"u",classOnly:["wizard","warlock"],desc:"Fórmulas arcanas."},
   mooncharm:{id:"mooncharm",n:"Amuleto Lunar",e:"🌙",t:"acc",slot:"acc",val:20,rar:"c",desc:"Colgante plateado."},
   amuletHealth:{id:"amuletHealth",n:"Amuleto Salud",e:"💚",t:"acc",slot:"acc",val:500,rar:"u",magical:true,bonus:{con:2},desc:"+2 CON."},
@@ -458,7 +463,7 @@ const ITEMS = {
   rope:{id:"rope",n:"Cuerda de Cáñamo",e:"🪢",t:"misc",val:1,rar:"c",w:10,desc:"50 pies de cuerda resistente."},
 };
 const CLASS_ITEMS={fighter:["longsword","chainmail","shield"],wizard:["staff","robes","spellbook"],rogue:["shortsword","dagger","leather"],cleric:["mace","chainmail","shield"],barbarian:["greataxe","leather"],bard:["shortsword","leather"],druid:["quarterstaff","leather","cloak"],paladin:["longsword","chainmail","shield"],ranger:["longbow","leather","handaxe"],sorcerer:["dagger","robes"],warlock:["dagger","robes","spellbook"],monk:["quarterstaff"]};
-const STYLE_LOADOUTS={all:["cloak","redscarf","mooncharm"],fighter:["katana","helm","handaxe"],wizard:["dagger","adventurerhood","wizardhat"],rogue:["katana","hairribbon","cloak"],cleric:["quarterstaff","helm","mooncharm"],barbarian:["handaxe","katana","adventurerhood"],bard:["dagger","hairribbon","redscarf"],druid:["dagger","adventurerhood","mooncharm"],paladin:["katana","helm","cloak"],ranger:["shortsword","adventurerhood","redscarf"],sorcerer:["staff","hairribbon","wizardhat"],warlock:["staff","adventurerhood","wizardhat"],monk:["dagger","hairribbon","redscarf"]};
+const STYLE_LOADOUTS={all:["cloak","redscarf","mooncharm","elfleafhelm","elfleafmail","elfcourtiertunic","elfroundshield","runesunblade"],fighter:["katana","helm","handaxe"],wizard:["dagger","adventurerhood","wizardhat"],rogue:["katana","hairribbon","cloak"],cleric:["quarterstaff","helm","mooncharm"],barbarian:["handaxe","katana","adventurerhood"],bard:["dagger","hairribbon","redscarf"],druid:["dagger","adventurerhood","mooncharm"],paladin:["katana","helm","cloak"],ranger:["shortsword","adventurerhood","redscarf"],sorcerer:["staff","hairribbon","wizardhat"],warlock:["staff","adventurerhood","wizardhat"],monk:["dagger","hairribbon","redscarf"]};
 
 const buildStarterLoadout=(cls)=>{
   const equipment={},owned=[],seen=new Set();
@@ -631,7 +636,7 @@ const CharSVG = ({ char }) => {
   // Armor color by equipped body
   const bodyId = eq.body;
   const bodyItem = ITEMS[bodyId];
-  const armorColor = bodyItem ? (bodyId==="chainmail"||bodyId==="scalemail"?"#9AA8B0":bodyId==="platemail"?"#C8D0D8":bodyId==="leather"?"#8B6040":bodyId==="robes"?"#5050A0":"#888") : "none";
+  const armorColor = bodyItem ? (bodyId==="elfleafmail"?"#4D7355":bodyId==="elfcourtiertunic"?"#2F6B46":bodyId==="chainmail"||bodyId==="scalemail"?"#9AA8B0":bodyId==="platemail"?"#C8D0D8":bodyId==="leather"?"#8B6040":bodyId==="robes"?"#5050A0":"#888") : "none";
   const hasArmor = !!bodyItem;
   const hasShield = !!eq.offhand;
   const hasWeapon = !!eq.mainhand;
@@ -640,6 +645,10 @@ const CharSVG = ({ char }) => {
   const capeColor = hasCape ? (eq.cape==="elvishcloak"?"#4A7A50":eq.cape==="cloakprotection"?"#8060A0":"#6A4020") : null;
   const weaponItem = ITEMS[eq.mainhand];
   const weaponColor = weaponItem ? (weaponItem.rar==="r"?"#C9A84C":weaponItem.rar==="u"?"#5BA3E0":"#9AA0A8") : "#9AA0A8";
+  const isLeafmail = bodyId==="elfleafmail";
+  const isCourtierTunic = bodyId==="elfcourtiertunic";
+  const isElfShield = eq.offhand==="elfroundshield";
+  const isRuneSunblade = eq.mainhand==="runesunblade";
 
   const isFemale = char.appearance?.bodyType === "female";
   const hairY = isFemale ? 18 : 20;
@@ -674,22 +683,49 @@ const CharSVG = ({ char }) => {
       {/* Arms */}
       <rect x={isFemale?18:20} y="62" width={isFemale?14:13} height="38" rx="5" fill={hasArmor?armorColor:skin}/>
       <rect x={isFemale?68:67} y="62" width={isFemale?14:13} height="38" rx="5" fill={hasArmor?armorColor:skin}/>
+      {isLeafmail && <>
+        <path d="M31,62 Q50,52 69,62 L64,108 Q50,116 36,108Z" fill="#425C56" stroke="#9FB8A0" strokeWidth="1"/>
+        <path d="M35,66 Q50,58 65,66 L61,104 Q50,111 39,104Z" fill="#5F8A55"/>
+        {[0,1,2,3].map(i=><path key={i} d={`M38,${72+i*7} Q50,${78+i*5} 62,${72+i*7}`} stroke="#B8C0B0" strokeWidth="1" opacity=".75" fill="none"/>)}
+        <path d="M40,62 Q50,70 60,62" stroke="#C9A84C" strokeWidth="1.5" fill="none"/>
+      </>}
+      {isCourtierTunic && <>
+        <path d="M32,61 Q50,54 68,61 L66,106 Q50,117 34,106Z" fill="#1F5438" stroke="#8AB06C" strokeWidth="1"/>
+        <path d="M42,62 L50,109 L58,62" fill="#C7D59A" opacity=".55"/>
+        <path d="M36,75 Q50,82 64,75" stroke="#D2B870" strokeWidth="2" fill="none"/>
+        <path d="M34,104 Q50,112 66,104" stroke="#D2B870" strokeWidth="1.2" fill="none"/>
+      </>}
       {/* Hands */}
       <ellipse cx={isFemale?25:26} cy="103" rx="6" ry="5" fill={skin}/>
       <ellipse cx={isFemale?75:74} cy="103" rx="6" ry="5" fill={skin}/>
 
       {/* Shield */}
-      {hasShield && <ellipse cx={isFemale?15:15} cy="90" rx="10" ry="14" fill="#6A7880" stroke="#8A9098" strokeWidth="1.5"/>}
-      {hasShield && <line x1={isFemale?15:15} y1="78" x2={isFemale?15:15} y2="102" stroke="#C9A84C" strokeWidth="1.2"/>}
-      {hasShield && <line x1="8" y1="90" x2="22" y2="90" stroke="#C9A84C" strokeWidth="1.2"/>}
+      {hasShield && isElfShield && <>
+        <circle cx="16" cy="90" r="15" fill="#263B42" stroke="#C9A84C" strokeWidth="2"/>
+        <circle cx="16" cy="90" r="9" fill="#4E6E73" stroke="#9CC4C4" strokeWidth="1"/>
+        <circle cx="16" cy="90" r="3" fill="#5BA3E0"/>
+        <path d="M16,75 L19,88 L31,90 L19,93 L16,105 L13,93 L1,90 L13,88Z" fill="none" stroke="#C9A84C" strokeWidth="1" opacity=".8"/>
+      </>}
+      {hasShield && !isElfShield && <ellipse cx={isFemale?15:15} cy="90" rx="10" ry="14" fill="#6A7880" stroke="#8A9098" strokeWidth="1.5"/>}
+      {hasShield && !isElfShield && <line x1={isFemale?15:15} y1="78" x2={isFemale?15:15} y2="102" stroke="#C9A84C" strokeWidth="1.2"/>}
+      {hasShield && !isElfShield && <line x1="8" y1="90" x2="22" y2="90" stroke="#C9A84C" strokeWidth="1.2"/>}
 
       {/* Weapon */}
-      {hasWeapon && weaponItem?.ranged
-        ? <path d="M82,50 L86,130" stroke={weaponColor} strokeWidth="2" strokeLinecap="round"/>
-        : hasWeapon && <path d={`M78,45 L82,115`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>
+      {hasWeapon && isRuneSunblade
+        ? <>
+            <path d="M79,106 L91,38" stroke="#8E6B2A" strokeWidth="4" strokeLinecap="round"/>
+            <path d="M82,43 L92,36 L95,48 L88,95 L77,106 Z" fill="#E9D08A" stroke="#C9A84C" strokeWidth="1.5"/>
+            <path d="M86,47 L91,45 L86,91 L81,99 Z" fill="#7EC8D8" opacity=".85"/>
+            <path d="M75,104 L88,111" stroke="#C9A84C" strokeWidth="4" strokeLinecap="round"/>
+            <circle cx="83" cy="103" r="3" fill="#5BA3E0"/>
+            <circle cx="88" cy="60" r="8" fill="rgba(201,168,76,.18)" style={{animation:"glow 2s infinite"}}/>
+          </>
+        : hasWeapon && weaponItem?.ranged
+          ? <path d="M82,50 L86,130" stroke={weaponColor} strokeWidth="2" strokeLinecap="round"/>
+          : hasWeapon && <path d={`M78,45 L82,115`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>
       }
-      {hasWeapon && weaponItem?.t==="weapon" && !weaponItem?.ranged && <path d={`M75,43 L85,43`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>}
-      {weaponItem?.magical && hasWeapon && <circle cx="79" cy="50" r="4" fill="rgba(201,168,76,0.4)" style={{animation:"glow 2s infinite"}}/>}
+      {hasWeapon && !isRuneSunblade && weaponItem?.t==="weapon" && !weaponItem?.ranged && <path d={`M75,43 L85,43`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>}
+      {weaponItem?.magical && hasWeapon && !isRuneSunblade && <circle cx="79" cy="50" r="4" fill="rgba(201,168,76,0.4)" style={{animation:"glow 2s infinite"}}/>}
 
       {/* Neck */}
       <rect x="44" y="50" width="12" height="13" rx="4" fill={skin}/>
@@ -699,6 +735,11 @@ const CharSVG = ({ char }) => {
 
       {/* Helm */}
       {hasHelm && eq.head==="helm" && <path d="M34,38 Q34,20 50,20 Q66,20 66,38 L62,38 Q62,24 50,24 Q38,24 38,38Z" fill="#7A8890"/>}
+      {hasHelm && eq.head==="elfleafhelm" && <>
+        <path d="M34,39 Q35,21 50,17 Q65,21 66,39 L60,35 Q56,27 50,25 Q44,27 40,35Z" fill="#365F42" stroke="#9CB67C" strokeWidth="1"/>
+        <path d="M50,16 Q46,29 35,36 Q48,34 50,45 Q52,34 65,36 Q54,29 50,16Z" fill="#6EA063" opacity=".95"/>
+        <path d="M39,28 Q47,24 50,17 Q53,24 61,28" stroke="#C9A84C" strokeWidth="1.2" fill="none"/>
+      </>}
       {hasHelm && eq.head==="wizardhat" && <>
         <path d="M50,5 L58,30 L42,30Z" fill="#3A2A70"/>
         <rect x="36" y="28" width="28" height="5" rx="2" fill="#5A4A90"/>
