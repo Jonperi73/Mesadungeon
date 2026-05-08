@@ -2348,14 +2348,6 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
 
 const OwnerPanel = ({ ownerAccount, pendingDMs = [], approvedDMs = [], sessions, onApproveDm, onRevokeDm }) => {
   const activeRoomsFor=(uid)=>(sessions||[]).filter(s=>s.dmUid===uid&&(s.lifecycleStatus||"active")==="active").length;
-  const [hpMap, setHpMap] = useState({});
-   useEffect(() => {
-  const init = {};
-  (pendingDMs || []).forEach(dm => {
-    init[dm.uid] = dm.hp ?? 0;
-  });
-  setHpMap(init);
-}, [pendingDMs]);
   return(
     <div className="card" style={{padding:18,marginTop:18}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,gap:10}}>
@@ -2377,22 +2369,8 @@ const OwnerPanel = ({ ownerAccount, pendingDMs = [], approvedDMs = [], sessions,
                     <div style={{fontSize:13,color:"var(--text)"}}>{dm.displayName||"DM sin alias"}</div>
                     <div className="auth-meta">{dm.email}</div>
                     <div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap"}}>
-                       <input
-  type="number"
-  value={hpMap?.[dm.uid] ?? 0}
-  onChange={(e) =>
-    setHpMap(prev => ({
-      ...prev,
-      [dm.uid]: Number(e.target.value)
-    }))
-  }
-  style={{width:80}}
-/>
                       <button className="btn btn-sm btn-r" onClick={()=>onApproveDm(dm.uid)}>Aprobar</button>
                       <button className="btn btn-sm" onClick={()=>onRevokeDm(dm.uid)}>Rechazar</button>
-                      <button className="btn btn-sm" onClick={() => onUpdateHp?.(dm.uid, hpMap?.[dm.uid] ?? dm.hp ?? 0)}>Guardar HP</button>
-
-</div>
                     </div>
                   </div>
                 ))}
