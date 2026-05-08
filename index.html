@@ -2919,7 +2919,6 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
 function App() {
   const [screen,setScreen]=useState("lobby");
   const [playerId, setPlayerId]=useState(()=>storageGet(STORAGE_KEYS.playerId)||genId(12));
-  const [playerId, setPlayerId] = useState(playerIdRef.current);
   const [playerName,setPlayerName]=useState(()=>storageGet(STORAGE_KEYS.playerName)||"");
   const [roomId,setRoomId]=useState(null);
   const [roomData,setRoomData]=useState(null);
