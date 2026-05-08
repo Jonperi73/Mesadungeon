@@ -1235,7 +1235,9 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
   const [showDM,setShowDM]=useState(false);
   const [showCharModal,setShowCharModal]=useState(false);
   const [showStock,setShowStock]=useState(false);
+  const [showPlayerAdmin,setShowPlayerAdmin]=useState(false);
   const [stockTargetId,setStockTargetId]=useState("");
+  const [adminTargetId,setAdminTargetId]=useState("");
   const [stockItemId,setStockItemId]=useState(()=>Object.keys(ITEMS)[0]||"");
   const [stockQty,setStockQty]=useState("1");
   const [coinType,setCoinType]=useState("gold");
@@ -1264,13 +1266,31 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
   const selectedItem=ITEMS[stockItemId];
   const selectedItemStock=selectedItem?(dmStock.items?.[stockItemId]||0):0;
 
-  useEffect(()=>{chatEnd.current?.scrollIntoView({behavior:"smooth"});},[roomData?.messages]);
-  useEffect(()=>{
-    const candidates=playersList.filter(p=>p.character);
-    if(candidates.some(p=>p.id===stockTargetId))return;
-    const next=candidates.find(p=>p.id!==playerId)?.id||candidates[0]?.id||"";
-    setStockTargetId(next);
-  },[playersList,playerId,stockTargetId]);
+useEffect(()=>{
+  const candidates=playersList.filter(p=>p.character);
+
+  if(candidates.some(p=>p.id===stockTargetId))return;
+
+  const next=
+    candidates.find(p=>p.id!==playerId)?.id||
+    candidates[0]?.id||
+    "";
+
+  setStockTargetId(next);
+},[playersList,playerId,stockTargetId]);
+
+useEffect(()=>{
+  const candidates=playersList.filter(p=>p.character);
+
+  if(candidates.some(p=>p.id===adminTargetId))return;
+
+  const next=
+    candidates.find(p=>p.id!==playerId)?.id||
+    candidates[0]?.id||
+    "";
+
+  setAdminTargetId(next);
+},[playersList,playerId,adminTargetId]);
 
   const parseAmount=(value,fallback=1)=>Math.max(1,parseInt(value,10)||fallback);
   const coinLabel=(type)=>COIN_TYPES.find(c=>c.type===type)?.label||type;
@@ -1469,22 +1489,62 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
       </div>
 
       {/* DM Panel */}
-      {showDM&&isDM&&<div style={{background:"rgba(139,26,26,.12)",borderBottom:"1px solid rgba(139,26,26,.3)",padding:"9px 14px",display:"flex",flexDirection:"column",gap:8}}>
-        <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-          <span style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--crimson2)",textTransform:"uppercase",whiteSpace:"nowrap"}}>DM →</span>
-          <input className="inp" placeholder="Narración..." value={dmInput} onChange={e=>setDmInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendDM()} style={{flex:1,minWidth:180,fontSize:13}}/>
-          <button className="btn btn-r btn-sm" onClick={sendDM}>Narrar</button>
-        </div>
-        <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-          <button className={`btn btn-sm${roomData?.diceEnabled?" btn-g":""}`} onClick={toggleDiceAccess}>
-            {roomData?.diceEnabled?"⛔ Bloquear tiradas":"🎲 Habilitar tiradas"}
-          </button>
-          <button className="btn btn-sm" onClick={()=>setShowStock(true)}>🎁 Stock del DM</button>
-          <span style={{fontSize:11,color:"var(--muted)"}}>
-            {roomData?.diceEnabled?"Los jugadores ya pueden tirar dados.":"Los jugadores tienen los dados bloqueados."}
-          </span>
-        </div>
-      </div>}
+{showDM&&isDM&&<div style={{background:"rgba(139,26,26,.12)",borderBottom:"1px solid rgba(139,26,26,.3)",padding:"9px 14px",display:"flex",flexDirection:"column",gap:8}}>
+  <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+    <span style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--crimson2)",textTransform:"uppercase",whiteSpace:"nowrap"}}>
+      DM →
+    </span>
+
+    <input
+      className="inp"
+      placeholder="Narración..."
+      value={dmInput}
+      onChange={e=>setDmInput(e.target.value)}
+      onKeyDown={e=>e.key==="Enter"&&sendDM()}
+      style={{flex:1,minWidth:180,fontSize:13}}
+    />
+
+    <button
+      className="btn btn-r btn-sm"
+      onClick={sendDM}
+    >
+      Narrar
+    </button>
+  </div>
+
+  <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+
+    <button
+      className={`btn btn-sm${roomData?.diceEnabled?" btn-g":""}`}
+      onClick={toggleDiceAccess}
+    >
+      {roomData?.diceEnabled
+        ?"⛔ Bloquear tiradas"
+        :"🎲 Habilitar tiradas"}
+    </button>
+
+    <button
+      className="btn btn-sm"
+      onClick={()=>setShowStock(true)}
+    >
+      🎁 Stock del DM
+    </button>
+
+    <button
+      className="btn btn-sm"
+      onClick={()=>setShowPlayerAdmin(true)}
+    >
+      🎭 Jugadores
+    </button>
+
+    <span style={{fontSize:11,color:"var(--muted)"}}>
+      {roomData?.diceEnabled
+        ?"Los jugadores ya pueden tirar dados."
+        :"Los jugadores tienen los dados bloqueados."}
+    </span>
+
+  </div>
+</div>}
 
       {/* Players bar */}
 <div style={{background:"var(--bg2)",borderBottom:"1px solid var(--border)",padding:"5px 14px",display:"flex",gap:10,overflowX:"auto",flexShrink:0}}>
