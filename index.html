@@ -1343,6 +1343,7 @@ useEffect(()=>{
     const newEq={...(character.equipment||{})};
     if(itemId===null){delete newEq[slot];}else newEq[slot]=itemId;
     const newChar={...character,equipment:newEq,ac:calcAC({...character,equipment:newEq})};
+    const safeChar = JSON.parse(JSON.stringify(newChar));
     await updateRoom(d=>({
       ...d,
       players:{...(d.players||{}),[playerId]:{...(d.players?.[playerId]||{}),character:newChar}},
@@ -1355,12 +1356,14 @@ useEffect(()=>{
     if(!character)return;
     const hp=Math.max(0,Math.min(newHP,character.maxHP));
     const newChar={...character,currentHP:hp};
+    const safeChar = JSON.parse(JSON.stringify(newChar));
     await updateRoom(d=>({...d,players:{...(d.players||{}),[playerId]:{...(d.players?.[playerId]||{}),character:newChar}}}));
   };
 
   const handleUpdateWallet=async(newWallet)=>{
     if(!character)return;
     const newChar={...character,wallet:normalizeWallet(newWallet)};
+    const safeChar = JSON.parse(JSON.stringify(newChar));
     await updateRoom(d=>({...d,players:{...(d.players||{}),[playerId]:{...(d.players?.[playerId]||{}),character:newChar}}}));
   };
 
@@ -1400,10 +1403,10 @@ useEffect(()=>{
           ...(d.players||{}),
           [stockTargetId]:{
             ...targetPlayer,
-            character:{
+            character: JSON.parse(JSON.stringify({
               ...targetChar,
               inventory:[...(targetChar.inventory||[]),...Array.from({length:amount},()=>stockItemId)],
-            }
+            })) 
           }
         },
         messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`🎁 El DM entregó ${amount}x ${selectedItem.n} a ${targetChar.name}.`,ts:Date.now()}]
@@ -1454,10 +1457,10 @@ useEffect(()=>{
           ...(d.players||{}),
           [stockTargetId]:{
             ...targetPlayer,
-            character:{
+            character: JSON.parse(JSON.stringify({
               ...targetChar,
               wallet:{...targetWallet,[coinType]:(targetWallet[coinType]||0)+amount},
-            }
+            }))
           }
         },
         messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`🪙 El DM entregó ${amount} ${coinLabel(coinType).toLowerCase()} a ${targetChar.name}.`,ts:Date.now()}]
@@ -1479,10 +1482,10 @@ useEffect(()=>{
           ...(d.players||{}),
           [targetPlayerId]:{
             ...targetPlayer,
-            character:{
+            character: JSON.parse(JSON.stringify({
               ...targetChar,
               ...patch
-            }
+            }))
           }
         }
       };
@@ -3668,7 +3671,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
   const completeCharacter=async(char)=>{
 
-    setCharacter(char);
+    setCharacter(safeChar);
 
     await updateRoom(d=>({
 
@@ -3679,7 +3682,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
         [playerId]:{
           ...(d.players?.[playerId]||{}),
-          character:char
+           character:safeChar
         }
       },
 
