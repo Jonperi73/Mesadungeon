@@ -3229,7 +3229,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
         lastActivityAt:Date.now()
       });
 
-      await fb.set(`rooms/${roomId}`,updated);
+      await fb.set(`rooms/${roomId}`, JSON.parse(JSON.stringify(updated)));
 
       syncSessionIndex(updated);
 
