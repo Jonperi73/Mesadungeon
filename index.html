@@ -1256,11 +1256,11 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
   const [levelHpGain,setLevelHpGain]=useState("");
   const chatEnd=useRef();
   const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem("tutorial_game_done"));
-  
+  const effectiveCharacter = character || roomData?.players?.[playerId]?.character || null;
   const playersList=Object.values(roomData?.players||{});
   const isHost=roomData?.hostId===playerId;
   const isDM=!!((roomData?.dmUid&&authUid&&roomData.dmUid===authUid)||isHost);
-  const canRoll=!!character&&(isDM||!!roomData?.diceEnabled);
+  const canRoll=!!effectiveCharacter&&(isDM||!!roomData?.diceEnabled);
   const dmStock=roomData?.dmStock||{items:{},coins:normalizeWallet()};
   const stockEntries=Object.entries(dmStock.items||{})
     .filter(([,qty])=>qty>0)
@@ -1284,7 +1284,6 @@ useEffect(()=>{
   if(candidates.some(p=>p.id===stockTargetId))return;
 
   const next=
-    candidates.find(p=>p.id!==playerId)?.id||
     candidates[0]?.id||
     "";
 
@@ -1297,7 +1296,6 @@ useEffect(()=>{
   if(candidates.some(p=>p.id===adminTargetId))return;
 
   const next=
-    candidates.find(p=>p.id!==playerId)?.id||
     candidates[0]?.id||
     "";
 
@@ -1697,11 +1695,11 @@ useEffect(()=>{
               <button className="btn btn-sm" onClick={()=>openMobilePanel("char")}>🎒 Equipo</button>
             </div>
             <div style={{display:"flex",gap:8}}>
-              <input className="inp" placeholder={character?"¿Qué hace tu personaje?":"Crea tu personaje primero..."}
+             <input className="inp" placeholder={effectiveCharacter?"¿Qué hace tu personaje?":"Crea tu personaje primero..."}
                 value={chatInput} onChange={e=>setChatInput(e.target.value)}
-                onKeyDown={e=>e.key==="Enter"&&send()} disabled={!character} style={{flex:1,fontSize:14}}/>
-              <button className="btn btn-r" onClick={send} disabled={!character||!chatInput.trim()}>Enviar</button>
-            </div>
+               onKeyDown={e=>e.key==="Enter"&&send()} disabled={!effectiveCharacter} style={{flex:1,fontSize:14}}/>
+             <button className="btn btn-r" onClick={send} disabled={!effectiveCharacter||!chatInput.trim()}>Enviar</button>
+           </div>
           </div>
         </div>
 
