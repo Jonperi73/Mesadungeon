@@ -1,0 +1,1428 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hoja de Personaje Fantasy</title>
+  <style>
+    :root {
+      --ink: #24190e;
+      --muted: #66533b;
+      --deep: #1f2a18;
+      --deep-2: #314222;
+      --gold: #b78a35;
+      --line: rgba(61, 42, 23, .38);
+      --paper: #eadbb8;
+      --paper-2: #d8c392;
+      --shadow: rgba(20, 12, 4, .36);
+      --danger: #8a2f28;
+      --focus: #6f8a3a;
+      color-scheme: light;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18% 8%, rgba(194, 150, 68, .35), transparent 34rem),
+        radial-gradient(circle at 82% 12%, rgba(84, 102, 63, .35), transparent 32rem),
+        linear-gradient(135deg, #17130e, #2c271c 44%, #14120e);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+      color: inherit;
+    }
+
+    button {
+      border: 1px solid rgba(38, 26, 12, .58);
+      border-radius: 6px;
+      padding: .55rem .8rem;
+      background: linear-gradient(#f3e4bb, #cdae70);
+      box-shadow: inset 0 1px rgba(255,255,255,.45), 0 2px 6px rgba(0,0,0,.18);
+      cursor: pointer;
+      min-height: 2.35rem;
+    }
+
+    button:hover { filter: brightness(1.04); }
+    button:active { transform: translateY(1px); }
+    button.primary { background: linear-gradient(#446031, #24351c); color: #f8edd0; }
+    button.danger { background: linear-gradient(#a64d3f, #6c241e); color: #fff1df; }
+    button.icon { width: 2.45rem; padding: .45rem; font-weight: 700; }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(72, 48, 24, .46);
+      border-radius: 4px;
+      background: rgba(255, 248, 221, .72);
+      padding: .42rem .5rem;
+      outline: none;
+      min-height: 2.1rem;
+    }
+
+    textarea {
+      min-height: 5.5rem;
+      resize: vertical;
+      line-height: 1.35;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 2px rgba(111, 138, 58, .22);
+    }
+
+    label {
+      display: grid;
+      gap: .25rem;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .app {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      gap: .6rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: .7rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(214, 180, 105, .28);
+      border-radius: 8px;
+      background: rgba(22, 17, 12, .82);
+      backdrop-filter: blur(8px);
+      color: #f7ecd0;
+      box-shadow: 0 8px 22px rgba(0,0,0,.24);
+    }
+
+    .toolbar-title {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      min-width: 12rem;
+      font-weight: 700;
+    }
+
+    .crest {
+      display: grid;
+      place-items: center;
+      width: 2.1rem;
+      height: 2.1rem;
+      border: 1px solid rgba(237, 208, 137, .45);
+      border-radius: 50%;
+      background: #26331d;
+      color: #d9b15b;
+      font-size: 1rem;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+      justify-content: flex-end;
+    }
+
+    .sheet {
+      overflow: hidden;
+      border: 2px solid #59452c;
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(103,75,38,.08) 1px, transparent 1px) 0 0/42px 42px,
+        linear-gradient(0deg, rgba(103,75,38,.055) 1px, transparent 1px) 0 0/42px 42px,
+        radial-gradient(circle at 50% 0%, rgba(255, 249, 218, .78), transparent 28rem),
+        linear-gradient(145deg, var(--paper), var(--paper-2));
+      box-shadow: 0 22px 60px rgba(0,0,0,.46), inset 0 0 0 6px rgba(64, 42, 23, .12);
+    }
+
+    .sheet-grid {
+      display: grid;
+      grid-template-columns: minmax(240px, .85fr) minmax(420px, 1.6fr) minmax(260px, .9fr);
+      gap: .55rem;
+      padding: .65rem;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255,255,255,.28), transparent 18rem),
+        rgba(250, 238, 201, .58);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.22);
+      min-width: 0;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2rem;
+      padding: .34rem .55rem;
+      color: #f6edcf;
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0;
+      background:
+        linear-gradient(90deg, transparent 0, rgba(0,0,0,.3) 9%, rgba(0,0,0,.18) 91%, transparent 100%),
+        linear-gradient(#3d4c2a, #1c2917);
+      border-bottom: 1px solid rgba(44,31,18,.48);
+    }
+
+    .panel-body { padding: .75rem; }
+    .stack { display: grid; gap: .65rem; }
+    .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
+    .row.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .row.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      gap: .55rem;
+    }
+
+    .portrait-frame {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      border: 2px solid #5a442a;
+      background:
+        linear-gradient(rgba(38, 46, 27, .26), rgba(18, 22, 14, .52)),
+        repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 8px, transparent 8px 16px);
+      overflow: hidden;
+    }
+
+    .portrait-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .portrait-empty {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      text-align: center;
+      color: rgba(250, 240, 210, .86);
+      background: rgba(30, 38, 23, .48);
+    }
+
+    .quote textarea {
+      min-height: 4.2rem;
+      text-align: center;
+      font-style: italic;
+    }
+
+    .masthead {
+      text-align: center;
+      padding: .85rem .8rem .55rem;
+      border-bottom: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 80% 35%, rgba(49, 66, 34, .18), transparent 14rem),
+        rgba(255,255,255,.16);
+    }
+
+    .brand {
+      color: var(--danger);
+      font-size: 1.25rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .kind {
+      margin-top: .1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--deep);
+    }
+
+    .name-input {
+      margin: .25rem auto .5rem;
+      max-width: 36rem;
+      border: 0;
+      border-bottom: 2px solid rgba(39, 58, 28, .45);
+      border-radius: 0;
+      background: transparent;
+      color: #253719;
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 900;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .name-input:focus { box-shadow: none; }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .45rem;
+      text-align: left;
+    }
+
+    .ability-table,
+    .skill-table,
+    .save-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .ability-table th,
+    .ability-table td,
+    .skill-table td,
+    .save-table td {
+      border-bottom: 1px solid rgba(74, 52, 29, .22);
+      padding: .32rem;
+      vertical-align: middle;
+    }
+
+    .ability-table th {
+      color: var(--muted);
+      font-size: .72rem;
+      text-transform: uppercase;
+    }
+
+    .ability-name {
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+      font-weight: 700;
+      min-width: 8.5rem;
+    }
+
+    .sigil {
+      display: inline-grid;
+      place-items: center;
+      width: 1.45rem;
+      height: 1.45rem;
+      border-radius: 50%;
+      background: #e2c886;
+      border: 1px solid rgba(70, 49, 25, .48);
+      color: #352715;
+      font-size: .92rem;
+      flex: 0 0 auto;
+    }
+
+    .number {
+      max-width: 4.3rem;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .readonly-box {
+      min-height: 2.1rem;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(72, 48, 24, .38);
+      border-radius: 4px;
+      background: rgba(255, 248, 221, .48);
+      font-weight: 700;
+    }
+
+    .stat-card {
+      display: grid;
+      gap: .2rem;
+      min-height: 5rem;
+      padding: .58rem;
+      border: 1px solid rgba(72, 48, 24, .35);
+      background: rgba(253, 239, 196, .58);
+      text-align: center;
+    }
+
+    .stat-card span {
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .stat-card strong {
+      display: block;
+      font-size: 1.8rem;
+      line-height: 1.05;
+    }
+
+    .tiny-note {
+      color: var(--muted);
+      font-size: .76rem;
+      line-height: 1.25;
+    }
+
+    .check-line {
+      display: grid;
+      grid-template-columns: 1.1rem minmax(0, 1fr) auto;
+      gap: .35rem;
+      align-items: center;
+      min-height: 1.8rem;
+    }
+
+    .check-line input[type="checkbox"] {
+      width: 1rem;
+      min-height: 1rem;
+      accent-color: var(--deep-2);
+    }
+
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      border: 1px solid rgba(74, 52, 29, .28);
+      border-radius: 999px;
+      padding: .28rem .5rem;
+      background: rgba(255, 248, 221, .58);
+      font-size: .82rem;
+    }
+
+    .chip button {
+      display: grid;
+      place-items: center;
+      width: 1.25rem;
+      min-height: 1.25rem;
+      padding: 0;
+      border-radius: 50%;
+      font-size: .8rem;
+      line-height: 1;
+    }
+
+    .add-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: .4rem;
+    }
+
+    .wide { grid-column: 1 / -1; }
+    .main-column { display: grid; gap: .55rem; }
+    .side-column { display: grid; gap: .55rem; }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .55rem;
+    }
+
+    .toast {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 50;
+      max-width: 24rem;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 8px;
+      padding: .75rem .9rem;
+      background: rgba(23, 18, 12, .92);
+      color: #f9edcf;
+      box-shadow: 0 8px 28px rgba(0,0,0,.34);
+      opacity: 0;
+      transform: translateY(.6rem);
+      pointer-events: none;
+      transition: .18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1120px) {
+      .sheet-grid { grid-template-columns: minmax(230px, .8fr) minmax(0, 1.5fr); }
+      .side-column { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .app { padding: .45rem; }
+      .toolbar { position: static; align-items: stretch; flex-direction: column; }
+      .toolbar-actions { justify-content: stretch; }
+      .toolbar-actions button { flex: 1 1 8.4rem; }
+      .sheet-grid,
+      .section-grid,
+      .side-column,
+      .row,
+      .row.three,
+      .row.four,
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+      .name-input { font-size: 2.35rem; }
+      .ability-name { min-width: 7.4rem; }
+    }
+
+    @media print {
+      body { background: white; }
+      .app { width: 100%; padding: 0; }
+      .toolbar,
+      .toast,
+      .add-row,
+      .chip button,
+      input[type="file"] { display: none !important; }
+      .sheet {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      input,
+      select,
+      textarea {
+        border-color: rgba(72, 48, 24, .26);
+        background: rgba(255, 248, 221, .36);
+      }
+      .sheet-grid { gap: .35rem; padding: .35rem; }
+      .panel-body { padding: .5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="toolbar" aria-label="Herramientas de hoja">
+      <div class="toolbar-title">
+        <div class="crest" aria-hidden="true">D20</div>
+        <div>
+          <div>Hoja App Fantasy</div>
+          <div class="tiny-note">HTML editable, guardable y adaptable</div>
+        </div>
+      </div>
+      <div class="toolbar-actions">
+        <button class="primary" id="saveBtn" type="button">Guardar</button>
+        <button id="loadBtn" type="button">Cargar</button>
+        <button id="exportBtn" type="button">Exportar JSON</button>
+        <button id="importBtn" type="button">Importar JSON</button>
+        <button id="printBtn" type="button">Imprimir/PDF</button>
+        <button class="danger" id="resetBtn" type="button">Limpiar</button>
+        <input class="hidden" id="importFile" type="file" accept="application/json,.json">
+      </div>
+    </header>
+
+    <main class="sheet" id="sheet">
+      <div class="sheet-grid">
+        <aside class="hero">
+          <section class="panel">
+            <div class="panel-title">Retrato</div>
+            <div class="panel-body stack">
+              <div class="portrait-frame">
+                <img id="portraitImg" alt="Retrato del personaje">
+                <div class="portrait-empty" id="portraitEmpty">Subi una imagen del personaje</div>
+              </div>
+              <input id="portraitFile" type="file" accept="image/*">
+              <div class="quote">
+                <label>Frase del personaje
+                  <textarea data-field="quote">La fuerza no es solo para destruir, sino para resistir y proteger.</textarea>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title">Competencias</div>
+            <div class="panel-body stack">
+              <div>
+                <strong>Tiradas de salvacion</strong>
+                <div id="savesList" class="stack"></div>
+              </div>
+              <div>
+                <strong>Habilidades</strong>
+                <div id="skillsList" class="stack"></div>
+              </div>
+              <label>Armas
+                <textarea data-field="weaponProficiencies"></textarea>
+              </label>
+              <label>Armaduras
+                <textarea data-field="armorProficiencies"></textarea>
+              </label>
+              <label>Herramientas
+                <textarea data-field="toolProficiencies"></textarea>
+              </label>
+            </div>
+          </section>
+        </aside>
+
+        <section class="main-column">
+          <section class="panel">
+            <div class="masthead">
+              <div class="brand">D&amp;D</div>
+              <div class="kind">Personaje</div>
+              <input class="name-input" data-field="name" value="Barbaro Orco" aria-label="Nombre del personaje">
+              <div class="meta-grid">
+                <label>Clase
+                  <select data-field="className" id="classSelect"></select>
+                </label>
+                <label>Nivel
+                  <input data-field="level" type="number" min="1" max="20" value="1">
+                </label>
+                <label>Raza / especie
+                  <select data-field="raceName" id="raceSelect"></select>
+                </label>
+                <label>Trasfondo
+                  <select data-field="backgroundName" id="backgroundSelect"></select>
+                </label>
+                <label>Alineamiento
+                  <input data-field="alignment" value="Neutral / Caotico">
+                </label>
+                <label>Idiomas
+                  <input data-field="languages" value="Comun, Orco">
+                </label>
+                <label>Experiencia
+                  <input data-field="experience" value="0">
+                </label>
+                <label>Jugador
+                  <input data-field="player" placeholder="Nombre">
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title">Puntuadores de Caracteristica</div>
+            <div class="panel-body">
+              <table class="ability-table">
+                <thead>
+                  <tr>
+                    <th>Caracteristica</th>
+                    <th>Puntuacion</th>
+                    <th>Modif.</th>
+                    <th>Salvacion</th>
+                  </tr>
+                </thead>
+                <tbody id="abilitiesBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="section-grid">
+            <section class="panel">
+              <div class="panel-title">Rasgos y Capacidades</div>
+              <div class="panel-body stack">
+                <label>Rasgos de raza
+                  <textarea data-field="raceTraits"></textarea>
+                </label>
+                <label>Rasgos de clase
+                  <textarea data-field="classTraits"></textarea>
+                </label>
+                <label>Rasgos de trasfondo
+                  <textarea data-field="backgroundTraits"></textarea>
+                </label>
+                <label>Rasgos personalizados
+                  <textarea data-field="customTraits"></textarea>
+                </label>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-title">Equipo</div>
+              <div class="panel-body stack">
+                <label>Armas
+                  <textarea data-field="weapons"></textarea>
+                </label>
+                <label>Equipo de viaje
+                  <textarea data-field="travelGear"></textarea>
+                </label>
+                <label>Otros
+                  <textarea data-field="otherGear"></textarea>
+                </label>
+                <label>Monedas
+                  <input data-field="coins" value="10 po">
+                </label>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel">
+            <div class="panel-title">Trasfondo y Notas</div>
+            <div class="panel-body row">
+              <label>Historia breve
+                <textarea data-field="backstory"></textarea>
+              </label>
+              <label>Notas del personaje
+                <textarea data-field="notes"></textarea>
+              </label>
+            </div>
+          </section>
+        </section>
+
+        <aside class="side-column">
+          <section class="panel">
+            <div class="panel-title">Combate</div>
+            <div class="panel-body stack">
+              <div class="row three">
+                <div class="stat-card"><span>Bonif. competencia</span><strong id="profBonus">+2</strong></div>
+                <div class="stat-card"><span>Iniciativa</span><strong id="initiative">+1</strong></div>
+                <div class="stat-card"><span>Velocidad</span><strong id="speedDisplay">9 m</strong></div>
+              </div>
+              <div class="row three">
+                <label>Puntos de golpe
+                  <input data-field="hp" type="number" min="1" value="14">
+                </label>
+                <label>Clase armadura
+                  <input data-field="ac" type="number" min="1" value="13">
+                </label>
+                <label>Vision
+                  <input data-field="vision" value="36 m">
+                </label>
+              </div>
+              <div class="row three">
+                <label>Dados de golpe
+                  <input data-field="hitDice" value="1d12">
+                </label>
+                <label>Velocidad base
+                  <input data-field="speed" type="number" min="0" value="9">
+                </label>
+                <label>Armadura usada
+                  <input data-field="armor" value="Sin armadura">
+                </label>
+              </div>
+              <p class="tiny-note" id="combatFormula"></p>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title">Presets Rapidos</div>
+            <div class="panel-body stack">
+              <button id="applyPresetBtn" class="primary" type="button">Aplicar raza + clase + trasfondo</button>
+              <button id="applyOnlyRaceBtn" type="button">Solo raza</button>
+              <button id="applyOnlyClassBtn" type="button">Solo clase</button>
+              <button id="applyOnlyBackgroundBtn" type="button">Solo trasfondo</button>
+              <p class="tiny-note">Los textos son bases editables para juego de fantasia tipo D&amp;D. Podes cambiarlos sin romper la app.</p>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title">Listas Adaptables</div>
+            <div class="panel-body stack">
+              <div>
+                <strong>Condiciones / estados</strong>
+                <div class="chip-list" id="conditions"></div>
+                <div class="add-row">
+                  <input id="conditionInput" placeholder="Agregar estado">
+                  <button class="icon" id="addConditionBtn" type="button">+</button>
+                </div>
+              </div>
+              <div>
+                <strong>Recursos</strong>
+                <div class="chip-list" id="resources"></div>
+                <div class="add-row">
+                  <input id="resourceInput" placeholder="Ej: Furia 2/2">
+                  <button class="icon" id="addResourceBtn" type="button">+</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const abilities = [
+      ["str", "Fuerza", "FUE", "crossed"],
+      ["dex", "Destreza", "DES", "blade"],
+      ["con", "Constitucion", "CON", "shield"],
+      ["int", "Inteligencia", "INT", "book"],
+      ["wis", "Sabiduria", "SAB", "eye"],
+      ["cha", "Carisma", "CAR", "skull"]
+    ];
+
+    const skills = [
+      ["athletics", "Atletismo", "str"],
+      ["acrobatics", "Acrobacias", "dex"],
+      ["sleight", "Juego de manos", "dex"],
+      ["stealth", "Sigilo", "dex"],
+      ["arcana", "Arcana", "int"],
+      ["history", "Historia", "int"],
+      ["investigation", "Investigacion", "int"],
+      ["nature", "Naturaleza", "int"],
+      ["religion", "Religion", "int"],
+      ["animal", "Trato con animales", "wis"],
+      ["insight", "Perspicacia", "wis"],
+      ["medicine", "Medicina", "wis"],
+      ["perception", "Percepcion", "wis"],
+      ["survival", "Supervivencia", "wis"],
+      ["deception", "Engano", "cha"],
+      ["intimidation", "Intimidacion", "cha"],
+      ["performance", "Interpretacion", "cha"],
+      ["persuasion", "Persuasion", "cha"]
+    ];
+
+    const iconMap = {
+      crossed: "X",
+      blade: "/",
+      shield: "S",
+      book: "B",
+      eye: "O",
+      skull: "K"
+    };
+
+    const races = {
+      "Humano": {
+        bonuses: { str: 1, dex: 1, con: 1, int: 1, wis: 1, cha: 1 },
+        speed: 9,
+        vision: "Normal",
+        languages: "Comun + 1 idioma",
+        traits: "Versatilidad humana: mejora amplia de caracteristicas.\nIdiomas: Comun y un idioma adicional.\nAdaptable: ideal para cualquier clase."
+      },
+      "Elfo": {
+        bonuses: { dex: 2 },
+        speed: 9,
+        vision: "18 m",
+        languages: "Comun, Elfico",
+        traits: "Sentidos agudos: competencia sugerida en Percepcion.\nAscendencia feerica: ventaja contra encantamiento.\nTrance: descanso meditativo breve."
+      },
+      "Enano": {
+        bonuses: { con: 2 },
+        speed: 7.5,
+        vision: "18 m",
+        languages: "Comun, Enano",
+        traits: "Resistencia enana: ventaja contra venenos.\nEntrenamiento con herramientas: una herramienta artesanal.\nConocimiento de la piedra."
+      },
+      "Mediano": {
+        bonuses: { dex: 2 },
+        speed: 7.5,
+        vision: "Normal",
+        languages: "Comun, Mediano",
+        traits: "Afortunado: repetir un 1 natural en d20.\nValiente: ventaja contra miedo.\nAgil: puede moverse por espacios de criaturas mas grandes."
+      },
+      "Orco": {
+        bonuses: { str: 2, con: 1 },
+        speed: 9,
+        vision: "36 m",
+        languages: "Comun, Orco",
+        traits: "Aguante incansable: puede evitar caer a 0 PG una vez por descanso largo.\nDescarga de adrenalina: movimiento explosivo como accion adicional.\nVision en la oscuridad."
+      },
+      "Semielfo": {
+        bonuses: { cha: 2, dex: 1, wis: 1 },
+        speed: 9,
+        vision: "18 m",
+        languages: "Comun, Elfico + 1 idioma",
+        traits: "Versatilidad: dos habilidades sugeridas.\nAscendencia feerica.\nHerencia mixta: social y adaptable."
+      },
+      "Draconido": {
+        bonuses: { str: 2, cha: 1 },
+        speed: 9,
+        vision: "Normal",
+        languages: "Comun, Draconico",
+        traits: "Ascendencia draconica: elige un tipo de energia.\nAliento draconico: ataque en area limitado.\nResistencia al tipo de energia elegido."
+      },
+      "Gnomo": {
+        bonuses: { int: 2 },
+        speed: 7.5,
+        vision: "18 m",
+        languages: "Comun, Gnomico",
+        traits: "Astucia gnomica: ventaja mental contra magia.\nTalla pequena.\nCuriosidad tecnica o mistica."
+      },
+      "Tiefling": {
+        bonuses: { cha: 2, int: 1 },
+        speed: 9,
+        vision: "18 m",
+        languages: "Comun, Infernal",
+        traits: "Resistencia infernal: resistencia al fuego.\nMagia innata: trucos o conjuros tematicos.\nAspecto sobrenatural."
+      }
+    };
+
+    const classes = {
+      "Barbaro": {
+        hitDice: "1d12",
+        saves: ["str", "con"],
+        skills: ["athletics", "intimidation", "perception", "survival"],
+        weapons: "Armas sencillas y marciales",
+        armor: "Armaduras ligeras, medias y escudos",
+        tools: "Ninguna",
+        hpBase: 12,
+        traits: "Furia: bonificador de dano, resistencia al dano contundente, perforante y cortante.\nDefensa sin armadura: CA = 10 + DES + CON.\nMaestria con armas: elige armas para dominar."
+      },
+      "Guerrero": {
+        hitDice: "1d10",
+        saves: ["str", "con"],
+        skills: ["athletics", "perception", "survival"],
+        weapons: "Armas sencillas y marciales",
+        armor: "Todas las armaduras y escudos",
+        tools: "Ninguna",
+        hpBase: 10,
+        traits: "Estilo de combate: elige una especializacion.\nSegundo aliento: recupera PG como accion adicional.\nDominio tactico: preparado para cualquier arma."
+      },
+      "Paladin": {
+        hitDice: "1d10",
+        saves: ["wis", "cha"],
+        skills: ["athletics", "insight", "persuasion"],
+        weapons: "Armas sencillas y marciales",
+        armor: "Todas las armaduras y escudos",
+        tools: "Ninguna",
+        hpBase: 10,
+        traits: "Sentido divino: percibe presencias sobrenaturales.\nImposicion de manos: reserva de curacion.\nJuramento: codigo sagrado editable."
+      },
+      "Explorador": {
+        hitDice: "1d10",
+        saves: ["str", "dex"],
+        skills: ["athletics", "perception", "stealth", "survival"],
+        weapons: "Armas sencillas y marciales",
+        armor: "Armaduras ligeras, medias y escudos",
+        tools: "Ninguna",
+        hpBase: 10,
+        traits: "Explorador experto: rastreo, viaje y supervivencia.\nEnemigo o terreno favorito: definilo segun campana.\nCombate versatil con arco o dos armas."
+      },
+      "Picaro": {
+        hitDice: "1d8",
+        saves: ["dex", "int"],
+        skills: ["acrobatics", "stealth", "sleight", "deception", "perception"],
+        weapons: "Armas sencillas, ballesta de mano, espada corta, estoque",
+        armor: "Armaduras ligeras",
+        tools: "Herramientas de ladron",
+        hpBase: 8,
+        traits: "Ataque furtivo: dano extra con ventaja o aliado cercano.\nPericia: duplica competencia en dos opciones.\nJerga de ladrones."
+      },
+      "Mago": {
+        hitDice: "1d6",
+        saves: ["int", "wis"],
+        skills: ["arcana", "history", "investigation"],
+        weapons: "Baston, daga, dardos, honda, ballesta ligera",
+        armor: "Ninguna",
+        tools: "Ninguna",
+        hpBase: 6,
+        traits: "Lanzamiento de conjuros: usa Inteligencia.\nLibro de conjuros: registra magia preparada.\nRecuperacion arcana: recupera energia magica en descanso breve."
+      },
+      "Clerigo": {
+        hitDice: "1d8",
+        saves: ["wis", "cha"],
+        skills: ["insight", "medicine", "religion", "persuasion"],
+        weapons: "Armas sencillas",
+        armor: "Armaduras ligeras, medias y escudos",
+        tools: "Ninguna",
+        hpBase: 8,
+        traits: "Lanzamiento de conjuros: usa Sabiduria.\nDominio divino: define doctrina y poderes.\nCanalizar divinidad: poder sagrado limitado."
+      },
+      "Bardo": {
+        hitDice: "1d8",
+        saves: ["dex", "cha"],
+        skills: ["performance", "persuasion", "deception", "insight"],
+        weapons: "Armas sencillas, espada corta, estoque, ballesta de mano",
+        armor: "Armaduras ligeras",
+        tools: "Tres instrumentos musicales",
+        hpBase: 8,
+        traits: "Inspiracion bardica: ayuda a aliados con dados extra.\nLanzamiento de conjuros: usa Carisma.\nPolivalente: muchas habilidades."
+      },
+      "Druida": {
+        hitDice: "1d8",
+        saves: ["int", "wis"],
+        skills: ["nature", "animal", "medicine", "survival"],
+        weapons: "Armas naturales y sencillas tematicas",
+        armor: "Armaduras ligeras, medias y escudos no metalicos",
+        tools: "Kit de herboristeria",
+        hpBase: 8,
+        traits: "Lanzamiento de conjuros: usa Sabiduria.\nLengua druidica.\nForma salvaje: transformacion segun nivel."
+      },
+      "Monje": {
+        hitDice: "1d8",
+        saves: ["str", "dex"],
+        skills: ["acrobatics", "athletics", "insight", "stealth"],
+        weapons: "Armas sencillas y espadas cortas",
+        armor: "Ninguna",
+        tools: "Un instrumento o herramienta artesanal",
+        hpBase: 8,
+        traits: "Defensa sin armadura: CA = 10 + DES + SAB.\nArtes marciales.\nDisciplina interior: recursos de tecnica."
+      },
+      "Hechicero": {
+        hitDice: "1d6",
+        saves: ["con", "cha"],
+        skills: ["arcana", "deception", "persuasion"],
+        weapons: "Baston, daga, dardos, honda, ballesta ligera",
+        armor: "Ninguna",
+        tools: "Ninguna",
+        hpBase: 6,
+        traits: "Lanzamiento de conjuros: usa Carisma.\nOrigen hechicero: fuente de poder.\nMetamagia: altera conjuros con recursos."
+      },
+      "Brujo": {
+        hitDice: "1d8",
+        saves: ["wis", "cha"],
+        skills: ["arcana", "deception", "intimidation"],
+        weapons: "Armas sencillas",
+        armor: "Armaduras ligeras",
+        tools: "Ninguna",
+        hpBase: 8,
+        traits: "Pacto sobrenatural: patron y trato.\nMagia de pacto: pocos espacios, recuperacion rapida.\nInvocaciones: poderes personalizables."
+      }
+    };
+
+    const backgrounds = {
+      "Soldado": {
+        skills: ["athletics", "intimidation"],
+        tools: "Un tipo de juego o vehiculo terrestre",
+        gear: "Insignia de rango, trofeo de enemigo, juego de azar, ropa comun",
+        traits: "Rango militar: soldados y veteranos pueden reconocer tu autoridad.\nDote de origen sugerida: atacante salvaje."
+      },
+      "Acolito": {
+        skills: ["insight", "religion"],
+        tools: "Ninguna",
+        gear: "Simbolo sagrado, libro de oraciones, incienso, vestiduras",
+        traits: "Refugio de los fieles: templos y comunidades religiosas pueden ayudarte."
+      },
+      "Criminal": {
+        skills: ["deception", "stealth"],
+        tools: "Herramientas de ladron, un juego",
+        gear: "Palanca, ropa oscura, bolsa con monedas",
+        traits: "Contacto criminal: conoces una red de informacion y favores."
+      },
+      "Erudito": {
+        skills: ["arcana", "history"],
+        tools: "Ninguna",
+        gear: "Tinta, pluma, libro de estudio, cartas",
+        traits: "Investigador: sabes donde buscar conocimiento raro."
+      },
+      "Forastero": {
+        skills: ["athletics", "survival"],
+        tools: "Un instrumento musical",
+        gear: "Baston, trampa de caza, trofeo, ropa de viajero",
+        traits: "Viajero: recuerdas mapas, rutas y recursos naturales."
+      },
+      "Noble": {
+        skills: ["history", "persuasion"],
+        tools: "Un juego",
+        gear: "Ropa fina, anillo de sello, pergamino genealogico",
+        traits: "Posicion privilegiada: tu nombre abre puertas."
+      },
+      "Artesano": {
+        skills: ["insight", "persuasion"],
+        tools: "Herramientas artesanales",
+        gear: "Herramientas, carta de gremio, ropa de viaje",
+        traits: "Gremio: acceso a contactos, encargos y refugio profesional."
+      },
+      "Sage Personalizado": {
+        skills: ["investigation", "nature"],
+        tools: "Una herramienta a eleccion",
+        gear: "Objeto clave, notas, ropa comun",
+        traits: "Rasgo abierto: escribi aqui un beneficio de historia para otro juego."
+      }
+    };
+
+    const defaultState = {
+      name: "Barbaro Orco",
+      className: "Barbaro",
+      raceName: "Orco",
+      backgroundName: "Soldado",
+      level: 1,
+      alignment: "Neutral / Caotico",
+      languages: "Comun, Orco",
+      experience: "0",
+      player: "",
+      quote: "La fuerza no es solo para destruir, sino para resistir y proteger.",
+      abilities: { str: 15, dex: 13, con: 14, int: 10, wis: 12, cha: 8 },
+      saveProf: { str: true, dex: false, con: true, int: false, wis: false, cha: false },
+      skillProf: { athletics: true, intimidation: true, perception: true, survival: true },
+      weaponProficiencies: "",
+      armorProficiencies: "",
+      toolProficiencies: "",
+      raceTraits: "",
+      classTraits: "",
+      backgroundTraits: "",
+      customTraits: "",
+      weapons: "1 hacha a dos manos\n4 hachas de mano\n1 lanza\n1 arco corto\n20 flechas",
+      travelGear: "Paquete de explorador\nAljaba\nUtiles de sanador\nRopas de viaje",
+      otherGear: "Juego de azar\n29 piezas de oro",
+      coins: "29 po",
+      hp: 14,
+      ac: 13,
+      hitDice: "1d12",
+      speed: 9,
+      vision: "36 m",
+      armor: "Sin armadura",
+      backstory: "Has vivido la disciplina, el entrenamiento y las duras realidades de la guerra. Sabes trabajar en equipo y proteger a tus aliados con lealtad inquebrantable.",
+      notes: "",
+      conditions: [],
+      resources: ["Furia 2/2"],
+      portrait: ""
+    };
+
+    let state = structuredClone(defaultState);
+
+    const byField = (name) => document.querySelector(`[data-field="${name}"]`);
+    const mod = (score) => Math.floor((Number(score || 10) - 10) / 2);
+    const signed = (n) => n >= 0 ? `+${n}` : `${n}`;
+    const profBonus = (level) => 2 + Math.floor((Math.max(1, Number(level) || 1) - 1) / 4);
+
+    function fillSelects() {
+      fillSelect("raceSelect", Object.keys(races));
+      fillSelect("classSelect", Object.keys(classes));
+      fillSelect("backgroundSelect", Object.keys(backgrounds));
+    }
+
+    function fillSelect(id, options) {
+      const select = document.getElementById(id);
+      select.innerHTML = options.map((name) => `<option value="${name}">${name}</option>`).join("");
+    }
+
+    function buildAbilityRows() {
+      document.getElementById("abilitiesBody").innerHTML = abilities.map(([key, label, abbr, icon]) => `
+        <tr>
+          <td><div class="ability-name"><span class="sigil">${iconMap[icon]}</span>${label} <small>(${abbr})</small></div></td>
+          <td><input class="number" type="number" min="1" max="30" data-ability="${key}"></td>
+          <td><div class="readonly-box" id="mod-${key}">+0</div></td>
+          <td><div class="check-line"><input type="checkbox" data-save="${key}"><span></span><strong id="save-${key}">+0</strong></div></td>
+        </tr>
+      `).join("");
+    }
+
+    function buildSkillRows() {
+      document.getElementById("skillsList").innerHTML = skills.map(([key, label, ability]) => `
+        <label class="check-line">
+          <input type="checkbox" data-skill="${key}">
+          <span>${label} <small>(${ability.toUpperCase()})</small></span>
+          <strong id="skill-${key}">+0</strong>
+        </label>
+      `).join("");
+    }
+
+    function buildSaveRows() {
+      document.getElementById("savesList").innerHTML = abilities.map(([key, label]) => `
+        <div class="check-line">
+          <input type="checkbox" data-save-mirror="${key}" aria-label="Competencia en ${label}">
+          <span>${label}</span>
+          <strong id="saveMirror-${key}">+0</strong>
+        </div>
+      `).join("");
+    }
+
+    function hydrate() {
+      document.querySelectorAll("[data-field]").forEach((el) => {
+        const key = el.dataset.field;
+        if (state[key] !== undefined) el.value = state[key];
+      });
+
+      abilities.forEach(([key]) => {
+        document.querySelector(`[data-ability="${key}"]`).value = state.abilities[key] ?? 10;
+        document.querySelectorAll(`[data-save="${key}"], [data-save-mirror="${key}"]`).forEach((el) => {
+          el.checked = !!state.saveProf[key];
+        });
+      });
+
+      skills.forEach(([key]) => {
+        const el = document.querySelector(`[data-skill="${key}"]`);
+        el.checked = !!state.skillProf[key];
+      });
+
+      if (state.portrait) {
+        document.getElementById("portraitImg").src = state.portrait;
+        document.getElementById("portraitEmpty").classList.add("hidden");
+      } else {
+        document.getElementById("portraitImg").removeAttribute("src");
+        document.getElementById("portraitEmpty").classList.remove("hidden");
+      }
+
+      renderChips("conditions", state.conditions);
+      renderChips("resources", state.resources);
+      recalc();
+    }
+
+    function collect() {
+      document.querySelectorAll("[data-field]").forEach((el) => {
+        const key = el.dataset.field;
+        state[key] = el.type === "number" ? Number(el.value) : el.value;
+      });
+
+      abilities.forEach(([key]) => {
+        state.abilities[key] = Number(document.querySelector(`[data-ability="${key}"]`).value || 10);
+        state.saveProf[key] = document.querySelector(`[data-save="${key}"]`).checked;
+      });
+
+      skills.forEach(([key]) => {
+        state.skillProf[key] = document.querySelector(`[data-skill="${key}"]`).checked;
+      });
+    }
+
+    function recalc() {
+      collect();
+      const pb = profBonus(state.level);
+      document.getElementById("profBonus").textContent = signed(pb);
+      document.getElementById("initiative").textContent = signed(mod(state.abilities.dex));
+      document.getElementById("speedDisplay").textContent = `${state.speed || 0} m`;
+
+      abilities.forEach(([key]) => {
+        const base = mod(state.abilities[key]);
+        const save = base + (state.saveProf[key] ? pb : 0);
+        document.getElementById(`mod-${key}`).textContent = signed(base);
+        document.getElementById(`save-${key}`).textContent = signed(save);
+        document.getElementById(`saveMirror-${key}`).textContent = signed(save);
+        document.querySelectorAll(`[data-save="${key}"], [data-save-mirror="${key}"]`).forEach((el) => {
+          if (el.checked !== !!state.saveProf[key]) el.checked = !!state.saveProf[key];
+        });
+      });
+
+      skills.forEach(([key, , ability]) => {
+        const total = mod(state.abilities[ability]) + (state.skillProf[key] ? pb : 0);
+        document.getElementById(`skill-${key}`).textContent = signed(total);
+      });
+
+      const conMod = mod(state.abilities.con);
+      const dexMod = mod(state.abilities.dex);
+      const cls = classes[state.className];
+      const baseHp = cls ? cls.hpBase : 8;
+      document.getElementById("combatFormula").textContent =
+        `Referencia: PG nivel 1 sugeridos ${baseHp + conMod}; CA sin armadura basica ${10 + dexMod}; competencia ${signed(pb)}.`;
+    }
+
+    function applyRace() {
+      const race = races[state.raceName];
+      if (!race) return;
+      const baseScores = structuredClone(defaultState.abilities);
+      state.abilities = { ...baseScores };
+      Object.entries(race.bonuses || {}).forEach(([key, value]) => state.abilities[key] += value);
+      state.speed = race.speed;
+      state.vision = race.vision;
+      state.languages = race.languages;
+      state.raceTraits = race.traits;
+    }
+
+    function applyClass() {
+      const cls = classes[state.className];
+      if (!cls) return;
+      state.hitDice = cls.hitDice;
+      state.weaponProficiencies = cls.weapons;
+      state.armorProficiencies = cls.armor;
+      state.toolProficiencies = cls.tools;
+      state.classTraits = cls.traits;
+      state.saveProf = Object.fromEntries(abilities.map(([key]) => [key, cls.saves.includes(key)]));
+      state.skillProf = Object.fromEntries(skills.map(([key]) => [key, cls.skills.includes(key)]));
+      state.hp = cls.hpBase + mod(state.abilities.con);
+      state.ac = state.className === "Barbaro"
+        ? 10 + mod(state.abilities.dex) + mod(state.abilities.con)
+        : 10 + mod(state.abilities.dex);
+    }
+
+    function applyBackground() {
+      const bg = backgrounds[state.backgroundName];
+      if (!bg) return;
+      bg.skills.forEach((key) => state.skillProf[key] = true);
+      state.toolProficiencies = mergeLines(state.toolProficiencies, bg.tools);
+      state.travelGear = mergeLines(state.travelGear, bg.gear);
+      state.backgroundTraits = bg.traits;
+    }
+
+    function mergeLines(current, next) {
+      const lines = new Set(String(current || "").split("\n").map((x) => x.trim()).filter(Boolean));
+      String(next || "").split("\n").map((x) => x.trim()).filter(Boolean).forEach((x) => lines.add(x));
+      return Array.from(lines).join("\n");
+    }
+
+    function renderChips(target, values) {
+      const root = document.getElementById(target);
+      root.innerHTML = values.map((value, index) => `
+        <span class="chip">${escapeHtml(value)} <button type="button" data-chip="${target}" data-index="${index}" aria-label="Quitar ${escapeHtml(value)}">x</button></span>
+      `).join("");
+    }
+
+    function addChip(target, inputId) {
+      const input = document.getElementById(inputId);
+      const value = input.value.trim();
+      if (!value) return;
+      state[target].push(value);
+      input.value = "";
+      renderChips(target, state[target]);
+      saveQuiet();
+      toast("Agregado.");
+    }
+
+    function saveQuiet() {
+      collect();
+      localStorage.setItem("fantasy-character-sheet", JSON.stringify(state));
+    }
+
+    function save() {
+      saveQuiet();
+      toast("Personaje guardado en este navegador.");
+    }
+
+    function load() {
+      const raw = localStorage.getItem("fantasy-character-sheet");
+      if (!raw) return toast("Todavia no hay una hoja guardada.");
+      state = { ...structuredClone(defaultState), ...JSON.parse(raw) };
+      state.abilities = { ...defaultState.abilities, ...(state.abilities || {}) };
+      state.saveProf = { ...defaultState.saveProf, ...(state.saveProf || {}) };
+      state.skillProf = { ...defaultState.skillProf, ...(state.skillProf || {}) };
+      state.conditions ||= [];
+      state.resources ||= [];
+      hydrate();
+      toast("Hoja cargada.");
+    }
+
+    function exportJson() {
+      collect();
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${slug(state.name || "personaje")}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast("JSON exportado.");
+    }
+
+    function importJson(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          state = { ...structuredClone(defaultState), ...JSON.parse(reader.result) };
+          state.abilities = { ...defaultState.abilities, ...(state.abilities || {}) };
+          state.saveProf = { ...defaultState.saveProf, ...(state.saveProf || {}) };
+          state.skillProf = { ...defaultState.skillProf, ...(state.skillProf || {}) };
+          state.conditions ||= [];
+          state.resources ||= [];
+          hydrate();
+          saveQuiet();
+          toast("JSON importado.");
+        } catch {
+          toast("No pude leer ese JSON.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function reset() {
+      if (!confirm("Limpiar la hoja actual?")) return;
+      state = structuredClone(defaultState);
+      hydrate();
+      toast("Hoja reiniciada.");
+    }
+
+    function portrait(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        state.portrait = reader.result;
+        hydrate();
+        saveQuiet();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function slug(text) {
+      return String(text).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "personaje";
+    }
+
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[char]);
+    }
+
+    let toastTimer;
+    function toast(message) {
+      const el = document.getElementById("toast");
+      el.textContent = message;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 2300);
+    }
+
+    function wireEvents() {
+      document.addEventListener("input", (event) => {
+        if (event.target.matches("[data-field], [data-ability]")) recalc();
+      });
+
+      document.addEventListener("change", (event) => {
+        const target = event.target;
+        if (target.matches("[data-save]")) {
+          state.saveProf[target.dataset.save] = target.checked;
+          hydrate();
+        }
+        if (target.matches("[data-save-mirror]")) {
+          state.saveProf[target.dataset.saveMirror] = target.checked;
+          hydrate();
+        }
+        if (target.matches("[data-skill]")) {
+          state.skillProf[target.dataset.skill] = target.checked;
+          recalc();
+        }
+        if (target.id === "portraitFile" && target.files[0]) portrait(target.files[0]);
+        if (target.id === "importFile" && target.files[0]) importJson(target.files[0]);
+      });
+
+      document.addEventListener("click", (event) => {
+        const btn = event.target.closest("[data-chip]");
+        if (!btn) return;
+        const target = btn.dataset.chip;
+        const index = Number(btn.dataset.index);
+        state[target].splice(index, 1);
+        renderChips(target, state[target]);
+        saveQuiet();
+      });
+
+      document.getElementById("saveBtn").addEventListener("click", save);
+      document.getElementById("loadBtn").addEventListener("click", load);
+      document.getElementById("exportBtn").addEventListener("click", exportJson);
+      document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFile").click());
+      document.getElementById("printBtn").addEventListener("click", () => window.print());
+      document.getElementById("resetBtn").addEventListener("click", reset);
+      document.getElementById("addConditionBtn").addEventListener("click", () => addChip("conditions", "conditionInput"));
+      document.getElementById("addResourceBtn").addEventListener("click", () => addChip("resources", "resourceInput"));
+      document.getElementById("conditionInput").addEventListener("keydown", (event) => { if (event.key === "Enter") addChip("conditions", "conditionInput"); });
+      document.getElementById("resourceInput").addEventListener("keydown", (event) => { if (event.key === "Enter") addChip("resources", "resourceInput"); });
+
+      document.getElementById("applyPresetBtn").addEventListener("click", () => {
+        collect();
+        applyRace();
+        applyClass();
+        applyBackground();
+        hydrate();
+        toast("Preset aplicado.");
+      });
+      document.getElementById("applyOnlyRaceBtn").addEventListener("click", () => {
+        collect();
+        applyRace();
+        hydrate();
+        toast("Raza aplicada.");
+      });
+      document.getElementById("applyOnlyClassBtn").addEventListener("click", () => {
+        collect();
+        applyClass();
+        hydrate();
+        toast("Clase aplicada.");
+      });
+      document.getElementById("applyOnlyBackgroundBtn").addEventListener("click", () => {
+        collect();
+        applyBackground();
+        hydrate();
+        toast("Trasfondo aplicado.");
+      });
+    }
+
+    fillSelects();
+    buildAbilityRows();
+    buildSkillRows();
+    buildSaveRows();
+    applyRace();
+    applyClass();
+    applyBackground();
+    wireEvents();
+    hydrate();
+  </script>
+</body>
+</html>
