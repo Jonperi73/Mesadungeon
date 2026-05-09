@@ -3670,19 +3670,16 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
   };
 
   const completeCharacter=async(char)=>{
-
+  
+    const safeChar = JSON.parse(JSON.stringify(char));
     setCharacter(safeChar);
-
     await updateRoom(d=>({
-
       ...d,
-
       players:{
         ...(d.players||{}),
-
         [playerId]:{
           ...(d.players?.[playerId]||{}),
-           character:safeChar
+          character:safeChar
         }
       },
 
