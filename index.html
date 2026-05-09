@@ -487,6 +487,15 @@ const normalizeCharacter=char=>char?{
   equipment:{...(char.equipment||{})},
   inventory:[...(char.inventory||[])],
   wallet:normalizeWallet(char.wallet),
+  appearance:{...(char.appearance||{})},
+  stats:{...(char.stats||{})},
+  currentHP:char.currentHP??char.maxHP??10,
+  maxHP:char.maxHP??10,
+  ac:char.ac??10,
+  level:char.level??1,
+  name:char.name||"Aventurero",
+  race:char.race||"human",
+  class:char.class||"fighter",
 }:char;
 const normalizeRoom=room=>{
   if(!room)return room;
