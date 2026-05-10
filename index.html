@@ -120,6 +120,13 @@ const fb = {
     ),
   push: (path, val) =>
     window._fbPush(window._fbRef(window._fbDb, path), val),
+  remove: (path) => window._fbSet(window._fbRef(window._fbDb, path), null),
+  increment: async (path) => {
+    const snap = await window._fbGet(window._fbRef(window._fbDb, path));
+    const val = (snap.exists() ? snap.val() : 0) + 1;
+    await window._fbSet(window._fbRef(window._fbDb, path), val);
+    return val;
+  },
 };
 
 const authApi = {
@@ -2632,7 +2639,7 @@ const Tutorial = ({ steps, onClose, storageKey }) => {
   );
 };
 // ─── LOBBY ────────────────────────────────────────────────────
-const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm, onPlayerLogin, onPlayerRegister }) => {
+const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm, onPlayerLogin, onPlayerRegister, onPlayerLogin, onPlayerRegister, totalVisits }) => {
   const [pname,setPname]=useState(initialName||"");
   const [code,setCode]=useState("");
   const [roomName,setRoomName]=useState("");
@@ -2789,7 +2796,8 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
               ))}
           </div>
         </div>}
-        <div className="footer-sign">© Lord Jonrick</div>
+        <div className="footer-sign">
+          © Lord Jonrick · <span style={{color:"var(--gold)"}}>⚔ {totalVisits}</span> aventureros han cruzado estas puertas
       </div>
     </div>
   );
@@ -2950,6 +2958,8 @@ function App() {
     return id?{id,name}:null;
   });
   const unsubRef=useRef(null);
+  const [totalVisits, setTotalVisits] = useState(0);
+  const [onlineCount, setOnlineCount] = useState(0);
 
   const notify=(msg,ms=3500)=>{setNotif(msg);setTimeout(()=>setNotif(""),ms);};
   const controlReady=authReady&&accounts!==null&&systemInfo!==null;
@@ -2975,15 +2985,15 @@ const approvedDMs = safeAccounts.filter(
     catch(e){console.error("syncSessionIndex error",e);}
   };
 
-  useEffect(()=>{storageSet(STORAGE_KEYS.playerId,playerId);},[playerId]);
+useEffect(()=>{storageSet(STORAGE_KEYS.playerId,playerId);},[playerId]);
 useEffect(()=>{storageSet(STORAGE_KEYS.playerName,playerName);},[playerName]);
-
 useEffect(()=>{
   let unsub=null;
   const start=()=>{
     unsub=authApi.listen(user=>{
       setAuthUser(user);
       setAuthReady(true);
+      fb.increment("system/stats/totalVisits");
       if(user?.uid){
         setPlayerId(user.uid);
         storageSet(STORAGE_KEYS.playerId,user.uid);
@@ -2999,32 +3009,25 @@ useEffect(()=>{
     if(typeof unsub==="function")unsub();
   };
 },[]);
-
-
   
 useEffect(() => {
   if (!authReady) return;
-
   if (!authUser) {
     setAccounts({});
     return;
   }
-
   let unsub = null;
-
   const start = () => {
     unsub = fb.listen("users", (data) => {
       setAccounts(data || {});
     });
   };
-
   if (window._firebaseReady) {
     start();
   } else {
     const onReady = () => start();
     window.addEventListener("firebase-ready", onReady, { once: true });
   }
-
   return () => {
     if (typeof unsub === "function") unsub();
   };
@@ -3037,21 +3040,25 @@ useEffect(()=>{
   const start=()=>{
     unsub=fb.listen("system",data=>setSystemInfo(data||{}));
   };
-
   if(window._firebaseReady)start();
   else{
     const onReady=()=>start();
     window.addEventListener("firebase-ready",onReady,{once:true});
   }
-
   return()=>{
     if(typeof unsub==="function")unsub();
   };
 },[]);
 
 useEffect(()=>{
-  if(!roomId || !(roomData && roomData.name)) return;
+  const unsub = fb.listen("system/stats/totalVisits", data=>{
+    setTotalVisits(data||0);
+  });
+  return()=>{ if(typeof unsub==="function")unsub(); };
+},[]);
 
+useEffect(()=>{
+  if(!roomId || !(roomData && roomData.name)) return;
   const latest={id:roomId,name:roomData.name};
   setLastRoom(latest);
   storageSet(STORAGE_KEYS.lastRoomId,latest.id);
@@ -3751,7 +3758,8 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       onApproveDm={handleApproveDm}
       onRevokeDm={handleRevokeDm}
       onPlayerLogin={handlePlayerLogin}
-      onPlayerRegister={handlePlayerRegister}                   
+      onPlayerRegister={handlePlayerRegister}
+      totalVisits={totalVisits}
     />}
 
     {screen==="character"&&(
