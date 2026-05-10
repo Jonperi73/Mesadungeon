@@ -2639,7 +2639,7 @@ const Tutorial = ({ steps, onClose, storageKey }) => {
   );
 };
 // ─── LOBBY ────────────────────────────────────────────────────
-const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm, onPlayerLogin, onPlayerRegister, onPlayerLogin, onPlayerRegister, totalVisits }) => {
+const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm, onPlayerLogin, onPlayerRegister, totalVisits }) => {
   const [pname,setPname]=useState(initialName||"");
   const [code,setCode]=useState("");
   const [roomName,setRoomName]=useState("");
@@ -2797,9 +2797,10 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
           </div>
         </div>}
         <div className="footer-sign">
-          © Lord Jonrick · <span style={{color:"var(--gold)"}}>⚔ {totalVisits}</span> aventureros han cruzado estas puertas
-      </div>
-    </div>
+           © Lord Jonrick · <span style={{color:"var(--gold)"}}>⚔ {totalVisits}</span> aventureros han cruzado estas puertas
+        </div>
+     </div>
+   </div>
   );
 
  
@@ -2927,7 +2928,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
           onRevokeDm={onRevokeDm}
         />}
 
-        <div className="footer-sign">© Lord Jonrick</div>
+        <div className="footer-sign">© Lord Jonrick · <span style={{color:"var(--gold)"}}>⚔ {totalVisits}</span> aventureros han cruzado estas puertas</div>
       </div>
     </div>
   );
