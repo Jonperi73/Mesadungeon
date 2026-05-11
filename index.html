@@ -2356,11 +2356,15 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
       {account?.status===STATUS_REVOKED&&<div className="auth-meta">El Owner revocó este acceso. Si querés volver a masterear, necesitás una nueva aprobación.</div>}
       {isDm&&<div className="auth-meta">Tu cuenta ya puede crear y administrar partidas como DM.</div>}
       {isOwner&&<div className="auth-meta">Tenés control global sobre la app y la aprobación de DMs.</div>}
+      {!authUser.emailVerified && (
+        <div className="auth-meta" style={{color:"#E24B4A"}}>
+         ⚠ Email no verificado — revisá tu bandeja de entrada antes de continuar.
+        </div>
+      )}
 
-      <div style={{display:"flex",justifyContent:"flex-end",marginTop:12}}>
+     <div style={{display:"flex",justifyContent:"flex-end",marginTop:12}}>
         <button className="btn btn-sm" onClick={onLogout}>Cerrar sesión</button>
-      </div>
-    </div>
+     </div>
   );
 };
 
@@ -2445,19 +2449,24 @@ const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSe
   };
 
   if (authUser && isPlayer) {
-    return (
-      <div className="card" style={{ padding: 14, marginBottom: 18, borderColor: "rgba(201,168,76,.35)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <div style={{ fontFamily: "Cinzel,serif", fontSize: 13, color: "var(--gold)" }}>⚔ Jugador conectado</div>
-            <div style={{ fontSize: 12, color: "var(--text)" }}>{account?.displayName || authUser.displayName}</div>
-            <div style={{ fontSize: 11, color: "var(--muted)" }}>{authUser.email}</div>
-          </div>
-          <button className="btn btn-sm" onClick={onLogout}>Salir</button>
+  return (
+    <div className="card" style={{ padding: 14, marginBottom: 18, borderColor: "rgba(201,168,76,.35)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div style={{ fontFamily: "Cinzel,serif", fontSize: 13, color: "var(--gold)" }}>⚔ Jugador conectado</div>
+          <div style={{ fontSize: 12, color: "var(--text)" }}>{account?.displayName || authUser.displayName}</div>
+          <div style={{ fontSize: 11, color: "var(--muted)" }}>{authUser.email}</div>
+          {!authUser.emailVerified && (
+            <div style={{fontSize:11,color:"#E24B4A",marginTop:4,fontFamily:"Cinzel,serif"}}>
+              ⚠ Email no verificado — revisá tu bandeja de entrada
+            </div>
+          )}
         </div>
+        <button className="btn btn-sm" onClick={onLogout}>Salir</button>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   if (authUser && !account) {
     return null;
@@ -3078,13 +3087,11 @@ const handleAuthLogin=async({email,password})=>{
 const handleAuthRegister=async({displayName,email,password})=>{
   try{
     const cred=await authApi.register(email,password);
+    await cred.user.sendEmailVerification();
     if(displayName.trim()){
       await authApi.updateProfile(cred.user,{displayName:displayName.trim()});
     }
-    notify(ownerExists
-      ? "Cuenta creada. Ahora pedí acceso DM."
-      : "Cuenta creada. Si es tuya, reclamá el rol Owner."
-    );
+    notify("Cuenta creada. Revisá tu email para verificar antes de continuar.");
   }catch(e){
     notify(friendlyAuthError(e));
   }
@@ -3103,6 +3110,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
   try {
     const cred = await window._fbCreateUser(window._fbAuth, email, password);
     const user = cred.user;
+    await user.sendEmailVerification();
     if (displayName.trim()) {
       await window._fbUpdateProfile(user, { displayName: displayName.trim() });
     }
@@ -3116,7 +3124,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       approvedAt: Date.now(),
     });
     setPlayerName(displayName.trim());
-    notify("¡Cuenta de jugador creada! Ya podés unirte a partidas.");
+    notify("¡Cuenta creada! Revisá tu email y hacé click en el link para verificar tu cuenta.");
   } catch(e) {
     notify(friendlyAuthError(e));
   }
@@ -3417,6 +3425,10 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
       notify("Solo el Owner o un DM aprobado pueden crear partidas.");
 
+    if(!authUser.emailVerified){
+
+      notify("Verificá tu email antes de crear una sala.");
+
       return;
     }
 
@@ -3519,11 +3531,18 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
   const joinRoom=async(name,code)=>{
 
-    const safeName=name.trim();
+  if(!authUser){
+    notify("Tenés que iniciar sesión para unirte a una sala.");
+    return;
+  }
+  if(!authUser.emailVerified){
+    notify("Verificá tu email antes de unirte a una sala. Revisá tu bandeja de entrada.");
+    return;
+  }
 
-    const c=code.trim().toUpperCase();
-
-    try{
+  const safeName=name.trim();
+  const c=code.trim().toUpperCase();
+  try{
 
       const data=normalizeRoom(await fb.get(`rooms/${c}`));
 
