@@ -1322,7 +1322,7 @@ useEffect(()=>{
     const msg={id:Date.now(),t:"player",text:chatInput,senderId:playerId,senderName:character&&name||playerName,ts:Date.now()};
     const action=chatInput;setChatInput("");
     await updateRoom(d=>({...d,messages:[...(d.messages||[]),msg]}));
-    if(roomData&&dmMode==="ai")callAI(`${character&&name||playerName} (${RACES[character&&race]&&n||""} ${CLASSES[character&&class]&&n||""}) dice/hace: "${action}"`);
+    if(roomData&&dmMode==="ai")callAI(`${(character&&character.name)||playerName} (${(character&&RACES[character.race]&&RACES[character.race].n)||""} ${(character&&CLASSES[character.class]&&CLASSES[character.class].n)||""}) dice/hace: "${action}"`);
   };
 
   const sendDM=async()=>{
