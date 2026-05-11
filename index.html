@@ -130,7 +130,7 @@ const fb = {
 };
 
 const authApi = {
-  current: () => window._fbAuth&&currentUser || null,
+  current: () => (window._fbAuth && window._fbAuth.currentUser) || null,
   listen: (cb) => window._fbOnAuthStateChanged(window._fbAuth, cb),
 
   signIn: (email, password) =>
@@ -425,8 +425,7 @@ const STANDARD=[15,14,13,12,10,8];
 const mod=s=>Math.floor((s-10)/2);
 const modStr=s=>{const m=mod(s);return m>=0?`+${m}`:`${m}`;};
 const profBonus=lv=>Math.ceil(lv/4)+1;
-const maxHP=(cls,lv,con)=>{const hd=CLASSES[cls]&&hd||8;return hd+mod(con)+(lv-1)*(Math.floor(hd/2)+1+mod(con));};
-
+const maxHP=(cls,lv,con)=>{const hd=(CLASSES[cls]&&CLASSES[cls].hd)||8;return hd+mod(con)+(lv-1)*(Math.floor(hd/2)+1+mod(con));};
 const ITEMS = {
   longsword:{id:"longsword",n:"Espada Larga",e:"⚔️",t:"weapon",slot:"mainhand",dmg:"1d8",dt:"tajo",w:3,minStr:10,val:15,rar:"c",desc:"Hoja larga de filo doble."},
   shortsword:{id:"shortsword",n:"Espada Corta",e:"🗡️",t:"weapon",slot:"mainhand",dmg:"1d6",dt:"perforante",w:2,val:10,rar:"c",desc:"Ágil y veloz, favorita de pícaros."},
@@ -485,7 +484,7 @@ const EQUIP_SLOTS=new Set(["head","mainhand","body","offhand","cape","acc"]);
 const SLOT_LABELS={head:"Cabeza",mainhand:"Mano principal",body:"Cuerpo",offhand:"Mano secundaria",cape:"Capa",acc:"Accesorio"};
 const ITEM_TYPE_LABELS={weapon:"Arma",armor:"Armadura",acc:"Accesorio",consumable:"Consumible",misc:"Objeto"};
 const EMPTY_WALLET={gold:0,silver:0,copper:0};
-const canEquipItem=item=>!!item&&slot&&EQUIP_SLOTS.has(item.slot);
+const canEquipItem=item=>!!item&&item.slot&&EQUIP_SLOTS.has(item.slot);
 const getItemTypeLabel=item=>ITEM_TYPE_LABELS[item&&t]||"Objeto";
 const getItemMetaLabel=item=>canEquipItem(item)?(SLOT_LABELS[item.slot]||item.slot):getItemTypeLabel(item);
 const normalizeWallet=wallet=>({...EMPTY_WALLET,...(wallet||{})});
@@ -525,7 +524,7 @@ const normalizeRoom=room=>{
     lastActivityAt:room.lastActivityAt||room.createdAt||Date.now(),
     diceEnabled:!!room.diceEnabled,
     dmStock:{
-      items:{...(room.dmStock&&items||{})},
+      items:{...((room.dmStock&&items)||{})},
       coins:normalizeWallet(room.dmStock&&coins),
     },
     players,
