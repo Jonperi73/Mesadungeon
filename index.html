@@ -3719,7 +3719,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
         {
           id:Date.now(),
           t:"sys",
-          text:`🎭 ${playerName} entró como ${RACES[char.race]&&n} ${CLASSES[char.class]&&n}: ${char.name}.`,
+          text:`🎭 ${playerName} entró como ${(RACES[char.race]&&RACES[char.race].n)||""} ${(CLASSES[char.class]&&CLASSES[char.class].n)||""}: ${char.name}.`,
           ts:Date.now()
         }
       ]
@@ -3735,7 +3735,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       setTimeout(()=>{
 
         callAI(
-          `${playerName} creó su personaje: ${char.name}, ${RACES[char.race]&&n} ${CLASSES[char.class]&&n} nivel 1. HP:${char.maxHP} CA:${char.ac}. Dale una bienvenida épica (2 párrafos).`
+         `${playerName} creó su personaje: ${char.name}, ${(RACES[char.race]&&RACES[char.race].n)||""} ${(CLASSES[char.class]&&CLASSES[char.class].n)||""} nivel 1. HP:${char.maxHP} CA:${char.ac}. Dale una bienvenida épica (2 párrafos).`
         );
 
       },800);
