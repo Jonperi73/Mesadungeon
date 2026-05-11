@@ -580,7 +580,7 @@ const roleBadgeMeta=account=>{
   if(account.status===STATUS_REVOKED)return{label:"Acceso revocado",cls:"badge-x"};
   return{label:"Sin rol",cls:"badge-c"};
 };
-const isApprovedRole=(account,role)=>account&&role===role&&account&&status===STATUS_APPROVED;
+const isApprovedRole=(account,role)=>account&&account.role===role&&account.status===STATUS_APPROVED;
 const buildAccountRecord=(user,extra={})=>({
   uid:user.uid,
   email:user.email||"",
@@ -2963,10 +2963,6 @@ function App() {
   const [authUser,setAuthUser]=useState(null);
   const [accounts,setAccounts]=useState(null);
   const [systemInfo,setSystemInfo]=useState(null);
-  console.log("DEBUG:", {
-    authReady,
-    authUser,
-  });
   const [lastRoom,setLastRoom]=useState(()=>{
     const id=storageGet(STORAGE_KEYS.lastRoomId);
     const name=storageGet(STORAGE_KEYS.lastRoomName);
@@ -2978,9 +2974,9 @@ function App() {
 
   const notify=(msg,ms=3500)=>{setNotif(msg);setTimeout(()=>setNotif(""),ms);};
   const controlReady=authReady&&accounts!==null&&systemInfo!==null;
-  const ownerUid=systemInfo&&ownerUid||null;
+  const ownerUid=(systemInfo&&systemInfo.ownerUid)||null;
   const ownerExists=!!ownerUid;
-  const account=authUser?accounts&&[authUser.uid]||null:null;
+  const account=authUser&&accounts?accounts[authUser.uid]||null:null;
   const isOwner=isApprovedRole(account,OWNER_ROLE);
   const isApprovedDm=isApprovedRole(account,DM_ROLE);
   const canCreateRoom=isOwner||isApprovedDm;
@@ -2989,8 +2985,6 @@ function App() {
 const pendingDMs = safeAccounts.filter(
   acc => acc.role === DM_ROLE && acc.status === STATUS_PENDING
 );
-  console.log("PENDING REAL:", pendingDMs);
-
 const approvedDMs = safeAccounts.filter(
   acc => acc.role === DM_ROLE && acc.status === STATUS_APPROVED
 );
@@ -3008,8 +3002,8 @@ useEffect(()=>{
     unsub=authApi.listen(user=>{
       setAuthUser(user);
       setAuthReady(true);
-      fb.increment("system/stats/totalVisits");
-      if(user&&uid){
+      fb.increment("system/stats/totalVisits").catch(() => {});
+      if(user&&user.uid){
         setPlayerId(user.uid);
         storageSet(STORAGE_KEYS.playerId,user.uid);
       }
