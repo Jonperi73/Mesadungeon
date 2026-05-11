@@ -17,7 +17,7 @@
   <script type="module" defer>
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getDatabase, ref, set, get, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-    import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, signOut, updateProfile, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCUUVrMyx61eBorRU-K2nd7lOf7zI5_mwQ",
@@ -50,6 +50,7 @@
         window._fbSignIn = signInWithEmailAndPassword;
         window._fbSignOut = signOut;
         window._fbUpdateProfile = updateProfile;
+        window._fbSendEmailVerification = sendEmailVerification;
         window._fbSignInAnonymously = signInAnonymously;
         window._firebaseReady = true;
         window.dispatchEvent(new Event("firebase-ready"));
@@ -180,6 +181,9 @@ const authApi = {
 
   updateProfile: (user, data) =>
     window._fbUpdateProfile(user, data),
+
+  sendVerification: (user) =>
+    window._fbSendEmailVerification(user),
 };
 
 // ─── GLOBAL STYLES ───────────────────────────────────────────
@@ -2252,7 +2256,7 @@ const assignStat=(stat,idx)=>{
   );
 };
 
-const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegister, onLogout, onClaimOwner, onRequestDM }) => {
+const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegister, onLogout, onClaimOwner, onRequestDM, onResendVerification }) => {
   const [tab,setTab]=useState("login");
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
@@ -2361,6 +2365,17 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
       {isOwner&&<div className="auth-meta">Tenés control global sobre la app y la aprobación de DMs.</div>}
 
       {authUser&&!authUser.emailVerified&&(
+        <div className="auth-grid" style={{marginTop:10}}>
+          <div className="auth-meta" style={{color:"#E24B4A"}}>
+            Email no verificado. Revisa tu bandeja de entrada antes de continuar.
+          </div>
+          <button className="btn btn-sm btn-r" disabled={working} onClick={async()=>{setWorking(true);try{await onResendVerification();}finally{setWorking(false);}}}>
+            Reenviar email de verificacion
+          </button>
+        </div>
+      )}
+
+      {false&&authUser&&!authUser.emailVerified&&(
         <div className="auth-meta" style={{color:"#E24B4A"}}>
           ⚠ Email no verificado — revisá tu bandeja de entrada antes de continuar.
         </div>
@@ -2427,7 +2442,7 @@ const OwnerPanel = ({ ownerAccount, pendingDMs = [], approvedDMs = [], sessions,
     </div>
   );
 };
-const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSetName }) => {
+const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSetName, onResendVerification }) => {
   const [tab, setTab] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -2463,6 +2478,16 @@ const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSe
           <div style={{fontSize:12,color:"var(--text)"}}>{(account&&account.displayName)||authUser.displayName}</div>
           <div style={{ fontSize: 11, color: "var(--muted)" }}>{authUser.email}</div>
           {!authUser.emailVerified && (
+            <div style={{fontSize:11,color:"#E24B4A",marginTop:4,fontFamily:"Cinzel,serif"}}>
+              Email no verificado. Revisa tu bandeja de entrada.
+            </div>
+          )}
+          {!authUser.emailVerified && (
+            <button className="btn btn-sm btn-r" disabled={working} onClick={async()=>{setWorking(true);try{await onResendVerification();}finally{setWorking(false);}}} style={{marginTop:8}}>
+              Reenviar email de verificacion
+            </button>
+          )}
+          {false && !authUser.emailVerified && (
             <div style={{fontSize:11,color:"#E24B4A",marginTop:4,fontFamily:"Cinzel,serif"}}>
               ⚠ Email no verificado — revisá tu bandeja de entrada
             </div>
@@ -2654,7 +2679,7 @@ const Tutorial = ({ steps, onClose, storageKey }) => {
   );
 };
 // ─── LOBBY ────────────────────────────────────────────────────
-const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm, onPlayerLogin, onPlayerRegister, totalVisits }) => {
+const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, authReady, authUser, account, ownerExists, canCreateRoom, onAuthLogin, onAuthRegister, onAuthLogout, onClaimOwner, onRequestDM, onResendVerification, showOwnerPanel, ownerAccount, pendingDMs, approvedDMs, onApproveDm, onRevokeDm, onPlayerLogin, onPlayerRegister, totalVisits }) => {
   const [pname,setPname]=useState(initialName||"");
   const [code,setCode]=useState("");
   const [roomName,setRoomName]=useState("");
@@ -2766,6 +2791,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
           onLogin={onPlayerLogin}
           onRegister={onPlayerRegister}
           onLogout={onAuthLogout}
+          onResendVerification={onResendVerification}
         />
         <div style={{marginBottom:14}}>
           <label style={{fontFamily:"Cinzel,serif", fontSize:11, color:"var(--muted)", letterSpacing:".1em", textTransform:"uppercase", display:"block", marginBottom:6}}>Tu Nombre</label>
@@ -2855,6 +2881,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
           onLogout={onAuthLogout}
           onClaimOwner={onClaimOwner}
           onRequestDM={onRequestDM}
+          onResendVerification={onResendVerification}
         />
 
         <div style={{marginBottom:18}}>
@@ -3085,8 +3112,8 @@ const handleAuthLogin=async({email,password})=>{
 
 const handleAuthRegister=async({displayName,email,password})=>{
   try{
-    const cred=await authApi.register(email,password);
-    await cred.user.sendEmailVerification();
+    const cred=await authApi.register(email,password,displayName.trim());
+    await authApi.sendVerification(cred.user);
     if(displayName.trim()){
       await authApi.updateProfile(cred.user,{displayName:displayName.trim()});
     }
@@ -3109,7 +3136,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
   try {
     const cred = await window._fbCreateUser(window._fbAuth, email, password);
     const user = cred.user;
-    await user.sendEmailVerification();
+    await authApi.sendVerification(user);
     if (displayName.trim()) {
       await window._fbUpdateProfile(user, { displayName: displayName.trim() });
     }
@@ -3125,6 +3152,18 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
     setPlayerName(displayName.trim());
     notify("¡Cuenta creada! Revisá tu email y hacé click en el link para verificar tu cuenta.");
   } catch(e) {
+    notify(friendlyAuthError(e));
+  }
+};
+
+const handleResendVerification=async()=>{
+  const user=authApi.current();
+  if(!user)return notify("Primero inicia sesion.");
+  if(user.emailVerified)return notify("Tu email ya esta verificado.");
+  try{
+    await authApi.sendVerification(user);
+    notify("Email de verificacion reenviado. Revisa tu bandeja de entrada.");
+  }catch(e){
     notify(friendlyAuthError(e));
   }
 };
@@ -3773,6 +3812,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       onAuthLogout={handleAuthLogout}
       onClaimOwner={handleClaimOwner}
       onRequestDM={handleRequestDm}
+      onResendVerification={handleResendVerification}
       showOwnerPanel={isOwner}
       ownerAccount={account}
       pendingDMs={pendingDMs}
