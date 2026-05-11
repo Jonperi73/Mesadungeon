@@ -2352,13 +2352,17 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
         <button className="btn btn-r" disabled={working||!requestName.trim()} onClick={submitRequestDM}>Solicitar acceso DM</button>
       </div>}
 
-      {account?.status===STATUS_PENDING&&<div className="auth-meta">Tu acceso de DM está pendiente de aprobación del Owner.</div>}
-      {account?.status===STATUS_REVOKED&&<div className="auth-meta">El Owner revocó este acceso. Si querés volver a masterear, necesitás una nueva aprobación.</div>}
+      {account&&account.status===STATUS_PENDING&&<div className="auth-meta">Tu acceso de DM está pendiente de aprobación del Owner.</div>}
+
+      {account&&account.status===STATUS_REVOKED&&<div className="auth-meta">El Owner revocó este acceso. Si querés volver a masterear, necesitás una nueva aprobación.</div>}
+
       {isDm&&<div className="auth-meta">Tu cuenta ya puede crear y administrar partidas como DM.</div>}
+
       {isOwner&&<div className="auth-meta">Tenés control global sobre la app y la aprobación de DMs.</div>}
-      {!authUser.emailVerified && (
+
+      {authUser&&!authUser.emailVerified&&(
         <div className="auth-meta" style={{color:"#E24B4A"}}>
-         ⚠ Email no verificado — revisá tu bandeja de entrada antes de continuar.
+          ⚠ Email no verificado — revisá tu bandeja de entrada antes de continuar.
         </div>
       )}
 
