@@ -130,7 +130,7 @@ const fb = {
 };
 
 const authApi = {
-  current: () => window._fbAuth?.currentUser || null,
+  current: () => window._fbAuth&&currentUser || null,
   listen: (cb) => window._fbOnAuthStateChanged(window._fbAuth, cb),
 
   signIn: (email, password) =>
@@ -425,7 +425,7 @@ const STANDARD=[15,14,13,12,10,8];
 const mod=s=>Math.floor((s-10)/2);
 const modStr=s=>{const m=mod(s);return m>=0?`+${m}`:`${m}`;};
 const profBonus=lv=>Math.ceil(lv/4)+1;
-const maxHP=(cls,lv,con)=>{const hd=CLASSES[cls]?.hd||8;return hd+mod(con)+(lv-1)*(Math.floor(hd/2)+1+mod(con));};
+const maxHP=(cls,lv,con)=>{const hd=CLASSES[cls]&&hd||8;return hd+mod(con)+(lv-1)*(Math.floor(hd/2)+1+mod(con));};
 
 const ITEMS = {
   longsword:{id:"longsword",n:"Espada Larga",e:"⚔️",t:"weapon",slot:"mainhand",dmg:"1d8",dt:"tajo",w:3,minStr:10,val:15,rar:"c",desc:"Hoja larga de filo doble."},
@@ -485,8 +485,8 @@ const EQUIP_SLOTS=new Set(["head","mainhand","body","offhand","cape","acc"]);
 const SLOT_LABELS={head:"Cabeza",mainhand:"Mano principal",body:"Cuerpo",offhand:"Mano secundaria",cape:"Capa",acc:"Accesorio"};
 const ITEM_TYPE_LABELS={weapon:"Arma",armor:"Armadura",acc:"Accesorio",consumable:"Consumible",misc:"Objeto"};
 const EMPTY_WALLET={gold:0,silver:0,copper:0};
-const canEquipItem=item=>!!item?.slot&&EQUIP_SLOTS.has(item.slot);
-const getItemTypeLabel=item=>ITEM_TYPE_LABELS[item?.t]||"Objeto";
+const canEquipItem=item=>!!item&&slot&&EQUIP_SLOTS.has(item.slot);
+const getItemTypeLabel=item=>ITEM_TYPE_LABELS[item&&t]||"Objeto";
 const getItemMetaLabel=item=>canEquipItem(item)?(SLOT_LABELS[item.slot]||item.slot):getItemTypeLabel(item);
 const normalizeWallet=wallet=>({...EMPTY_WALLET,...(wallet||{})});
 const normalizeCharacter=char=>char?{
@@ -525,8 +525,8 @@ const normalizeRoom=room=>{
     lastActivityAt:room.lastActivityAt||room.createdAt||Date.now(),
     diceEnabled:!!room.diceEnabled,
     dmStock:{
-      items:{...(room.dmStock?.items||{})},
-      coins:normalizeWallet(room.dmStock?.coins),
+      items:{...(room.dmStock&&items||{})},
+      coins:normalizeWallet(room.dmStock&&coins),
     },
     players,
   };
@@ -558,19 +558,19 @@ const storageSet=(key,value)=>{
 };
 const nameKey=value=>(value||"").trim().toLowerCase();
 const buildSessionRecord=room=>({
-  id:room?.id||"",
-  name:room?.name||"Partida sin nombre",
-  code:room?.id||"",
-  dmUid:room?.dmUid||"",
-  dmName:room?.dmName||room?.players?.[room?.hostId]?.name||"",
-  hostId:room?.hostId||"",
-  hostName:room?.players?.[room?.hostId]?.name||"",
-  playerCount:Object.keys(room?.players||{}).length,
-  players:Object.values(room?.players||{}).map(p=>p.character?.name||p.name),
-  gameState:room?.gameState||"lobby",
-  lifecycleStatus:room?.lifecycleStatus||"active",
-  createdAt:room?.createdAt||Date.now(),
-  updatedAt:room?.lastActivityAt||Date.now(),
+  id:room&&id||"",
+  name:room&&name||"Partida sin nombre",
+  code:room&&id||"",
+  dmUid:room&&dmUid||"",
+  dmName:room&&dmName||room&&players&&[room&&hostId]&&name||"",
+  hostId:room&&hostId||"",
+  hostName:room&&players&&[room&&hostId]&&name||"",
+  playerCount:Object.keys(room&&players||{}).length,
+  players:Object.values(room&&players||{}).map(p=>p.character&&name||p.name),
+  gameState:room&&gameState||"lobby",
+  lifecycleStatus:room&&lifecycleStatus||"active",
+  createdAt:room&&createdAt||Date.now(),
+  updatedAt:room&&lastActivityAt||Date.now(),
 });
 const roleBadgeMeta=account=>{
   if(!account)return{label:"Sin rol",cls:"badge-c"};
@@ -580,7 +580,7 @@ const roleBadgeMeta=account=>{
   if(account.status===STATUS_REVOKED)return{label:"Acceso revocado",cls:"badge-x"};
   return{label:"Sin rol",cls:"badge-c"};
 };
-const isApprovedRole=(account,role)=>account?.role===role&&account?.status===STATUS_APPROVED;
+const isApprovedRole=(account,role)=>account&&role===role&&account&&status===STATUS_APPROVED;
 const buildAccountRecord=(user,extra={})=>({
   uid:user.uid,
   email:user.email||"",
@@ -594,13 +594,13 @@ const buildAccountRecord=(user,extra={})=>({
   revokedBy:extra.revokedBy||null,
 });
 const friendlyAuthError=err=>{
-  const code=err?.code||"";
+  const code=err&&code||"";
   if(code.includes("invalid-email"))return"El email no es válido.";
   if(code.includes("email-already-in-use"))return"Ese email ya está registrado.";
   if(code.includes("weak-password"))return"La contraseña debe tener al menos 6 caracteres.";
   if(code.includes("invalid-credential")||code.includes("wrong-password")||code.includes("user-not-found"))return"Email o contraseña incorrectos.";
   if(code.includes("too-many-requests"))return"Demasiados intentos. Probá de nuevo en unos minutos.";
-  return err?.message||"No se pudo completar la autenticación.";
+  return err&&message||"No se pudo completar la autenticación.";
 };
 
 const checkItem=(char,item)=>{
@@ -608,7 +608,7 @@ const checkItem=(char,item)=>{
   if(item.minStr&&char.stats.str<item.minStr)issues.push(`Requiere FUE ${item.minStr}`);
   if(item.minInt&&char.stats.int<item.minInt)issues.push(`Requiere INT ${item.minInt}`);
   if(item.minLevel&&char.level<item.minLevel)issues.push(`Requiere nivel ${item.minLevel}`);
-  if(item.classOnly&&!item.classOnly.includes(char.class))issues.push(`Solo para: ${item.classOnly.map(c=>CLASSES[c]?.n).join(", ")}`);
+  if(item.classOnly&&!item.classOnly.includes(char.class))issues.push(`Solo para: ${item.classOnly.map(c=>CLASSES[c]&&n).join(", ")}`);
   return{ok:issues.length===0,issues};
 };
 
@@ -617,10 +617,10 @@ const calcAC=(char)=>{
   let ac=10+dexMod;
   const body=ITEMS[eq.body];
   if(body)ac=body.ac+(body.acDex?Math.min(dexMod,body.maxDex!==undefined?body.maxDex:99):0);
-  const off=ITEMS[eq.offhand];if(off?.t==="armor")ac+=off.ac||0;
-  const cape=ITEMS[eq.cape];if(cape?.ac)ac+=cape.ac;
-  const acc=ITEMS[eq.acc];if(acc?.ac)ac+=acc.ac;
-  const head=ITEMS[eq.head];if(head?.ac)ac+=head.ac;
+  const off=ITEMS[eq.offhand];if(off&&t==="armor")ac+=off.ac||0;
+  const cape=ITEMS[eq.cape];if(cape&&ac)ac+=cape.ac;
+  const acc=ITEMS[eq.acc];if(acc&&ac)ac+=acc.ac;
+  const head=ITEMS[eq.head];if(head&&ac)ac+=head.ac;
   if(char.class==="barbarian"&&!body)ac=10+dexMod+mod(char.stats.con);
   if(char.class==="monk"&&!body&&!eq.offhand)ac=10+dexMod+mod(char.stats.wis);
   return ac;
@@ -628,7 +628,7 @@ const calcAC=(char)=>{
 
 const calcBonuses=(char)=>{
   const eq=char.equipment||{},bonuses={};
-  Object.values(eq).forEach(eid=>{const it=ITEMS[eid];if(it?.bonus)Object.entries(it.bonus).forEach(([k,v])=>{bonuses[k]=(bonuses[k]||0)+v;});});
+  Object.values(eq).forEach(eid=>{const it=ITEMS[eid];if(it&&bonus)Object.entries(it.bonus).forEach(([k,v])=>{bonuses[k]=(bonuses[k]||0)+v;});});
   return bonuses;
 };
 
@@ -658,7 +658,7 @@ const CharSVG = ({ char }) => {
   const weaponItem = ITEMS[eq.mainhand];
   const weaponColor = weaponItem ? (weaponItem.rar==="r"?"#C9A84C":weaponItem.rar==="u"?"#5BA3E0":"#9AA0A8") : "#9AA0A8";
 
-  const isFemale = char.appearance?.bodyType === "female";
+  const isFemale = char.appearance&&bodyType === "female";
   const hairY = isFemale ? 18 : 20;
 
   return (
@@ -701,12 +701,12 @@ const CharSVG = ({ char }) => {
       {hasShield && <line x1="8" y1="90" x2="22" y2="90" stroke="#C9A84C" strokeWidth="1.2"/>}
 
       {/* Weapon */}
-      {hasWeapon && weaponItem?.ranged
+      {hasWeapon && weaponItem&&ranged
         ? <path d="M82,50 L86,130" stroke={weaponColor} strokeWidth="2" strokeLinecap="round"/>
         : hasWeapon && <path d={`M78,45 L82,115`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>
       }
-      {hasWeapon && weaponItem?.t==="weapon" && !weaponItem?.ranged && <path d={`M75,43 L85,43`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>}
-      {weaponItem?.magical && hasWeapon && <circle cx="79" cy="50" r="4" fill="rgba(201,168,76,0.4)" style={{animation:"glow 2s infinite"}}/>}
+      {hasWeapon && weaponItem&&t==="weapon" && !weaponItem&&ranged && <path d={`M75,43 L85,43`} stroke={weaponColor} strokeWidth="2.5" strokeLinecap="round"/>}
+      {weaponItem&&magical && hasWeapon && <circle cx="79" cy="50" r="4" fill="rgba(201,168,76,0.4)" style={{animation:"glow 2s infinite"}}/>}
 
       {/* Neck */}
       <rect x="44" y="50" width="12" height="13" rx="4" fill={skin}/>
@@ -738,7 +738,7 @@ const CharSVG = ({ char }) => {
       <path d={`M45,${isFemale?44:46} Q50,${isFemale?47:49} 55,${isFemale?44:46}`} stroke="rgba(0,0,0,0.3)" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
 
       {/* Magical glow on armor */}
-      {bodyItem?.magical && <rect x={isFemale?32:34} y="60" width={isFemale?36:32} height="48" rx="6" fill="rgba(90,90,200,0.08)" stroke="rgba(100,100,220,0.3)" strokeWidth="0.5"/>}
+      {bodyItem&&magical && <rect x={isFemale?32:34} y="60" width={isFemale?36:32} height="48" rx="6" fill="rgba(90,90,200,0.08)" stroke="rgba(100,100,220,0.3)" strokeWidth="0.5"/>}
 
       {/* Shadow */}
       <ellipse cx="50" cy="148" rx="22" ry="5" fill="rgba(0,0,0,0.4)"/>
@@ -759,7 +759,7 @@ const SLOT_LAYOUT = [
 const rarBadgeColor = {c:"#888",u:"#5cb85c",r:"#5ba3e0"};
 
 const EquipSlot = ({ slotId, char, onEquip }) => {
-  const eq = char?.equipment || {};
+  const eq = char&&equipment || {};
   const itemId = eq[slotId];
   const item = ITEMS[itemId];
   const slotDef = SLOT_LAYOUT.find(s=>s.id===slotId);
@@ -767,17 +767,17 @@ const EquipSlot = ({ slotId, char, onEquip }) => {
   return (
     <div
       className={`l2-slot${item?" filled":""}`}
-      style={slotDef?.pos ? {...slotDef.pos, position:"absolute"} : {}}
+      style={slotDef&&pos ? {...slotDef.pos, position:"absolute"} : {}}
       onClick={() => item && onEquip(null, slotId)}
-      title={item ? `${item.n} — click para desequipar` : slotDef?.label}
+      title={item ? `${item.n} — click para desequipar` : slotDef&&label}
     >
       {item ? <>
         <span className="slot-icon">{item.e}</span>
         <span className="slot-name" style={{maxWidth:36,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.n.split(" ")[0]}</span>
         <span className="slot-rarity" style={{color:rarBadgeColor[item.rar]||"#888"}}>●</span>
       </> : <>
-        <span style={{fontSize:14,opacity:.4}}>{slotDef?.icon}</span>
-        <span className="slot-label">{slotDef?.label}</span>
+        <span style={{fontSize:14,opacity:.4}}>{slotDef&&icon}</span>
+        <span className="slot-label">{slotDef&&label}</span>
       </>}
     </div>
   );
@@ -831,7 +831,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
       <div style={{padding:"14px 16px",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:12}}>
         <div style={{flex:1}}>
           <div style={{fontFamily:"Cinzel,serif",fontSize:18,color:"var(--gold)"}}>{char.name}</div>
-          <div style={{fontSize:12,color:"var(--muted)"}}>{RACES[char.race]?.n} {CLASSES[char.class]?.n} · Nivel {char.level}</div>
+          <div style={{fontSize:12,color:"var(--muted)"}}>{RACES[char.race]&&n} {CLASSES[char.class]&&n} · Nivel {char.level}</div>
         </div>
         <div style={{display:"flex",gap:6}}>
           <div style={{textAlign:"center",background:"rgba(0,0,0,.3)",border:"1px solid var(--border)",borderRadius:3,padding:"4px 10px"}}>
@@ -986,7 +986,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
             </div>
             {/* Key combat */}
             <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:5}}>
-              {[["CA",ac],["Prof",`+${prof}`],["Vel",`${RACES[char.race]?.spd}ft`]].map(([l,v])=>(
+              {[["CA",ac],["Prof",`+${prof}`],["Vel",`${RACES[char.race]&&spd}ft`]].map(([l,v])=>(
                 <div key={l} className="stat-b">
                   <div style={{fontSize:9,color:"var(--muted)",fontFamily:"Cinzel,serif"}}>{l}</div>
                   <div style={{fontFamily:"Cinzel,serif",fontSize:16,fontWeight:700,color:"var(--gold)"}}>{v}</div>
@@ -998,7 +998,7 @@ const L2CharacterPanel = ({ char, onEquip, onUpdateHP, onUpdateWallet }) => {
               <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",marginBottom:6,textTransform:"uppercase",letterSpacing:".08em"}}>Tiradas de Salvación</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:2}}>
                 {STATS.map(s=>{
-                  const proficient=CLASSES[char.class]?.saves.includes(s);
+                  const proficient=CLASSES[char.class]&&saves.includes(s);
                   const total=mod(char.stats[s])+(bonuses[s]||0)+(proficient?prof:0);
                   return(
                     <div key={s} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"2px 4px"}}>
@@ -1133,7 +1133,7 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
   const getColor=(total,sides)=>{const p=total/sides;return p>0.8?"#C9A84C":p>0.5?"#5BA3E0":p<0.25?"#E24B4A":"#F0E6D3";};
   const quickRolls=char?[
     {label:"Iniciativa",fn:()=>roll(20,1,"Iniciativa","normal")},
-    {label:"Ataque",fn:()=>roll(20,1,`Ataque +${mod(char.stats[CLASSES[char.class]?.pstat||"str"])+profBonus(char.level)}`)},
+    {label:"Ataque",fn:()=>roll(20,1,`Ataque +${mod(char.stats[CLASSES[char.class]&&pstat||"str"])+profBonus(char.level)}`)},
     {label:"Percepción",fn:()=>roll(20,1,`Percep ${modStr(char.stats.wis)}`)},
     {label:"Sigilo",fn:()=>roll(20,1,`Sigilo ${modStr(char.stats.dex)}`)},
   ]:[];
@@ -1185,7 +1185,7 @@ const CharSheet = ({ char, onUpdateHP }) => {
   const [hpDelta,setHpDelta]=useState("");
   const [slots,setSlots]=useState(null);
   useEffect(()=>{
-    if(char&&CLASSES[char.class]?.caster&&char.level<=5){
+    if(char&&CLASSES[char.class]&&caster&&char.level<=5){
       const SPELL_SLOTS={1:[2,0,0,0,0],2:[3,0,0,0,0],3:[4,2,0,0,0],4:[4,3,0,0,0],5:[4,3,2,0,0]};
       setSlots(SPELL_SLOTS[char.level]||null);
     }
@@ -1198,7 +1198,7 @@ const CharSheet = ({ char, onUpdateHP }) => {
     <div style={{display:"flex",flexDirection:"column",gap:10}}>
       <div style={{textAlign:"center"}}>
         <div style={{fontFamily:"Cinzel,serif",fontSize:16,color:"var(--gold)"}}>{char.name}</div>
-        <div style={{fontSize:12,color:"var(--muted)"}}>{race?.n} {cls?.n} · Nv{char.level}</div>
+        <div style={{fontSize:12,color:"var(--muted)"}}>{race&&n} {cls&&n} · Nv{char.level}</div>
       </div>
       <div className="card" style={{padding:10}}>
         <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
@@ -1213,7 +1213,7 @@ const CharSheet = ({ char, onUpdateHP }) => {
         </div>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:5}}>
-        {[["CA",ac],["Prof",`+${prof}`],["Vel",`${race?.spd}ft`]].map(([l,v])=>(
+        {[["CA",ac],["Prof",`+${prof}`],["Vel",`${race&&spd}ft`]].map(([l,v])=>(
           <div key={l} className="stat-b">
             <div style={{fontSize:9,color:"var(--muted)",fontFamily:"Cinzel,serif"}}>{l}</div>
             <div style={{fontFamily:"Cinzel,serif",fontSize:16,fontWeight:700,color:"var(--gold)"}}>{v}</div>
@@ -1229,7 +1229,7 @@ const CharSheet = ({ char, onUpdateHP }) => {
           </div>
         );})}
       </div>
-      {cls?.caster&&slots&&<div className="card" style={{padding:10}}>
+      {cls&&caster&&slots&&<div className="card" style={{padding:10}}>
         <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:6}}>Espacios de Hechizo</div>
         {slots.map((total,i)=>total>0&&<div key={i} style={{display:"flex",alignItems:"center",gap:6,marginBottom:3}}>
           <span style={{fontSize:11,color:"var(--muted)",width:36}}>Nv.{i+1}</span>
@@ -1238,7 +1238,7 @@ const CharSheet = ({ char, onUpdateHP }) => {
       </div>}
       <div className="card" style={{padding:10}}>
         <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--muted)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:5}}>Rasgos</div>
-        {race?.traits.map(t=><div key={t} style={{fontSize:12,padding:"1px 0"}}>◈ {t}</div>)}
+        {race&&traits.map(t=><div key={t} style={{fontSize:12,padding:"1px 0"}}>◈ {t}</div>)}
       </div>
     </div>
   );
@@ -1263,18 +1263,18 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
   const [levelHpGain,setLevelHpGain]=useState("");
   const chatEnd=useRef();
   const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem("tutorial_game_done"));
-  const effectiveCharacter = character || roomData?.players?.[playerId]?.character || null;
-  const playersList=Object.values(roomData?.players||{});
-  const isHost=roomData?.hostId===playerId;
-  const isDM=!!((roomData?.dmUid&&authUid&&roomData.dmUid===authUid)||isHost);
-  const canRoll=!!effectiveCharacter&&(isDM||!!roomData?.diceEnabled);
-  const dmStock=roomData?.dmStock||{items:{},coins:normalizeWallet()};
+  const effectiveCharacter = character || roomData&&players&&[playerId]&&character || null;
+  const playersList=Object.values(roomData&&players||{});
+  const isHost=roomData&&hostId===playerId;
+  const isDM=!!((roomData&&dmUid&&authUid&&roomData.dmUid===authUid)||isHost);
+  const canRoll=!!effectiveCharacter&&(isDM||!!roomData&&diceEnabled);
+  const dmStock=roomData&&dmStock||{items:{},coins:normalizeWallet()};
   const stockEntries=Object.entries(dmStock.items||{})
     .filter(([,qty])=>qty>0)
     .sort((a,b)=>{
       const ia=ITEMS[a[0]],ib=ITEMS[b[0]];
       const ta=getItemTypeLabel(ia),tb=getItemTypeLabel(ib);
-      return ta.localeCompare(tb,"es")||((ia?.n||a[0]).localeCompare(ib?.n||b[0],"es"));
+      return ta.localeCompare(tb,"es")||((ia&&n||a[0]).localeCompare(ib&&n||b[0],"es"));
     });
   const stockCatalog=Object.values(ITEMS).sort((a,b)=>{
     const ta=getItemTypeLabel(a),tb=getItemTypeLabel(b);
@@ -1283,7 +1283,7 @@ const GameRoom = ({ roomData, character, playerId, authUid, updateRoom, playerNa
   const sideTabs=[["sheet","Ficha"],["dice","Dados"],["char","Personaje"]];
   const panelTitle=(sideTabs.find(([id])=>id===activeTab)||[])[1]||"Panel";
   const selectedItem=ITEMS[stockItemId];
-  const selectedItemStock=selectedItem?(dmStock.items?.[stockItemId]||0):0;
+  const selectedItemStock=selectedItem?(dmStock.items&&[stockItemId]||0):0;
 
 useEffect(()=>{
   const candidates=playersList.filter(p=>p.character);
@@ -1291,7 +1291,7 @@ useEffect(()=>{
   if(candidates.some(p=>p.id===stockTargetId))return;
 
   const next=
-    candidates[0]?.id||
+    candidates[0]&&id||
     "";
 
   setStockTargetId(next);
@@ -1303,7 +1303,7 @@ useEffect(()=>{
   if(candidates.some(p=>p.id===adminTargetId))return;
 
   const next=
-    candidates[0]?.id||
+    candidates[0]&&id||
     "";
 
   setAdminTargetId(next);
@@ -1314,15 +1314,15 @@ useEffect(()=>{
     const amount=parseInt(value,10);
     return Number.isFinite(amount)&&amount>0?amount:null;
   };
-  const coinLabel=(type)=>COIN_TYPES.find(c=>c.type===type)?.label||type;
+  const coinLabel=(type)=>COIN_TYPES.find(c=>c.type===type)&&label||type;
   const openMobilePanel=(tab)=>{setActiveTab(tab);setShowCharModal(true);};
 
   const send=async()=>{
     if(!chatInput.trim())return;
-    const msg={id:Date.now(),t:"player",text:chatInput,senderId:playerId,senderName:character?.name||playerName,ts:Date.now()};
+    const msg={id:Date.now(),t:"player",text:chatInput,senderId:playerId,senderName:character&&name||playerName,ts:Date.now()};
     const action=chatInput;setChatInput("");
     await updateRoom(d=>({...d,messages:[...(d.messages||[]),msg]}));
-    if(roomData?.dmMode==="ai")callAI(`${character?.name||playerName} (${RACES[character?.race]?.n||""} ${CLASSES[character?.class]?.n||""}) dice/hace: "${action}"`);
+    if(roomData&&dmMode==="ai")callAI(`${character&&name||playerName} (${RACES[character&&race]&&n||""} ${CLASSES[character&&class]&&n||""}) dice/hace: "${action}"`);
   };
 
   const sendDM=async()=>{
@@ -1333,13 +1333,13 @@ useEffect(()=>{
 
   const toggleDiceAccess=async()=>{
     if(!isDM)return;
-    const next=!roomData?.diceEnabled;
+    const next=!roomData&&diceEnabled;
     await updateRoom(d=>({
       ...d,
       diceEnabled:next,
       messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:next?"🎲 El DM habilitó las tiradas para los jugadores.":"⛔ El DM bloqueó las tiradas para los jugadores.",ts:Date.now()}]
     }));
-    notify?.(next?"Tiradas habilitadas para jugadores":"Tiradas bloqueadas para jugadores");
+    notify&&(next?"Tiradas habilitadas para jugadores":"Tiradas bloqueadas para jugadores");
   };
 
   const handleEquip=async(itemId,slot,force=false)=>{
@@ -1351,10 +1351,10 @@ useEffect(()=>{
     const safeChar = JSON.parse(JSON.stringify(newChar));
     await updateRoom(d=>({
       ...d,
-      players:{...(d.players||{}),[playerId]:{...(d.players?.[playerId]||{}),character:newChar}},
+      players:{...(d.players||{}),[playerId]:{...(d.players&&[playerId]||{}),character:newChar}},
       messages:force&&item?[...(d.messages||[]),{id:Date.now(),t:"sys",text:`⚠ ${character.name} intenta usar ${item.n} sin los requisitos...`,ts:Date.now()}]:(d.messages||[])
     }));
-    if(force&&roomData?.dmMode==="ai")callAI(`${character.name} intentó equipar ${item.n} sin cumplir los requisitos. Narra las consecuencias.`);
+    if(force&&roomData&&dmMode==="ai")callAI(`${character.name} intentó equipar ${item.n} sin cumplir los requisitos. Narra las consecuencias.`);
   };
 
   const handleUpdateHP=async(newHP)=>{
@@ -1362,39 +1362,39 @@ useEffect(()=>{
     const hp=Math.max(0,Math.min(newHP,character.maxHP));
     const newChar={...character,currentHP:hp};
     const safeChar = JSON.parse(JSON.stringify(newChar));
-    await updateRoom(d=>({...d,players:{...(d.players||{}),[playerId]:{...(d.players?.[playerId]||{}),character:newChar}}}));
+    await updateRoom(d=>({...d,players:{...(d.players||{}),[playerId]:{...(d.players&&[playerId]||{}),character:newChar}}}));
   };
 
   const handleUpdateWallet=async(newWallet)=>{
     if(!character)return;
     const newChar={...character,wallet:normalizeWallet(newWallet)};
     const safeChar = JSON.parse(JSON.stringify(newChar));
-    await updateRoom(d=>({...d,players:{...(d.players||{}),[playerId]:{...(d.players?.[playerId]||{}),character:newChar}}}));
+    await updateRoom(d=>({...d,players:{...(d.players||{}),[playerId]:{...(d.players&&[playerId]||{}),character:newChar}}}));
   };
 
   const adjustStockItem=async(direction=1)=>{
     if(!isDM||!selectedItem)return;
     const amount=parseAmount(stockQty,1);
     await updateRoom(d=>{
-      const current=d.dmStock.items?.[stockItemId]||0;
+      const current=d.dmStock.items&&[stockItemId]||0;
       const next=Math.max(0,current+(direction*amount));
       const items={...(d.dmStock.items||{})};
       if(next>0)items[stockItemId]=next;else delete items[stockItemId];
       return {...d,dmStock:{...d.dmStock,items}};
     });
-    notify?.(`${direction>0?"Stock cargado":"Stock ajustado"}: ${selectedItem.n} x${amount}`);
+    notify&&(`${direction>0?"Stock cargado":"Stock ajustado"}: ${selectedItem.n} x${amount}`);
   };
 
   const giveStockItem=async()=>{
     if(!isDM||!selectedItem)return;
-    if(!stockTargetId){notify?.("Elegí un jugador para entregar el item");return;}
+    if(!stockTargetId){notify&&("Elegí un jugador para entregar el item");return;}
     const amount=parseAmount(stockQty,1);
     let delivered=false;
     let reason="No se pudo entregar el item";
     await updateRoom(d=>{
-      const available=d.dmStock.items?.[stockItemId]||0;
-      const targetPlayer=d.players?.[stockTargetId];
-      const targetChar=targetPlayer?.character;
+      const available=d.dmStock.items&&[stockItemId]||0;
+      const targetPlayer=d.players&&[stockTargetId];
+      const targetChar=targetPlayer&&character;
       if(!targetChar){reason="Ese jugador todavía no creó su personaje";return d;}
       if(available<amount){reason="No hay suficiente stock para esa entrega";return d;}
       const items={...(d.dmStock.items||{})};
@@ -1417,15 +1417,15 @@ useEffect(()=>{
         messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`🎁 El DM entregó ${amount}x ${selectedItem.n} a ${targetChar.name}.`,ts:Date.now()}]
       };
     });
-    if(!delivered){notify?.(reason);return;}
-    notify?.(`Entregaste ${selectedItem.n} x${amount}`);
+    if(!delivered){notify&&(reason);return;}
+    notify&&(`Entregaste ${selectedItem.n} x${amount}`);
   };
 
   const adjustStockCoins=async(direction=1)=>{
     if(!isDM)return;
     const amount=parseAmount(coinAmount,1);
     await updateRoom(d=>{
-      const current=d.dmStock.coins?.[coinType]||0;
+      const current=d.dmStock.coins&&[coinType]||0;
       const next=Math.max(0,current+(direction*amount));
       return{
         ...d,
@@ -1435,19 +1435,19 @@ useEffect(()=>{
         }
       };
     });
-    notify?.(`${direction>0?"Tesoro cargado":"Tesoro ajustado"}: ${coinLabel(coinType)} ${amount}`);
+    notify&&(`${direction>0?"Tesoro cargado":"Tesoro ajustado"}: ${coinLabel(coinType)} ${amount}`);
   };
 
   const giveStockCoins=async()=>{
     if(!isDM)return;
-    if(!stockTargetId){notify?.("Elegí un jugador para entregar monedas");return;}
+    if(!stockTargetId){notify&&("Elegí un jugador para entregar monedas");return;}
     const amount=parseAmount(coinAmount,1);
     let delivered=false;
     let reason="No se pudieron entregar las monedas";
     await updateRoom(d=>{
-      const available=d.dmStock.coins?.[coinType]||0;
-      const targetPlayer=d.players?.[stockTargetId];
-      const targetChar=targetPlayer?.character;
+      const available=d.dmStock.coins&&[coinType]||0;
+      const targetPlayer=d.players&&[stockTargetId];
+      const targetChar=targetPlayer&&character;
       if(!targetChar){reason="Ese jugador todavía no creó su personaje";return d;}
       if(available<amount){reason="No hay suficiente tesoro en stock";return d;}
       const targetWallet=normalizeWallet(targetChar.wallet);
@@ -1471,15 +1471,15 @@ useEffect(()=>{
         messages:[...(d.messages||[]),{id:Date.now(),t:"sys",text:`🪙 El DM entregó ${amount} ${coinLabel(coinType).toLowerCase()} a ${targetChar.name}.`,ts:Date.now()}]
       };
     });
-    if(!delivered){notify?.(reason);return;}
-    notify?.(`Entregaste ${amount} ${coinLabel(coinType).toLowerCase()}`);
+    if(!delivered){notify&&(reason);return;}
+    notify&&(`Entregaste ${amount} ${coinLabel(coinType).toLowerCase()}`);
   };
 
   const modifyPlayerStat=async(targetPlayerId,patch)=>{
     if(!isDM)return;
     await updateRoom(d=>{
-      const targetPlayer=d.players?.[targetPlayerId];
-      const targetChar=targetPlayer?.character;
+      const targetPlayer=d.players&&[targetPlayerId];
+      const targetChar=targetPlayer&&character;
       if(!targetChar)return d;
       return{
         ...d,
@@ -1499,21 +1499,21 @@ useEffect(()=>{
 
   const adjustPlayerHP=async(targetPlayerId,direction=1)=>{
     const amount=parsePositiveAmount(hpAmount);
-    if(!amount){notify?.("Ingresa el HP que salio en los dados.");return;}
+    if(!amount){notify&&("Ingresa el HP que salio en los dados.");return;}
     const target=playersList.find(p=>p.id===targetPlayerId);
-    const c=target?.character;
+    const c=target&&character;
     if(!c)return;
     await modifyPlayerStat(targetPlayerId,{
       currentHP:Math.max(0,Math.min(c.maxHP,(c.currentHP||0)+(direction*amount)))
     });
-    notify?.(`${direction>0?"Curacion":"Danio"} aplicado: ${amount} HP`);
+    notify&&(`${direction>0?"Curacion":"Danio"} aplicado: ${amount} HP`);
   };
 
   const renderSidePanel=()=>(
     activeTab==="sheet"
       ? <CharSheet char={character} onUpdateHP={handleUpdateHP}/>
       : activeTab==="dice"
-        ? <DicePanel char={character} updateRoom={updateRoom} playerId={playerId} canRoll={canRoll} isDM={isDM} diceEnabled={!!roomData?.diceEnabled}/>
+        ? <DicePanel char={character} updateRoom={updateRoom} playerId={playerId} canRoll={canRoll} isDM={isDM} diceEnabled={!!roomData&&diceEnabled}/>
         : <L2CharacterPanel char={character} onEquip={handleEquip} onUpdateHP={handleUpdateHP} onUpdateWallet={handleUpdateWallet}/>
   );
 
@@ -1534,8 +1534,8 @@ useEffect(()=>{
       {/* Header */}
       <div style={{background:"var(--bg1)",borderBottom:"1px solid var(--border)",padding:"9px 14px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
-          <span style={{fontFamily:"Cinzel,serif",fontSize:15,color:"var(--gold)",whiteSpace:"nowrap"}}>⚔ {roomData?.name}</span>
-          <span style={{fontSize:10,color:"var(--muted)",fontFamily:"Cinzel,serif",padding:"2px 7px",border:"1px solid var(--border)",borderRadius:2,whiteSpace:"nowrap"}}>{roomData?.id}</span>
+          <span style={{fontFamily:"Cinzel,serif",fontSize:15,color:"var(--gold)",whiteSpace:"nowrap"}}>⚔ {roomData&&name}</span>
+          <span style={{fontSize:10,color:"var(--muted)",fontFamily:"Cinzel,serif",padding:"2px 7px",border:"1px solid var(--border)",borderRadius:2,whiteSpace:"nowrap"}}>{roomData&&id}</span>
           <span className="online-dot"/><span style={{fontSize:10,color:"#4CAF50",fontFamily:"Cinzel,serif"}}>Online</span>
         </div>
         <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
@@ -1573,10 +1573,10 @@ useEffect(()=>{
   <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
 
     <button
-      className={`btn btn-sm${roomData?.diceEnabled?" btn-g":""}`}
+      className={`btn btn-sm${roomData&&diceEnabled?" btn-g":""}`}
       onClick={toggleDiceAccess}
     >
-      {roomData?.diceEnabled
+      {roomData&&diceEnabled
         ?"⛔ Bloquear tiradas"
         :"🎲 Habilitar tiradas"}
     </button>
@@ -1596,7 +1596,7 @@ useEffect(()=>{
     </button>
 
     <span style={{fontSize:11,color:"var(--muted)"}}>
-      {roomData?.diceEnabled
+      {roomData&&diceEnabled
         ?"Los jugadores ya pueden tirar dados."
         :"Los jugadores tienen los dados bloqueados."}
     </span>
@@ -1610,7 +1610,7 @@ useEffect(()=>{
     const c=p.character;
     const hp=c?(c.currentHP/c.maxHP)*100:null;
     const hC=hp>60?"#4CAF50":hp>25?"#FFC107":"#E24B4A";
-    const playerIsDM=(p.authUid&&p.authUid===roomData?.dmUid)||p.id===roomData?.hostId;
+    const playerIsDM=(p.authUid&&p.authUid===roomData&&dmUid)||p.id===roomData&&hostId;
 
     return(
       <div
@@ -1675,7 +1675,7 @@ useEffect(()=>{
         {/* Chat */}
         <div className="chat-col">
           <div style={{flex:1,overflowY:"auto",padding:14,display:"flex",flexDirection:"column",gap:7}}>
-            {(roomData?.messages||[]).map(msg=>(
+            {(roomData&&messages||[]).map(msg=>(
               <div key={msg.id} className={`msg-${msg.t}`} style={{borderRadius:2}}>
                 {msg.t!=="sys"&&<div style={{fontSize:10,color:"var(--muted)",fontFamily:"Cinzel,serif",marginBottom:2}}>
                   {msg.senderName} · {new Date(msg.ts||msg.id).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})}
@@ -1697,7 +1697,7 @@ useEffect(()=>{
             <div className="mobile-quickbar">
               <button className="btn btn-sm" onClick={()=>openMobilePanel("sheet")}>📜 Ficha</button>
               <button className={`btn btn-sm${activeTab==="dice"?" btn-g":""}`} onClick={()=>openMobilePanel("dice")}>
-                {!isDM&&!roomData?.diceEnabled?"🎲 Dados 🔒":"🎲 Dados"}
+                {!isDM&&!roomData&&diceEnabled?"🎲 Dados 🔒":"🎲 Dados"}
               </button>
               <button className="btn btn-sm" onClick={()=>openMobilePanel("char")}>🎒 Equipo</button>
             </div>
@@ -1782,7 +1782,7 @@ useEffect(()=>{
                   <select className="sel" value={stockTargetId} onChange={e=>setStockTargetId(e.target.value)} style={{width:"100%"}}>
                     <option value="">Elegir jugador...</option>
                     {playersList.filter(p=>p.character).map(p=>(
-                      <option key={p.id} value={p.id}>{p.character?.name||p.name}</option>
+                      <option key={p.id} value={p.id}>{p.character&&name||p.name}</option>
                     ))}
                   </select>
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
@@ -1794,13 +1794,13 @@ useEffect(()=>{
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                     <button className="btn btn-sm btn-g" onClick={()=>adjustStockCoins(1)}>Cargar tesoro</button>
                     <button className="btn btn-sm" onClick={()=>adjustStockCoins(-1)}>Quitar tesoro</button>
-                    <button className="btn btn-sm btn-r" onClick={giveStockCoins} disabled={!stockTargetId||(dmStock.coins?.[coinType]||0)<=0}>Dar monedas</button>
+                    <button className="btn btn-sm btn-r" onClick={giveStockCoins} disabled={!stockTargetId||(dmStock.coins&&[coinType]||0)<=0}>Dar monedas</button>
                   </div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:4}}>
                     {COIN_TYPES.map(({type,icon,label,color})=>(
                       <div key={type} style={{flex:"1 1 30%",minWidth:70,background:"rgba(0,0,0,.25)",border:`1px solid ${color}44`,borderRadius:4,padding:"8px 6px",textAlign:"center"}}>
                         <div style={{fontSize:16}}>{icon}</div>
-                        <div style={{fontFamily:"Cinzel,serif",fontSize:13,color}}>{dmStock.coins?.[type]||0}</div>
+                        <div style={{fontFamily:"Cinzel,serif",fontSize:13,color}}>{dmStock.coins&&[type]||0}</div>
                         <div style={{fontSize:9,color:"var(--muted)",textTransform:"uppercase"}}>{label}</div>
                       </div>
                     ))}
@@ -1888,7 +1888,7 @@ useEffect(()=>{
                   .filter(p=>p.character)
                   .map(p=>(
                     <option key={p.id} value={p.id}>
-                      {p.character?.name||p.name}
+                      {p.character&&name||p.name}
                     </option>
                   ))
                 }
@@ -1898,7 +1898,7 @@ useEffect(()=>{
                 const target=
                   playersList.find(p=>p.id===adminTargetId);
 
-                const c=target?.character;
+                const c=target&&character;
 
                 if(!c)return null;
 
@@ -2150,7 +2150,7 @@ const assignStat=(stat,idx)=>{
             <div key={i} style={{padding:"5px 11px",fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,
               background:used.includes(i)?"rgba(0,0,0,.3)":"rgba(201,168,76,.15)",
               border:`1px solid ${used.includes(i)?"var(--border)":"var(--gold)"}`,
-              color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)?.5:1}}>{v}</div>
+              color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)&&5:1}}>{v}</div>
           ))
         }
         {!rolling&&<div style={{display:"flex",alignItems:"center",gap:8,marginTop:6}}>
@@ -2169,14 +2169,14 @@ const assignStat=(stat,idx)=>{
           <div key={i} style={{padding:"5px 11px",fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,
             background:used.includes(i)?"rgba(0,0,0,.3)":"rgba(201,168,76,.15)",
             border:`1px solid ${used.includes(i)?"var(--border)":"var(--gold)"}`,
-            color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)?.5:1}}>{v}</div>
+            color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)&&5:1}}>{v}</div>
         ))}
       </div>}
 
       {!rolling&&<div style={{display:"flex",flexDirection:"column",gap:7}}>
         {STATS.map(s=>{
           const activePool=statMethod==="roll"?rolledPool:pool;
-          const rb=RACES[race]?.bonus[s]||0,base=stats[s],total=base+rb;
+          const rb=RACES[race]&&bonus[s]||0,base=stats[s],total=base+rb;
           return(
             <div key={s} style={{display:"flex",alignItems:"center",gap:9}}>
               <div style={{width:36,fontFamily:"Cinzel,serif",fontSize:12,color:"var(--muted)",textTransform:"uppercase"}}>{STAT_N[s]}</div>
@@ -2197,9 +2197,9 @@ const assignStat=(stat,idx)=>{
     {preview&&<div style={{width:150,display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
       <div style={{width:120,height:160}}><CharSVG char={preview}/></div>
       <div style={{textAlign:"center"}}>
-        <div style={{fontFamily:"Cinzel,serif",fontSize:12,color:"var(--gold)"}}>{RACES[race]?.n}</div>
-        <div style={{fontFamily:"Cinzel,serif",fontSize:12,color:"var(--text)"}}>{CLASSES[cls]?.n}</div>
-        <div style={{fontSize:11,color:"var(--muted)",marginTop:4}}>HP est: {maxHP(cls,1,stats.con+(RACES[race]?.bonus.con||0))}</div>
+        <div style={{fontFamily:"Cinzel,serif",fontSize:12,color:"var(--gold)"}}>{RACES[race]&&n}</div>
+        <div style={{fontFamily:"Cinzel,serif",fontSize:12,color:"var(--text)"}}>{CLASSES[cls]&&n}</div>
+        <div style={{fontSize:11,color:"var(--muted)",marginTop:4}}>HP est: {maxHP(cls,1,stats.con+(RACES[race]&&bonus.con||0))}</div>
       </div>
     </div>}
   </div>}
@@ -2218,14 +2218,14 @@ const assignStat=(stat,idx)=>{
                 <CharSVG char={{name:name.trim()||"Aventurero",race,class:cls,stats,equipment:starterLoadout.equipment,appearance:{bodyType}}}/>
               </div>
               <div style={{fontFamily:"Cinzel,serif",fontSize:16,color:"var(--gold)"}}>{name}</div>
-              <div style={{color:"var(--muted)",fontSize:12}}>{RACES[race]?.n} {CLASSES[cls]?.n} · Nivel 1</div>
+              <div style={{color:"var(--muted)",fontSize:12}}>{RACES[race]&&n} {CLASSES[cls]&&n} · Nivel 1</div>
               <div style={{display:"flex",gap:8,fontSize:12,color:"var(--muted)"}}>
                 <span>💰 10 po</span><span>🥈 5 pp</span><span>🟤 20 pc</span>
               </div>
             </div>
             <div style={{flex:1,minWidth:220}}>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:10}}>
-                {STATS.map(s=>{const rb=RACES[race]?.bonus[s]||0,total=stats[s]+rb;return(
+                {STATS.map(s=>{const rb=RACES[race]&&bonus[s]||0,total=stats[s]+rb;return(
                   <div key={s} className="stat-b">
                     <div style={{fontSize:9,color:"var(--muted)",fontFamily:"Cinzel,serif"}}>{STAT_N[s]}</div>
                     <div style={{fontFamily:"Cinzel,serif",fontSize:18,fontWeight:700,color:"var(--gold)"}}>{total}</div>
@@ -2262,7 +2262,7 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
 
   useEffect(()=>{
     if(authUser){
-      const fallback=account?.displayName||authUser.displayName||"";
+      const fallback=account&&displayName||authUser.displayName||"";
       setRequestName(fallback);
       setDisplayName(fallback);
     }
@@ -2335,7 +2335,7 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,marginBottom:10}}>
         <div>
           <div style={{fontFamily:"Cinzel,serif",fontSize:14,color:"var(--gold)"}}>Portal de Mando</div>
-          <div style={{fontSize:13,color:"var(--text)"}}>{account?.displayName||authUser.displayName||"Cuenta autenticada"}</div>
+          <div style={{fontSize:13,color:"var(--text)"}}>{account&&displayName||authUser.displayName||"Cuenta autenticada"}</div>
           <div className="auth-meta">{authUser.email}</div>
         </div>
         <span className={`badge ${badge.cls}`}>{badge.label}</span>
@@ -2382,7 +2382,7 @@ const OwnerPanel = ({ ownerAccount, pendingDMs = [], approvedDMs = [], sessions,
           <div style={{fontFamily:"Cinzel,serif",fontSize:15,color:"var(--gold)"}}>Panel Owner</div>
           <div className="auth-meta">Aprobás quién puede masterear y controlás la capa alta de la app.</div>
         </div>
-        <span className="badge badge-l">{ownerAccount?.displayName||"Owner"}</span>
+        <span className="badge badge-l">{ownerAccount&&displayName||"Owner"}</span>
       </div>
 
       <div className="split-2" style={{marginBottom:14}}>
@@ -2434,8 +2434,9 @@ const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSe
   const [displayName, setDisplayName] = useState("");
   const [working, setWorking] = useState(false);
 
-  const isPlayer = account?.role === "player" && account?.status === "approved";
-  const isOwnerOrDm = account?.role === "owner" || account?.role === "dm";
+  const isPlayer = account && account.role === "player" && account.status === "approved";
+
+  const isOwnerOrDm = (account && account.role === "owner") || (account && account.role === "dm");
 
   if (isOwnerOrDm) return null;
 
@@ -2459,7 +2460,7 @@ const PlayerAuthCard = ({ authUser, account, onLogin, onRegister, onLogout, onSe
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <div style={{ fontFamily: "Cinzel,serif", fontSize: 13, color: "var(--gold)" }}>⚔ Jugador conectado</div>
-          <div style={{ fontSize: 12, color: "var(--text)" }}>{account?.displayName || authUser.displayName}</div>
+          <div style={{fontSize:12,color:"var(--text)"}}>{(account&&account.displayName)||authUser.displayName}</div>
           <div style={{ fontSize: 11, color: "var(--muted)" }}>{authUser.email}</div>
           {!authUser.emailVerified && (
             <div style={{fontSize:11,color:"#E24B4A",marginTop:4,fontFamily:"Cinzel,serif"}}>
@@ -2784,7 +2785,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
         </div>}
         {tab==="resume"&&<div className="card" style={{padding:18}}>
           <input className="inp" placeholder="Nombre de partida o código..." value={search} onChange={e=>setSearch(e.target.value)} style={{fontSize:15,marginBottom:12}}/>
-          {lastRoom?.id&&<div style={{background:"rgba(201,168,76,.06)",border:"1px solid var(--gold-dim)",borderRadius:3,padding:10,marginBottom:12}}>
+          {lastRoom&&id&&<div style={{background:"rgba(201,168,76,.06)",border:"1px solid var(--gold-dim)",borderRadius:3,padding:10,marginBottom:12}}>
             <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--gold)",marginBottom:4}}>Última partida usada</div>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10}}>
               <div>
@@ -2902,8 +2903,7 @@ const Lobby = ({ onCreateRoom, onJoinRoom, sessions, lastRoom, initialName, auth
             <label style={{fontFamily:"Cinzel,serif",fontSize:11,color:"var(--muted)",textTransform:"uppercase",letterSpacing:".08em",display:"block",marginBottom:6}}>Buscar Partida</label>
             <input className="inp" placeholder="Nombre de partida o código..." value={search} onChange={e=>setSearch(e.target.value)} style={{fontSize:15}}/>
           </div>
-          {lastRoom?.id&&<div style={{background:"rgba(201,168,76,.06)",border:"1px solid var(--gold-dim)",borderRadius:3,padding:10,marginBottom:12}}>
-            <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--gold)",marginBottom:4}}>Última partida usada en este dispositivo</div>
+            {lastRoom&&lastRoom.id&&<div style={{background:"rgba(201,168,76,.06)",border:"1px solid var(--gold-dim)",borderRadius:3,padding:10,marginBottom:12}}>            <div style={{fontFamily:"Cinzel,serif",fontSize:10,color:"var(--gold)",marginBottom:4}}>Última partida usada en este dispositivo</div>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10}}>
               <div style={{minWidth:0}}>
                 <div style={{fontSize:13,color:"var(--text)"}}>{lastRoom.name||"Partida sin nombre"}</div>
@@ -2978,9 +2978,9 @@ function App() {
 
   const notify=(msg,ms=3500)=>{setNotif(msg);setTimeout(()=>setNotif(""),ms);};
   const controlReady=authReady&&accounts!==null&&systemInfo!==null;
-  const ownerUid=systemInfo?.ownerUid||null;
+  const ownerUid=systemInfo&&ownerUid||null;
   const ownerExists=!!ownerUid;
-  const account=authUser?accounts?.[authUser.uid]||null:null;
+  const account=authUser?accounts&&[authUser.uid]||null:null;
   const isOwner=isApprovedRole(account,OWNER_ROLE);
   const isApprovedDm=isApprovedRole(account,DM_ROLE);
   const canCreateRoom=isOwner||isApprovedDm;
@@ -2995,7 +2995,7 @@ const approvedDMs = safeAccounts.filter(
   acc => acc.role === DM_ROLE && acc.status === STATUS_APPROVED
 );
   const syncSessionIndex=async(room)=>{
-    if(!room?.id)return;
+    if(!room&&id)return;
     try{await fb.set(`sessions/${room.id}`,buildSessionRecord(room));}
     catch(e){console.error("syncSessionIndex error",e);}
   };
@@ -3009,7 +3009,7 @@ useEffect(()=>{
       setAuthUser(user);
       setAuthReady(true);
       fb.increment("system/stats/totalVisits");
-      if(user?.uid){
+      if(user&&uid){
         setPlayerId(user.uid);
         storageSet(STORAGE_KEYS.playerId,user.uid);
       }
@@ -3150,7 +3150,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
     if(ownerExists&&ownerUid!==authUser.uid)return notify("Ya existe un Owner global.");
     try{
       const record=buildAccountRecord(authUser,{
-        displayName:authUser.displayName||authUser.email?.split("@")[0]||"Owner",
+        displayName:authUser.displayName||authUser.email&&split("@")[0]||"Owner",
         role:OWNER_ROLE,
         status:STATUS_APPROVED,
         approvedAt:Date.now(),
@@ -3181,7 +3181,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
   const handleApproveDm=async(uid)=>{
     if(!isOwner)return notify("Solo el Owner puede aprobar DMs.");
-    const current=accounts?.[uid];
+    const current=accounts&&[uid];
     if(!current)return notify("No encontré esa solicitud.");
     try{
       await fb.set(`users/${uid}`,{
@@ -3199,7 +3199,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
   const handleRevokeDm=async(uid)=>{
     if(!isOwner)return notify("Solo el Owner puede revocar DMs.");
-    const current=accounts?.[uid];
+    const current=accounts&&[uid];
     if(!current)return notify("No encontré esa cuenta.");
     try{
       await fb.set(`users/${uid}`,{
@@ -3226,9 +3226,9 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
       setRoomData(normalized);
 
-      const me=normalized.players?.[playerId];
+      const me=normalized.players&&[playerId];
 
-      setCharacter(me?.character||null);
+      setCharacter(me&&character||null);
     });
 
     return()=>{
@@ -3254,9 +3254,9 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
       setRoomData(updated);
 
-      const me=updated?.players?.[playerId];
+      const me=updated&&players&&[playerId];
 
-      setCharacter(me?.character||null);
+      setCharacter(me&&character||null);
 
       return updated;
 
@@ -3293,11 +3293,11 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
     await updateRoom(d=>{
 
-      const targetPlayer=d.players?.[targetPlayerId];
+      const targetPlayer=d.players&&[targetPlayerId];
 
       console.log("PLAYER", targetPlayer);
 
-      const char=targetPlayer?.character;
+      const char=targetPlayer&&character;
 
       if(!char)return d;
 
@@ -3350,15 +3350,15 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
     try{
 
-      const players=Object.values(roomData?.players||{})
+      const players=Object.values(roomData&&players||{})
         .filter(p=>p.character)
         .map(
           p=>
-            `${p.name}: ${RACES[p.character.race]?.n} ${CLASSES[p.character.class]?.n} Nv${p.character.level} HP:${p.character.currentHP}/${p.character.maxHP}`
+            `${p.name}: ${RACES[p.character.race]&&n} ${CLASSES[p.character.class]&&n} Nv${p.character.level} HP:${p.character.currentHP}/${p.character.maxHP}`
         )
         .join(", ")||"ninguno aún";
 
-      const history=(roomData?.messages||[])
+      const history=(roomData&&messages||[])
         .slice(-8)
         .map(m=>`${m.senderName||"Sistema"}: ${m.text}`)
         .join("\n");
@@ -3390,7 +3390,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
       const data=await res.json();
 
-      const text=data.content?.[0]?.text||
+      const text=data.content&&[0]&&text||
         "El DM contempla en silencio...";
 
       if(!secret){
@@ -3456,10 +3456,10 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
     const safeName=name.trim();
 
-    const title=roomName?.trim()||`Sala de ${safeName}`;
+    const title=roomName&&trim()||`Sala de ${safeName}`;
 
     const dmDisplayName=
-      account?.displayName||
+      account&&displayName||
       authUser.displayName||
       safeName;
 
@@ -3637,7 +3637,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
         setPlayerName(safeName);
 
-        if(reclaimed.players?.[playerId]?.character){
+        if(reclaimed.players&&[playerId]&&character){
 
           setCharacter(
             reclaimed.players[playerId].character
@@ -3668,7 +3668,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
         name:safeName,
         isHost:false,
         isDM:false,
-        character:(await fb.get(`rooms/${c}/players/${playerId}`))?.character || null,
+        character:(await fb.get(`rooms/${c}/players/${playerId}`))&&character || null,
         connected:true
       });
 
@@ -3708,7 +3708,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       players:{
         ...(d.players||{}),
         [playerId]:{
-          ...(d.players?.[playerId]||{}),
+          ...(d.players&&[playerId]||{}),
           character:safeChar
         }
       },
@@ -3719,7 +3719,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
         {
           id:Date.now(),
           t:"sys",
-          text:`🎭 ${playerName} entró como ${RACES[char.race]?.n} ${CLASSES[char.class]?.n}: ${char.name}.`,
+          text:`🎭 ${playerName} entró como ${RACES[char.race]&&n} ${CLASSES[char.class]&&n}: ${char.name}.`,
           ts:Date.now()
         }
       ]
@@ -3728,14 +3728,14 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
     setScreen("game");
 
     if(
-      roomData?.dmMode==="ai"||
-      roomData?.dmMode==="hybrid"
+      roomData&&dmMode==="ai"||
+      roomData&&dmMode==="hybrid"
     ){
 
       setTimeout(()=>{
 
         callAI(
-          `${playerName} creó su personaje: ${char.name}, ${RACES[char.race]?.n} ${CLASSES[char.class]?.n} nivel 1. HP:${char.maxHP} CA:${char.ac}. Dale una bienvenida épica (2 párrafos).`
+          `${playerName} creó su personaje: ${char.name}, ${RACES[char.race]&&n} ${CLASSES[char.class]&&n} nivel 1. HP:${char.maxHP} CA:${char.ac}. Dale una bienvenida épica (2 párrafos).`
         );
 
       },800);
@@ -3765,7 +3765,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       onJoinRoom={joinRoom}
       sessions={sessions}
       lastRoom={lastRoom}
-      initialName={playerName||authUser?.displayName||""}
+      initialName={playerName||authUser&&displayName||""}
       authReady={controlReady}
       authUser={authUser}
       account={account}
