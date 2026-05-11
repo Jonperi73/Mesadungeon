@@ -2150,7 +2150,7 @@ const assignStat=(stat,idx)=>{
             <div key={i} style={{padding:"5px 11px",fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,
               background:used.includes(i)?"rgba(0,0,0,.3)":"rgba(201,168,76,.15)",
               border:`1px solid ${used.includes(i)?"var(--border)":"var(--gold)"}`,
-              color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)&&5:1}}>{v}</div>
+              color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)?0.5:1}}>{v}</div>
           ))
         }
         {!rolling&&<div style={{display:"flex",alignItems:"center",gap:8,marginTop:6}}>
@@ -2169,7 +2169,7 @@ const assignStat=(stat,idx)=>{
           <div key={i} style={{padding:"5px 11px",fontFamily:"Cinzel,serif",fontSize:15,fontWeight:700,
             background:used.includes(i)?"rgba(0,0,0,.3)":"rgba(201,168,76,.15)",
             border:`1px solid ${used.includes(i)?"var(--border)":"var(--gold)"}`,
-            color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)&&5:1}}>{v}</div>
+            color:used.includes(i)?"var(--muted)":"var(--gold)",borderRadius:2,opacity:used.includes(i)?0.5:1}}>{v}</div>
         ))}
       </div>}
 
