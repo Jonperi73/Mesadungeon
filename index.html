@@ -2262,7 +2262,7 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
 
   useEffect(()=>{
     if(authUser){
-      const fallback=account&&displayName||authUser.displayName||"";
+      const fallback=(account&&account.displayName)||authUser.displayName||"";
       setRequestName(fallback);
       setDisplayName(fallback);
     }
@@ -2335,7 +2335,7 @@ const AuthCard = ({ authReady, authUser, account, ownerExists, onLogin, onRegist
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,marginBottom:10}}>
         <div>
           <div style={{fontFamily:"Cinzel,serif",fontSize:14,color:"var(--gold)"}}>Portal de Mando</div>
-          <div style={{fontSize:13,color:"var(--text)"}}>{account&&displayName||authUser.displayName||"Cuenta autenticada"}</div>
+          <div style={{fontSize:13,color:"var(--text)"}}>{(account&&account.displayName)||authUser.displayName||"Cuenta autenticada"}</div>
           <div className="auth-meta">{authUser.email}</div>
         </div>
         <span className={`badge ${badge.cls}`}>{badge.label}</span>
@@ -2382,7 +2382,7 @@ const OwnerPanel = ({ ownerAccount, pendingDMs = [], approvedDMs = [], sessions,
           <div style={{fontFamily:"Cinzel,serif",fontSize:15,color:"var(--gold)"}}>Panel Owner</div>
           <div className="auth-meta">Aprobás quién puede masterear y controlás la capa alta de la app.</div>
         </div>
-        <span className="badge badge-l">{ownerAccount&&displayName||"Owner"}</span>
+        <span className="badge badge-l">{(ownerAccount&&ownerAccount.displayName)||"Owner"}</span>
       </div>
 
       <div className="split-2" style={{marginBottom:14}}>
@@ -3459,7 +3459,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
     const title=roomName&&trim()||`Sala de ${safeName}`;
 
     const dmDisplayName=
-      account&&displayName||
+      (account&&account.displayName)||
       authUser.displayName||
       safeName;
 
@@ -3765,7 +3765,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       onJoinRoom={joinRoom}
       sessions={sessions}
       lastRoom={lastRoom}
-      initialName={playerName||authUser&&displayName||""}
+      initialName={playerName||(authUser&&authUser.displayName)||""}
       authReady={controlReady}
       authUser={authUser}
       account={account}
