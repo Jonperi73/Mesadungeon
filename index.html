@@ -3708,7 +3708,7 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
       players:{
         ...(d.players||{}),
         [playerId]:{
-          ...(d.players&&[playerId]||{}),
+          ...((d.players && d.players[playerId]) || {}),
           character:safeChar
         }
       },
