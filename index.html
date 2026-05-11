@@ -6,6 +6,7 @@
 </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:," />
   <title>MESA DUNGEON</title>
 </head>
 <body style="margin:0;background:#080604">
@@ -3429,6 +3430,9 @@ const handlePlayerRegister = async ({ displayName, email, password }) => {
 
       notify("Solo el Owner o un DM aprobado pueden crear partidas.");
 
+      return;
+    }
+
     if(!authUser.emailVerified){
 
       notify("Verificá tu email antes de crear una sala.");
@@ -3833,3 +3837,6 @@ window.addEventListener("firebase-ready", () => {
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(<App />);
 });
+  </script>
+</body>
+</html>
