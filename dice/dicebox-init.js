@@ -14,7 +14,9 @@ const diceBox = new DiceBox({
 });
 
 async function initDiceBox(){
+
   try{
+
     await diceBox.init();
 
     console.log("DiceBox listo");
@@ -23,39 +25,45 @@ async function initDiceBox(){
 
     window.roll3D = async(formula)=>{
 
-  const result = await diceBox.roll(formula,{
-    target:"#dice-box"
-  });
+      const result = await diceBox.show(formula,{
+        target:"#dice-box"
+      });
 
-  const values = [];
+      console.log("RESULTADO DICEBOX:",result);
 
-  if(result && result.rolls){
+      let rolls = [];
+      let total = 0;
 
-    result.rolls.forEach(r=>{
+      if(Array.isArray(result)){
 
-      if(typeof r.value !== "undefined"){
-        values.push(r.value);
+        rolls = result.map(r=>r.value || 0);
+
+        total = rolls.reduce((a,b)=>a+b,0);
+
+      }else if(result){
+
+        if(result.rolls){
+          rolls = result.rolls.map(r=>r.value || 0);
+        }
+
+        total =
+          result.total ||
+          rolls.reduce((a,b)=>a+b,0);
       }
-
-    });
-  }
-
-      const total =
-        typeof result.total !== "undefined"
-          ? result.total
-          : values.reduce((a,b)=>a+b,0);
 
       return {
         raw: result,
         total,
-        rolls: values
+        rolls
       };
     };
 
     window.dispatchEvent(new Event("dicebox-ready"));
 
   }catch(err){
+
     console.error("Error iniciando DiceBox:", err);
+
   }
 }
 
