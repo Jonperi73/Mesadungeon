@@ -1,6 +1,6 @@
 import DiceBox from "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js";
 
-const diceBox = new DiceBox("#dice-box",{
+const diceBox = new DiceBox({
   assetPath: "/Mesadungeon/dice-box/",
   origin: window.location.origin,
   gravity: 1,
@@ -22,17 +22,23 @@ async function initDiceBox(){
     window._diceBox = diceBox;
 
     window.roll3D = async(formula)=>{
-      const result = await diceBox.roll(formula);
 
-      const values = [];
+  const result = await diceBox.roll(formula,{
+    target:"#dice-box"
+  });
 
-      if(result && result.rolls){
-        result.rolls.forEach(r=>{
-          if(typeof r.value !== "undefined"){
-            values.push(r.value);
-          }
-        });
+  const values = [];
+
+  if(result && result.rolls){
+
+    result.rolls.forEach(r=>{
+
+      if(typeof r.value !== "undefined"){
+        values.push(r.value);
       }
+
+    });
+  }
 
       const total =
         typeof result.total !== "undefined"
