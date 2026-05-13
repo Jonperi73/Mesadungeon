@@ -1,8 +1,8 @@
 import DiceBox from "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js";
 
 const diceBox = new DiceBox({
-  assetPath: "./dice-box/",
-  origin: window.location.origin + "/Mesadungeon",
+  assetPath: "/Mesadungeon/dice-box/",
+  origin: window.location.origin,
   gravity: 1,
   mass: 1,
   friction: 0.8,
