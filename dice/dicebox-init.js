@@ -1,6 +1,7 @@
 import DiceBox from "https://unpkg.com/@3d-dice/dice-box@1.1.3/dist/dice-box.es.min.js";
 
 const diceBox = new DiceBox({
+  container: "#dice-box",
   assetPath: "/Mesadungeon/dice-box/",
   origin: window.location.origin,
   gravity: 1,
@@ -25,8 +26,8 @@ async function initDiceBox(){
 
     window.roll3D = async(formula)=>{
 
-      const result = await diceBox.show(formula,{
-        target:"#dice-box"
+      const result = await diceBox.roll(formula);
+        
       });
 
       console.log("RESULTADO DICEBOX:",result);
