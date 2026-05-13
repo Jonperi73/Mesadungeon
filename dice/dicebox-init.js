@@ -24,41 +24,24 @@ async function initDiceBox(){
     console.log("DiceBox listo");
 
     window._diceBox = diceBox;
-
+    
     window.roll3D = async(formula)=>{
 
-      const result = await diceBox.roll(formula,{
-        target: document.getElementById("dice-box")
-      });
+  try{
 
-      console.log("RESULTADO DICEBOX:",result);
+    await diceBox.roll(formula,{
+      target: document.getElementById("dice-box")
+    });
 
-      let rolls = [];
-      let total = 0;
+  }catch(e){
 
-      if(Array.isArray(result)){
+    console.warn("Animación DiceBox falló:",e);
 
-        rolls = result.map(r=>r.value || 0);
+  }
 
-        total = rolls.reduce((a,b)=>a+b,0);
-
-      }else if(result){
-
-        if(result.rolls){
-          rolls = result.rolls.map(r=>r.value || 0);
-        }
-
-        total =
-          result.total ||
-          rolls.reduce((a,b)=>a+b,0);
-      }
-
-      return {
-        raw: result,
-        total,
-        rolls
-      };
-    };
+  return true;
+};
+    
 
     window.dispatchEvent(new Event("dicebox-ready"));
 
