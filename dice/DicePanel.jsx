@@ -1,7 +1,11 @@
 // Dice system
 // Loaded by index.html. Keep script order unless moving to a build step.
+const { useRef, useEffect } = React;
 
 const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) => {
+
+  const diceRef = useRef(null);
+
   const [sel,setSel]=useState(20);
   const [cnt,setCnt]=useState(1);
   const [rolling,setRolling]=useState(false);
@@ -10,7 +14,21 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
   const [advMode,setAdvMode]=useState("normal");
   const [key,setKey]=useState(0);
 
+  useEffect(()=>{
+
+    if(window._diceBox && diceRef.current){
+
+      try{
+        window._diceBox.bind(diceRef.current);
+      }catch(e){
+        console.warn("No se pudo bindear DiceBox",e);
+      }
+    }
+
+  },[]);
+
   const roll=async(sides=sel,count=cnt,label="",adv=advMode)=>{
+
     if(!canRoll||rolling)return;
 
     setRolling(true);
@@ -63,7 +81,7 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
             ? `Ventaja: [${r1},${r2}] →`
             : `Desventaja: [${r1},${r2}] →`;
 
-        }else{
+        } else {
 
           rolls=Array.from(
             {length:count},
@@ -161,6 +179,19 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:10}}>
+
+      <div
+        ref={diceRef}
+        style={{
+          width:"100%",
+          height:220,
+          border:"1px solid #3A2A12",
+          borderRadius:8,
+          overflow:"hidden",
+          background:"#120B07",
+          marginBottom:6
+        }}
+      />
 
       {!isDM&&!canRoll&&
         <div className="card" style={{
