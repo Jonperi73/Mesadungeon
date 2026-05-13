@@ -1,4 +1,4 @@
-import DiceBox from "https://cdn.jsdelivr.net/npm/@3d-dice/dice-box@1.1.14/dist/dice-box.es.min.js";
+import DiceBox from "https://cdn.jsdelivr.net/npm/@3d-dice/dice-box@1.1.14/dist/dice-box.js";
 
 const diceBox = new DiceBox({
   assetPath: "./dice-box/",
