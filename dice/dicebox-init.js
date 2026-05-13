@@ -27,8 +27,6 @@ async function initDiceBox(){
     window.roll3D = async(formula)=>{
 
       const result = await diceBox.roll(formula);
-        
-      });
 
       console.log("RESULTADO DICEBOX:",result);
 
