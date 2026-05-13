@@ -23,61 +23,36 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
 
       let rolls,total,special=null;
 
-      if(window.roll3D){
+     if(window.roll3D){
 
-        if(adv==="adv"||adv==="dis"){
+  window.roll3D(`${count}d${sides}`);
 
-          const formula = adv==="adv"
-            ? "2d20kh1"
-            : "2d20kl1";
+}
 
-          const r = await window.roll3D(formula);
+if(adv==="adv"||adv==="dis"){
 
-          rolls = r.rolls || [];
-          total = r.total || 0;
+  const r1=Math.floor(Math.random()*20)+1;
+  const r2=Math.floor(Math.random()*20)+1;
 
-          special = adv==="adv"
-            ? `Ventaja: [${rolls.join(",")}] →`
-            : `Desventaja: [${rolls.join(",")}] →`;
+  rolls=[r1,r2];
 
-        }else{
+  total=adv==="adv"
+    ? Math.max(r1,r2)
+    : Math.min(r1,r2);
 
-          const formula = `${count}d${sides}`;
+  special=adv==="adv"
+    ? `Ventaja: [${r1},${r2}] →`
+    : `Desventaja: [${r1},${r2}] →`;
 
-          const r = await window.roll3D(formula);
+} else {
 
-          rolls = r.rolls || [];
-          total = r.total || 0;
-        }
+  rolls=Array.from(
+    {length:count},
+    ()=>Math.floor(Math.random()*sides)+1
+  );
 
-      }else{
-
-        if(adv==="adv"||adv==="dis"){
-
-          const r1=Math.floor(Math.random()*20)+1;
-          const r2=Math.floor(Math.random()*20)+1;
-
-          rolls=[r1,r2];
-
-          total=adv==="adv"
-            ? Math.max(r1,r2)
-            : Math.min(r1,r2);
-
-          special=adv==="adv"
-            ? `Ventaja: [${r1},${r2}] →`
-            : `Desventaja: [${r1},${r2}] →`;
-
-        } else {
-
-          rolls=Array.from(
-            {length:count},
-            ()=>Math.floor(Math.random()*sides)+1
-          );
-
-          total=rolls.reduce((a,b)=>a+b,0);
-        }
-      }
-
+  total=rolls.reduce((a,b)=>a+b,0);
+}
       const r={
         sides,
         count,
