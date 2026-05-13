@@ -12,18 +12,6 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
   const [advMode,setAdvMode]=useState("normal");
   const [key,setKey]=useState(0);
 
-  useEffect(()=>{
-
-    if(window._diceBox && diceRef.current){
-
-      try{
-        window._diceBox.bind(diceRef.current);
-      }catch(e){
-        console.warn("No se pudo bindear DiceBox",e);
-      }
-    }
-
-  },[]);
 
   const roll=async(sides=sel,count=cnt,label="",adv=advMode)=>{
 
