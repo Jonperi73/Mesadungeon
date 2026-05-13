@@ -167,7 +167,7 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
     <div style={{display:"flex",flexDirection:"column",gap:10}}>
 
       <div
-        ref={diceRef}
+        id="dice-box"
         style={{
           width:"100%",
           height:220,
