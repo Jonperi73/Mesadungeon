@@ -11,6 +11,8 @@ const diceBox = new DiceBox({
   linearDamping: 0.4,
   settleTimeout: 5000,
   theme: "default",
+  scale: 6,
+  offscreen: false,
 });
 
 async function initDiceBox(){
