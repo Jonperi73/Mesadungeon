@@ -1,7 +1,5 @@
 // Dice system
 // Loaded by index.html. Keep script order unless moving to a build step.
-const { useRef, useEffect } = React;
-
 const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) => {
 
   const diceRef = useRef(null);
