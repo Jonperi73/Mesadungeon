@@ -170,12 +170,13 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
         id="dice-box"
         style={{
           width:"100%",
-          height:220,
-          border:"1px solid #3A2A12",
-          borderRadius:8,
+          height:"260px",
+          position:"relative",
           overflow:"hidden",
-          background:"#120B07",
-          marginBottom:6
+          background:"#1a120d",
+          border:"1px solid #3A2A12",
+          borderRadius:"8px",
+          marginBottom:"10px"
         }}
       />
 
