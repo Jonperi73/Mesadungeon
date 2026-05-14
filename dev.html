@@ -103,7 +103,8 @@ const point = new BABYLON.PointLight(
   scene
 );
 
-point.intensity = 15;
+point.intensity = 35;
+point.diffuse = new BABYLON.Color3(1,0.75,0.45);
 
 const ground = BABYLON.MeshBuilder.CreateGround(
   "ground",
@@ -122,8 +123,11 @@ const groundMat = new BABYLON.StandardMaterial(
 );
 
 groundMat.diffuseColor =
-  new BABYLON.Color3(0.18,0.12,0.08);
-
+  new BABYLON.Color3(0.10,0.06,0.03);
+  
+groundMat.specularColor =
+  new BABYLON.Color3(0,0,0);
+  
 ground.material = groundMat;
 
 function createDie(type="d20"){
