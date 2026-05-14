@@ -212,6 +212,18 @@ function createDie(type="d20"){
   die.material = mat;
   shadowGenerator.addShadowCaster(die);
 
+  die.physicsImpostor =
+  new BABYLON.PhysicsImpostor(
+    die,
+    BABYLON.PhysicsImpostor.BoxImpostor,
+    {
+      mass:1,
+      restitution:0.6,
+      friction:0.5
+    },
+    scene
+  );
+
   let velocity = 0.12 + Math.random()*0.08;
 
   const obs = scene.onBeforeRenderObservable.add(()=>{
