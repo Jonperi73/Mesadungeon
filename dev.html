@@ -150,6 +150,18 @@ ground.material = groundMat;
     scene
   );
 
+ground.physicsImpostor =
+  new BABYLON.PhysicsImpostor(
+    ground,
+    BABYLON.PhysicsImpostor.BoxImpostor,
+    {
+      mass:0,
+      restitution:0.4,
+      friction:0.8
+    },
+    scene
+  );
+
 function createDie(type="d20"){
 
   let die;
