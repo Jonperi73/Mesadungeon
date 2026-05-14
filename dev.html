@@ -1,1 +1,192 @@
+<!DOCTYPE html>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <title>Mesa Dungeon Dev Sandbox</title>
+
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+
+  <style>
+
+    body{
+      margin:0;
+      overflow:hidden;
+      background:#120B07;
+      font-family:Arial;
+    }
+
+    #ui{
+      position:absolute;
+      top:15px;
+      left:15px;
+      z-index:10;
+      display:flex;
+      gap:10px;
+    }
+
+    button{
+      background:#3A2A12;
+      color:#F0E6D3;
+      border:none;
+      padding:10px 14px;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:14px;
+    }
+
+    button:hover{
+      background:#5A3F1D;
+    }
+
+    canvas{
+      width:100vw;
+      height:100vh;
+      display:block;
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="ui">
+  <button onclick="spawnD20()">🎲 Tirar D20</button>
+  <button onclick="spawnD6()">🎲 Tirar D6</button>
+</div>
+
+<canvas id="renderCanvas"></canvas>
+
+<script>
+
+const canvas = document.getElementById("renderCanvas");
+
+const engine = new BABYLON.Engine(canvas,true);
+
+const scene = new BABYLON.Scene(engine);
+
+scene.clearColor = new BABYLON.Color4(0.05,0.03,0.02,1);
+
+const camera = new BABYLON.ArcRotateCamera(
+  "camera",
+  Math.PI/2,
+  1.1,
+  12,
+  new BABYLON.Vector3(0,0,0),
+  scene
+);
+  
+camera.attachControl(canvas,true);
+
+const hemi = new BABYLON.HemisphericLight(
+  "hemi",
+  new BABYLON.Vector3(0,1,0),
+  scene
+);
+
+hemi.intensity = 1;
+
+const point = new BABYLON.PointLight(
+  "point",
+  new BABYLON.Vector3(0,8,0),
+  scene
+);
+
+point.intensity = 15;
+
+const ground = BABYLON.MeshBuilder.CreateGround(
+  "ground",
+  {
+    width:20,
+    height:20
+  },
+  scene
+);
+
+ground.position.y = -2;
+
+  let die;
+
+  if(type === "d6"){
+
+    die = BABYLON.MeshBuilder.CreateBox(
+      "d6",
+      {
+        size:1.5
+      },
+      scene
+    );
+
+  }else{
+
+    die = BABYLON.MeshBuilder.CreatePolyhedron(
+      "d20",
+      {
+        type:3,
+        size:1.6
+      },
+      scene
+    );
+  }
+
+  die.position.x = (Math.random()-0.5)*4;
+  die.position.y = 5;
+  die.position.z = (Math.random()-0.5)*4;
+
+  const mat = new BABYLON.StandardMaterial("mat",scene);
+
+  mat.diffuseColor = new BABYLON.Color3(0.82,0.67,0.25);
+  mat.emissiveColor = new BABYLON.Color3(0.15,0.1,0.03);
+  mat.specularColor = new BABYLON.Color3(1,1,1);
+
+  die.material = mat;
+
+  let velocity = 0.12 + Math.random()*0.08;
+
+  const obs = scene.onBeforeRenderObservable.add(()=>{
+
+    die.rotation.x += 0.05;
+    die.rotation.y += 0.08;
+    die.rotation.z += 0.03;
+
+    die.position.y -= velocity;
+
+    if(die.position.y <= -1.2){
+
+      die.position.y = -1.2;
+
+      velocity *= -0.45;
+
+      if(Math.abs(velocity) < 0.01){
+
+        velocity = 0;
+
+        scene.onBeforeRenderObservable.remove(obs);
+      }
+    }
+
+    velocity += 0.003;
+
+  });
+
+  return die;
+}
+
+function spawnD20(){
+  createDie("d20");
+}
+
+function spawnD6(){
+  createDie("d6");
+}
+
+engine.runRenderLoop(()=>{
+  scene.render();
+});
+
+window.addEventListener("resize",()=>{
+  engine.resize();
+});
+
+</script>
+
+</body>
+</html>  
