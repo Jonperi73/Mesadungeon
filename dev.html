@@ -199,12 +199,20 @@ function createDie(type="d20"){
 
   const obs = scene.onBeforeRenderObservable.add(()=>{
 
-    die.rotation.x += 0.05;
-    die.rotation.y += 0.08;
-    die.rotation.z += 0.03;
+    die.rotation.x +=
+      0.03 + Math.random()*0.05;
+
+    die.rotation.y +=
+      0.04 + Math.random()*0.07;
+
+    die.rotation.z +=
+      0.02 + Math.random()*0.04;
 
     die.position.y -= velocity;
-    die.position.x += 0.12;
+    die.position.x +=
+      0.08 + Math.random()*0.08;
+    die.position.z +=
+      (Math.random()-0.5)*0.04;
 
     if(die.position.y <= -1.2){
 
