@@ -260,7 +260,11 @@ function createDie(type="d20"){
     scene
   );
 
-  die.physicsImpostor.applyImpulse(
+die.physicsImpostor.physicsBody.linearDamping = 0.45;
+
+die.physicsImpostor.physicsBody.angularDamping = 0.55;
+
+die.physicsImpostor.applyImpulse(
 
   new BABYLON.Vector3(
     6 + Math.random()*4,
