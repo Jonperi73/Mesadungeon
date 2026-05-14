@@ -23,10 +23,60 @@ const DicePanel = ({ char, updateRoom, playerId, canRoll, isDM, diceEnabled }) =
 
       let rolls,total,special=null;
 
-     if(window.roll3D){
+     const canvas = document.querySelector("#dice-box canvas");
 
-  window.roll3D(`${count}d${sides}`);
+if(!canvas){
 
+  const renderCanvas = document.createElement("canvas");
+
+  renderCanvas.style.width = "100%";
+  renderCanvas.style.height = "100%";
+
+  document
+    .getElementById("dice-box")
+    .appendChild(renderCanvas);
+
+  const engine = new BABYLON.Engine(renderCanvas,true);
+
+  const scene = new BABYLON.Scene(engine);
+
+  scene.clearColor = new BABYLON.Color4(0,0,0,0);
+
+  const camera = new BABYLON.ArcRotateCamera(
+    "cam",
+    Math.PI/2,
+    1.2,
+    8,
+    BABYLON.Vector3.Zero(),
+    scene
+  );
+
+  const light = new BABYLON.HemisphericLight(
+    "light",
+    new BABYLON.Vector3(0,1,0),
+    scene
+  );
+
+  const die = BABYLON.MeshBuilder.CreateBox(
+    "die",
+    {size:1.5},
+    scene
+  );
+
+  die.position.y = 2;
+
+  scene.registerBeforeRender(()=>{
+
+    die.rotation.x += 0.03;
+    die.rotation.y += 0.05;
+
+  });
+
+  engine.runRenderLoop(()=>{
+
+    scene.render();
+
+  });
 }
 
 if(adv==="adv"||adv==="dis"){
