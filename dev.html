@@ -171,9 +171,9 @@ function createDie(type="d20"){
     );
   }
 
-  die.position.x = (Math.random()-0.5)*4;
-  die.position.y = 5;
-  die.position.z = (Math.random()-0.5)*4;
+  die.position.x = -5;
+  die.position.y = 2;
+  die.position.z = (Math.random()-0.5)*3;
 
   const mat = new BABYLON.StandardMaterial(
     "mat",
@@ -204,6 +204,7 @@ function createDie(type="d20"){
     die.rotation.z += 0.03;
 
     die.position.y -= velocity;
+    die.position.x += 0.12;
 
     if(die.position.y <= -1.2){
 
