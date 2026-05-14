@@ -162,6 +162,42 @@ ground.physicsImpostor =
     scene
   );
 
+function createWall(x,z,w,h){
+
+  const wall =
+    BABYLON.MeshBuilder.CreateBox(
+      "wall",
+      {
+        width:w,
+        height:2,
+        depth:h
+      },
+      scene
+    );
+
+  wall.position.x = x;
+  wall.position.y = -1;
+  wall.position.z = z;
+
+  wall.isVisible = false;
+
+  wall.physicsImpostor =
+    new BABYLON.PhysicsImpostor(
+      wall,
+      BABYLON.PhysicsImpostor.BoxImpostor,
+      {
+        mass:0,
+        restitution:0.8
+      },
+      scene
+    );
+}
+
+createWall(-6,0,1,20);
+createWall(6,0,1,20);
+createWall(0,-6,20,1);
+createWall(0,6,20,1);
+
 function createDie(type="d20"){
 
   let die;
