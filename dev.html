@@ -76,6 +76,10 @@ const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas,true);
 
 const scene = new BABYLON.Scene(engine);
+  scene.enablePhysics(
+  new BABYLON.Vector3(0,-9.81,0),
+  new BABYLON.CannonJSPlugin()
+);
 
 scene.clearColor = new BABYLON.Color4(0,0,0,1);
 
