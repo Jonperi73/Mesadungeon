@@ -170,8 +170,11 @@ function createDie(type="d20"){
     scene
   );
 
-  mat.diffuseColor =
-    new BABYLON.Color3(0.82,0.67,0.25);
+  mat.diffuseTexture =
+  new BABYLON.Texture(
+    "assets/metal.jpg",
+    scene
+  );
 
   mat.emissiveColor =
     new BABYLON.Color3(0.15,0.1,0.03);
