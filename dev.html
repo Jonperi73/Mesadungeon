@@ -260,6 +260,28 @@ function createDie(type="d20"){
     scene
   );
 
+  die.physicsImpostor.applyImpulse(
+
+  new BABYLON.Vector3(
+    6 + Math.random()*4,
+    0,
+    (Math.random()-0.5)*4
+  ),
+
+  die.getAbsolutePosition()
+
+);
+
+die.physicsImpostor.setAngularVelocity(
+
+  new BABYLON.Vector3(
+    Math.random()*8,
+    Math.random()*8,
+    Math.random()*8
+  )
+
+);
+
   let velocity = 0.12 + Math.random()*0.08;
 
   const obs = scene.onBeforeRenderObservable.add(()=>{
