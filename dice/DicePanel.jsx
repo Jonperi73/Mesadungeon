@@ -57,11 +57,14 @@ if(!canvas){
     scene
   );
 
-  const die = BABYLON.MeshBuilder.CreateBox(
-    "die",
-    {size:1.5},
-    scene
-  );
+  const die = BABYLON.MeshBuilder.CreatePolyhedron(
+  "die",
+  {
+    type:3,
+    size:1.5
+  },
+  scene
+);
 
   die.position.y = 2;
 
