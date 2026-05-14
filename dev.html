@@ -103,6 +103,8 @@ const ground = BABYLON.MeshBuilder.CreateGround(
 
 ground.position.y = -2;
 
+  function createDie(type="d20"){
+
   let die;
 
   if(type === "d6"){
@@ -169,24 +171,3 @@ ground.position.y = -2;
 
   return die;
 }
-
-function spawnD20(){
-  createDie("d20");
-}
-
-function spawnD6(){
-  createDie("d6");
-}
-
-engine.runRenderLoop(()=>{
-  scene.render();
-});
-
-window.addEventListener("resize",()=>{
-  engine.resize();
-});
-
-</script>
-
-</body>
-</html>  
