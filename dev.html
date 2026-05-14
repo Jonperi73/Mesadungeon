@@ -187,7 +187,7 @@ function createWall(x,z,w,h){
       BABYLON.PhysicsImpostor.BoxImpostor,
       {
         mass:0,
-        restitution:0.8
+        restitution:0.2
       },
       scene
     );
@@ -218,7 +218,7 @@ function createDie(type="d20"){
       "d20",
       {
         type:3,
-        size:0.9
+        size:0.7
       },
       scene
     );
@@ -254,7 +254,7 @@ function createDie(type="d20"){
     BABYLON.PhysicsImpostor.BoxImpostor,
     {
       mass:1,
-      restitution:0.6,
+      restitution:0.25
       friction:0.5
     },
     scene
