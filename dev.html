@@ -131,7 +131,7 @@ const ground = BABYLON.MeshBuilder.CreateGround(
 
 ground.position.y = -2;
 
-const groundMat = new BABYLON.PBRMaterial(
+const groundMat = new BABYLON.StandardMaterial(
   "groundMat",
   scene
 );
@@ -242,10 +242,6 @@ function createDie(type="d20"){
   mat.emissiveColor =
     new BABYLON.Color3(0.15,0.1,0.03);
  
-  mat.metallic = 1;
-
-  mat.roughness = 0.45;
-
   die.material = mat;
   shadowGenerator.addShadowCaster(die);
 
