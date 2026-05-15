@@ -287,14 +287,7 @@ die.physicsImpostor.setAngularVelocity(
 
   const obs = scene.onBeforeRenderObservable.add(()=>{
 
-    die.rotation.x +=
-      0.03 + Math.random()*0.05;
-
-    die.rotation.y +=
-      0.04 + Math.random()*0.07;
-
-    die.rotation.z +=
-      0.02 + Math.random()*0.04;
+    
 
     die.position.y -= velocity;
     die.position.x +=
