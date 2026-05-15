@@ -319,6 +319,20 @@ die.physicsImpostor.setAngularVelocity(
 
     velocity += 0.003;
 
+    const vel =
+  die.physicsImpostor.physicsBody.velocity;
+
+if(
+  vel &&
+  Math.abs(vel.x) < 0.15 &&
+  Math.abs(vel.y) < 0.15 &&
+  Math.abs(vel.z) < 0.15
+){
+
+  die.physicsImpostor.sleep();
+
+}
+
   });
 
   return die;
