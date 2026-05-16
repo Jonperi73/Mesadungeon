@@ -272,10 +272,15 @@ die.physicsImpostor.physicsBody.angularDamping = 0.55;
 die.physicsImpostor.applyImpulse(
 
   new BABYLON.Vector3(
-    2 + Math.random()*4,
-    0,
-    (Math.random()-0.5)*1.5
-  ),
+
+  fromLeft
+    ? 2 + Math.random()*2
+    : -2 - Math.random()*2,
+
+  0,
+
+  (Math.random()-0.5)*1.5
+),
 
   die.getAbsolutePosition()
 
