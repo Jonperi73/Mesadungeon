@@ -88,15 +88,13 @@ const camera =
     "camera",
     new BABYLON.Vector3(
       0,
-      0,
-      -18
+      18,
+      0
     ),
     scene
   );
 
-camera.setTarget(
-  BABYLON.Vector3.Zero()
-);
+camera.rotation.x = Math.PI / 2;
 
 const hemi = new BABYLON.HemisphericLight(
   "hemi",
