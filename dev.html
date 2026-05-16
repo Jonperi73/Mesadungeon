@@ -275,14 +275,15 @@ die.physicsImpostor.applyImpulse(
 
   new BABYLON.Vector3(
 
-  fromLeft
-    1.2 + Math.random()*0.8
-    : -1.2 - Math.random()*0.8,
+    fromLeft
+      ? 1.2 + Math.random()*0.8
+      : -1.2 - Math.random()*0.8,
 
-  0,
+    0,
 
-  (Math.random()-0.5)*0.08
-),
+    (Math.random()-0.5)*0.08
+
+  ),
 
   die.getAbsolutePosition()
 
