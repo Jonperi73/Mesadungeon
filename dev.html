@@ -83,16 +83,20 @@ const scene = new BABYLON.Scene(engine);
 
 scene.clearColor = new BABYLON.Color4(0,0,0,0);
 
-const camera = new BABYLON.ArcRotateCamera(
-  "camera",
-  Math.PI/2,
-  1.1,
-  16,
-  new BABYLON.Vector3(0,0,0),
-  scene
-);
+const camera =
+  new BABYLON.FreeCamera(
+    "camera",
+    new BABYLON.Vector3(
+      0,
+      0,
+      -18
+    ),
+    scene
+  );
 
-camera.attachControl(canvas,true);
+camera.setTarget(
+  BABYLON.Vector3.Zero()
+);
 
 const hemi = new BABYLON.HemisphericLight(
   "hemi",
