@@ -77,6 +77,25 @@ const CSS = `
     font-size:12px; color:var(--gold); max-width:280px; animation:fadeIn .3s; border-radius:2px; z-index:10000; }
   .overlay { position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:500;
     display:flex; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(4px); }
+  .dice-overlay-stage {
+    position:fixed;
+    inset:0;
+    z-index:450;
+    pointer-events:none;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .18s ease, visibility .18s ease;
+  }
+  .dice-overlay-stage.is-rolling {
+    opacity:1;
+    visibility:visible;
+  }
+  .dice-overlay-stage canvas {
+    width:100%!important;
+    height:100%!important;
+    display:block;
+    background:transparent!important;
+  }
   .modal { background:var(--bg1); border:1px solid var(--gold); border-radius:4px;
     padding:24px; max-width:520px; width:100%; max-height:92vh; overflow-y:auto; }
   .spell-slot { width:24px; height:24px; border:1px solid var(--border); border-radius:50%;

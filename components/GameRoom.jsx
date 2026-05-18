@@ -278,6 +278,7 @@ useEffect(()=>{
   return(
     <div className="game-wrap">
       <style>{CSS}</style>
+      <div id="dice-overlay-box" className="dice-overlay-stage" aria-hidden="true"/>
       {showTutorial && <Tutorial
   steps={isDM ? TUTORIAL_STEPS_GAME_DM : TUTORIAL_STEPS_GAME_PLAYER}
   onClose={()=>{
